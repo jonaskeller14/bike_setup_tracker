@@ -128,8 +128,22 @@ function Set-DemoStatusBar([string]$serial) {
     }
 }
 
+# The app doesn't bundle the sample: it reads this copy from its documents
+# directory (ScreenshotSeed.sampleFolder), staged here without the other files
+# of assets/data.
+$sampleStage = Join-Path ([System.IO.Path]::GetTempPath()) "screenshot_sample_$PID/screenshot_sample"
+New-Item -ItemType Directory -Force $sampleStage | Out-Null
+foreach ($item in '20260925_sample_simple.json', '20260925_sample_simple_strava.json', 'sample_l10n') {
+    Copy-Item -Recurse -Force (Join-Path $repoRoot "assets/data/$item") $sampleStage
+}
+
 function Initialize-Device([string]$serial) {
     Invoke-Adb $serial @('install', '-r', $apk) | Out-Null
+    # `run-as` can't read the host's files, so the copy goes through a shared folder.
+    Invoke-Adb $serial @('shell', 'rm', '-rf', '/data/local/tmp/screenshot_sample')
+    Invoke-Adb $serial @('push', $sampleStage, '/data/local/tmp/') | Out-Null
+    Invoke-Adb $serial @('shell', 'run-as', $appId, 'sh', '-c', "'mkdir -p app_flutter && rm -rf app_flutter/screenshot_sample && cp -R /data/local/tmp/screenshot_sample app_flutter/'")
+    Invoke-Adb $serial @('shell', 'rm', '-rf', '/data/local/tmp/screenshot_sample')
     foreach ($permission in 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION') {
         Invoke-Adb $serial @('shell', 'pm', 'grant', $appId, "android.permission.$permission")
     }

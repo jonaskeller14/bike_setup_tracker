@@ -432,6 +432,7 @@ guides:
     label_es: Guía de setup Manitou Mezzer G2 Pro y LT Pro (2025)
     label_pt: Guia de setup Manitou Mezzer G2 Pro e LT Pro (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742231652503
+    spring: pressure
     rules:
       # 140 mm is the Mezzer Pro only; 180 and 190 mm are the Mezzer LT Pro only.
       - target: pressure
@@ -608,6 +609,7 @@ guides:
     label_es: Guía de setup Manitou Mezzer G2 Expert (2025)
     label_pt: Guia de setup Manitou Mezzer G2 Expert (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/41067689282071
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -677,6 +679,7 @@ guides:
     label_es: Guía de setup Manitou Mezzer G2 LT Comp (2025)
     label_pt: Guia de setup Manitou Mezzer G2 LT Comp (2025)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/43742211211927
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -928,6 +931,7 @@ guides:
     label_es: Guía de setup Manitou Mattoc Pro (2023)
     label_pt: Guia de setup Manitou Mattoc Pro (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639548710935
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1015,6 +1019,7 @@ guides:
     label_es: Guía de setup Manitou Mattoc Expert (2023)
     label_pt: Guia de setup Manitou Mattoc Expert (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639542611479
+    spring: pressure
     rules:
       - &mattoc_expert_air_110
         target: pressure
@@ -1065,6 +1070,7 @@ guides:
     label_es: Guía de setup Manitou Mattoc Comp (2023)
     label_pt: Guia de setup Manitou Mattoc Comp (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/14639496469143
+    spring: pressure
     rules:
       - *mattoc_expert_air_110
       - *mattoc_expert_air_120
@@ -1095,6 +1101,7 @@ guides:
     label_es: Guía de setup Manitou R8 Pro (2024)
     label_pt: Guia de setup Manitou R8 Pro (2024)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/24504253740951
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1207,6 +1214,7 @@ guides:
     label_es: Guía de setup Manitou Mastodon Pro (2023)
     label_pt: Guia de setup Manitou Mastodon Pro (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493411154967
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1266,6 +1274,7 @@ guides:
     label_es: Guía de setup Manitou Mastodon Comp (2023)
     label_pt: Guia de setup Manitou Mastodon Comp (2023)
     source: https://hayesbicycle.zendesk.com/hc/article_attachments/17493359414167
+    spring: pressure
     rules:
       # The 240 lb / 80 mm cell is "-": the pressure would exceed the 150 psi limit.
       - target: pressure

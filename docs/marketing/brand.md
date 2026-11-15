@@ -190,17 +190,45 @@ For a single control that is the point (#77 decision H):
 Every new Short renders from `docs/marketing/motion/` (its `README.md`). The medium is still paper and
 ink: type is set, rules are drawn, and nothing glows.
 
-- **Words arrive one by one:** a 26 px rise and a fade over 0.14 s. In a hook they follow the voice; in a
-  caption they follow each other, 0.13 s apart. Once a line is complete it holds still until it leaves.
+- **Words arrive one by one:** a 26 px rise and a fade over 0.14 s. In a hook and in a caption that uses the spoken
+  words, they follow the voice; a caption the voice doesn't say word for word follows at 0.13 s per word. Once a line is complete it holds still until it leaves.
 - **Frame 0 is never empty:** the hook's first word is already on it.
 - **One move at a time:** a scene enters, holds, and leaves upward in 0.16 s. The phone slides up from
   below once. Then the camera pushes on the phone (about 1.3×, 0.45 s) to the rows or tile the voice names.
 - **Headline never covered:** when the phone pushes up, it passes behind a paper band under the caption.
 - **Drawn explainers show ideas, never UI:** values and setup names as type on rules, or a plain line. The
   numbers come from the sample. Orange is for the changed value, teal for one key phrase, as everywhere.
+- **Bike parts in a drawing:** the app's own part icons (`BikeIcons`) may stand in for a part, so a viewer sees
+  it as one of many on the bike: the part that matters in `ink`, the others in `muted`. Never a drawn bike.
 - **Marking something in the recording:** a square ink outline around it. Don't redraw it. A plain ink
   arrow may connect two marks.
 - No gradients, glows, particles, blur, rounded shapes or bouncing type. A changed value may overshoot once.
+
+## Formats
+
+From `07_v1.8.0` on, Shorts come in series. Each format repeats one recipe and one look, so a viewer
+recognizes the series in its first frame. `motion/format.html` draws them from the kit's `"format"`
+(`motion/README.md`). They are the one exception to white paper: the end card, posts, store assets
+and the website stay on the look above. Picked on 2026-11-13 from a gallery of three looks per format
+(H2, B1, F3).
+
+| Format | Recipe | Background | Type | Key phrase | Changed value | Series label |
+|---|---|---|---|---|---|---|
+| **How to** | Hook "How to …", then three numbered steps. A step bar above the phone lights each step as the voice reaches it; the last step is the payoff | Blueprint `#0E3A5B` with a faint 90 px grid | Captions Space Grotesk 700; steps and label JetBrains Mono 700, caps | `#7FD3F7` | `#FFB74D` | `How to · NN` |
+| **Before / After** | The old way as a handwritten note on a lined card, a red BEFORE stamp, no phone. At the reveal the page turns white, the note leaves and the phone slides up | Notebook `#FAF7EF`, then `paper` | Archivo; the note Caveat 700 in pen blue `#1F3A8A`; the stamp `#C8102E` | `headline` | `changed` | `Before / After` |
+| **For riders who…** | The rider type huge in its color above the hook "Why every … needs …"; the phone slides up when the hook ends | Near-black `#141414` | Archivo; the rider word Archivo Expanded 900, caps | The rider's color | `#FFB74D` | `For <riders>`, in the rider's color |
+
+- **Rider colors:** racers `#FF5A1F`, home mechanics `#4BA3FF`, downhill riders `#C6F432`. A new rider
+  type gets a new color that reads on `#141414` and isn't one of these.
+- **Fonts** are bundled in `tool/marketing/assets/fonts/` (SIL OFL), so renders don't depend on the network.
+- **The mark** is the white logo on Blueprint and near-black, the black one on the notebook.
+- **The note** is drawn type, never UI: the old way in the rider's words, with real numbers from the
+  sample. At most three lines.
+- **The hook has the frame to itself:** the phone (and the How to step bar) slides up when the hook ends, or at
+  the reveal on Before / After, so a hook may run to four lines (a cut right after it also holds attention).
+- **Watch time:** the hook is on frame 0; each format shows progress (the steps, the note being written,
+  the rider word leaving for the phone); the payoff is the last beat before the end card; 18–25 s.
+- Everything else from [Motion](#motion) applies: one move at a time, square corners, no glows.
 
 ## Screens
 

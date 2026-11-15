@@ -13,6 +13,9 @@ live in [`docs/marketing/`](../../docs/marketing/README.md); the look is in
 - For videos: `ffmpeg` and `ffprobe` on `PATH` (`brew install ffmpeg`, `winget install Gyan.FFmpeg`).
   No libass or drawtext needed: captions are rendered by Chrome.
 - For Shorts that set `motion`: Node.js 22+, then `npm ci --prefix tool/marketing` (see Motion).
+- To time captions to a new voice take: `brew install whisper-cpp` and the model, once per machine:
+  `curl -L --create-dirs -o ~/.cache/whisper/ggml-small.en.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin`.
+  A build only reads the tracked `.words.json`, so it needs neither.
 - For the `web` part: `img2webp` and `cwebp` from libwebp on `PATH` (`brew install webp`; Windows: [libwebp downloads](https://developers.google.com/speed/webp/download)).
 
 ## `build_kit.py`
@@ -110,7 +113,8 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
       "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
     },
-    "motion": "restore.html"  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+    "motion": "restore.html",  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+    "format": { "kind": "howto", "label": "How to · 01", "steps": [{"line": 1, "text": "Switch on"}] }  // with "motion": "format.html": the series look, fields in its header
   } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
@@ -192,6 +196,7 @@ and drops the slates. Check a new batch before using it:
 
 ```
 python tool/marketing/voice.py 03_features/batch-2    # every take and paragraph with its times
+python tool/marketing/voice.py 06_v1.7.0/batch-3 --words   # and when each word starts: writes batch-3.words.json
 ```
 
 A Short's `voice` lists its `lines`: `batch-2#10` is take 10, `batch-2#10.3` its third paragraph,
@@ -229,7 +234,9 @@ tool/marketing/node_modules/.bin/hyperframes preview --kill-all       # stop the
   `tool/marketing/node_modules/.bin/hyperframes telemetry disable` once per machine, and run it from a
   project folder, because it reads a `.env` in the current directory. Its agent skills aren't installed: they
   send usage pings and point to HeyGen's paid services.
-- **Licenses:** Hyperframes is Apache 2.0, Archivo (`assets/fonts/`) SIL OFL. GSAP uses its own
+- **Licenses:** Hyperframes is Apache 2.0. The fonts in `assets/fonts/` are SIL OFL: Archivo (`OFL.txt`), and for
+  the formats Space Grotesk (© 2020 The Space Grotesk Project Authors), JetBrains Mono (© 2020 The JetBrains Mono
+  Project Authors) and Caveat (© 2014 The Caveat Project Authors), downloaded from Google Fonts. GSAP uses its own
   [no-charge license](https://gsap.com/standard-license): commercial use is allowed, and it restricts tools that
   build animations without code.
 

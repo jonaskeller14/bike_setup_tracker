@@ -15,3 +15,9 @@ class GoogleDriveBackup extends Backup {
 
   GoogleDriveBackup({required super.createdAt, required this.fileId});
 }
+
+class CloudBackup extends Backup {
+  final String filename;
+
+  CloudBackup({required super.createdAt, required this.filename});
+}

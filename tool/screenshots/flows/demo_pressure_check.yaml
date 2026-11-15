@@ -1,0 +1,101 @@
+# scenario: pressure_check
+# Demo: Pressure Check before a ride. Settings, Features, Pressure Check switched
+# on; then a new setup at the hometrails on a 3 °C morning. The fork and shock
+# pressures were last set on a mild evening there, so the card opens with what
+# the pump would read now. The fork is pumped back and its row tapped to mark it
+# pumped, then the setup is saved. The simulator moves to the hometrails first,
+# so place and altitude match the setup the pressures were set in.
+appId: ${APP_ID}
+---
+- setLocation:
+    latitude: 48.7758
+    longitude: 9.1829
+- runFlow: _launch.yaml
+- startRecording: demo_pressure_check
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: appBar.options
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: appBar.options.settings
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: settings.features
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- scrollUntilVisible:
+    element:
+      id: features.pressureCheck
+    direction: DOWN
+    speed: 20
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: features.pressureCheck
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- tapOn:
+    id: pressureCheck.enabled
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- runFlow: _dismiss_sheet.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- runFlow: _back.yaml
+- runFlow: _back.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: pressureCheck.row.22866141-fe35-4cdc-99df-6e1ba91c1033
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 5000
+# The Lyrik's pressure: pumped back to the value it was set to.
+- tapOn:
+    id: pressureCheck.row.22866141-fe35-4cdc-99df-6e1ba91c1033
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn:
+    id: setupForm.name
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Cold morning
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

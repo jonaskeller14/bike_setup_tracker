@@ -120,7 +120,7 @@ typedef _Size = ({num? eyeToEyeMm, num strokeMm, String? mount, String? label});
 /// A product a guide is attached to, with the node id of each level on its path.
 typedef _Attachment = ({Map<String, String> levels, CatalogProduct product});
 
-/// A guide rule's target as the rider gets it. [unknownMax] marks a step
+/// A guide rule's target as the rider gets it. `unknownMax` marks a step
 /// adjuster authored with `max: ~`, whose built max is only a placeholder.
 typedef _Target = ({Adjustment adjustment, bool unknownMax, List<String> sourceOptions});
 
@@ -970,24 +970,54 @@ class _CatalogParser {
   SetupGuide _parseGuide(String id, Object? raw) {
     final where = 'guide "$id"';
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
-    _rejectUnknownKeys(raw, const {'label', 'source', 'rules'}, where, translatable: const {'label'});
+    _rejectUnknownKeys(raw, const {'label', 'source', 'spring', 'rules'}, where, translatable: const {'label'});
     final sourceLabel = raw['label'];
     final label = _localized(raw, 'label', where);
     if (label is! String || label.isEmpty) throw _error('${_capitalize(where)} needs a "label"');
     final source = raw['source'];
     if (source is! String || source.isEmpty) throw _error('${_capitalize(where)} needs a "source"');
+    final spring = raw['spring'];
+    if (spring != null && (spring is! String || !_levelPattern.hasMatch(spring))) {
+      throw _error('"spring" of $where is not a lower_snake_case adjuster id');
+    }
     final rawRules = raw['rules'];
     if (rawRules is! YamlList || rawRules.isEmpty) throw _error('"rules" of $where is not a non-empty list');
 
     final rules = [for (final (index, rule) in rawRules.indexed) _parseRule(rule, 'rule ${index + 1} of $where')];
     _checkSpecificity(rules, where);
+    if (spring is String) _checkSpring(spring, rules, where);
     return SetupGuide(
       id: id,
       label: label,
       sourceLabel: sourceLabel as String,
       source: source,
+      spring: spring as String?,
       rules: _dependencyOrder(rules, where),
     );
+  }
+
+  /// A target keyed on the spring itself has a published table; deriving it
+  /// from the spring as well would leave two answers.
+  void _checkSpring(String spring, List<GuideRule> rules, String where) {
+    bool keyedOn(GuideRule rule, String id) => switch (rule.input) {
+      AdjusterGuideInput(:final adjusterId) => adjusterId == id,
+      RiderGuideInput(:final key) => key.id == id,
+      _ => false,
+    };
+    for (final keyed in rules.where((rule) => keyedOn(rule, spring))) {
+      final derived = rules.any(
+        (rule) =>
+            rule.target == keyed.target &&
+            keyedOn(rule, GuideInputKey.riderWeight.id) &&
+            _canBothMatch(rule, keyed),
+      );
+      if (derived) {
+        throw _error(
+          '"${keyed.target}" of $where has a table keyed on "$spring" and one keyed on rider_weight, which '
+          '"spring: $spring" would derive from "$spring" too; drop the rider_weight rule',
+        );
+      }
+    }
   }
 
   /// Keys of [translatable] may also come with a `_<lang>` sibling.
@@ -1003,7 +1033,7 @@ class _CatalogParser {
     if (raw is! YamlMap) throw _error('${_capitalize(where)} is not a map');
     _rejectUnknownKeys(
       raw,
-      const {'target', 'unit', 'input', 'input_unit', 'when', 'value', 'rows', 'range', 'comfort_at', 'note'},
+      const {'target', 'unit', 'input', 'input_unit', 'when', 'value', 'rows', 'range', 'comfort_at', 'note', 'source'},
       where,
       translatable: const {'note'},
     );
@@ -1036,6 +1066,8 @@ class _CatalogParser {
 
     final note = _localized(raw, 'note', where);
     if (note != null && (note is! String || note.isEmpty)) throw _error('"note" of $where is not a text');
+    final source = raw['source'];
+    if (source != null && (source is! String || source.isEmpty)) throw _error('"source" of $where is not a text');
 
     return GuideRule(
       target: target,
@@ -1045,6 +1077,7 @@ class _CatalogParser {
       when: _parseWhen(raw['when'], where),
       output: output,
       note: note as String?,
+      source: source as String?,
     );
   }
 
@@ -1244,10 +1277,7 @@ class _CatalogParser {
       for (var j = i + 1; j < rules.length; j++) {
         final (a, b) = (rules[i], rules[j]);
         if (a.target != b.target || a.specificity != b.specificity) continue;
-        final canBothMatch = a.when.keys
-            .where(b.when.containsKey)
-            .every((key) => a.when[key]!.any(b.when[key]!.contains));
-        if (canBothMatch) {
+        if (_canBothMatch(a, b)) {
           throw _error(
             'Rules ${i + 1} and ${j + 1} of $where can both recommend "${a.target}" with equal specificity; '
             'tell them apart with "when"',
@@ -1256,6 +1286,10 @@ class _CatalogParser {
       }
     }
   }
+
+  /// No `when` key the two share rules the other out.
+  static bool _canBothMatch(GuideRule a, GuideRule b) =>
+      a.when.keys.where(b.when.containsKey).every((key) => a.when[key]!.any(b.when[key]!.contains));
 
   /// Stable: a rule moves back only behind the rules that target its input.
   List<GuideRule> _dependencyOrder(List<GuideRule> rules, String where) {
@@ -1308,6 +1342,29 @@ class _CatalogParser {
       if (products == null) throw _error('Guide "$id" is not referenced by any product');
       for (final rule in guide.rules) {
         _checkRule(rule, products, levelIds, axisIds, 'a "${rule.target}" rule of guide "$id"');
+      }
+      if (guide.spring case final spring?) _checkSpringAttachments(spring, guide, products, 'guide "$id"');
+    }
+  }
+
+  /// Some product needs the spring adjuster, and each product that has it a
+  /// weight table for it, which is what an entered spring value is read back
+  /// through. A product without it (a coil next to air) gets no derived clicks.
+  void _checkSpringAttachments(String spring, SetupGuide guide, List<_Attachment> attachments, String where) {
+    final sprung = attachments.where((attachment) => _adjuster(attachment.product, spring) != null).toList();
+    if (sprung.isEmpty) throw _error('"spring: $spring" of $where names an adjuster that no product of the guide has');
+    for (final attachment in sprung) {
+      final product = attachment.levels.values.join('/');
+      final table = guide.rules.any(
+        (rule) =>
+            rule.target == spring &&
+            rule.output is LookupOutput &&
+            rule.input is RiderGuideInput &&
+            rule.input!.numeric &&
+            _canApply(rule, attachment),
+      );
+      if (!table) {
+        throw _error('"spring: $spring" of $where needs a rider_weight-keyed "$spring" table for "$product"');
       }
     }
   }

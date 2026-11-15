@@ -76,8 +76,8 @@ class TestSessionService {
 
   /// What [setups] differ in. Component adjustments are compared by column of
   /// the bike details table, so a replaced component's adjustment and its
-  /// successor count once. [adjustmentIds] holds every adjustment of the
-  /// differing columns, [count] the differing columns and rider attributes.
+  /// successor count once. `adjustmentIds` holds every adjustment of the
+  /// differing columns, `count` the differing columns and rider attributes.
   static ({List<String> adjustmentIds, int count}) differencesBetween(
     Iterable<Setup> setups,
     BikeAdjustmentProjection projection,

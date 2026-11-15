@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/database/mappers.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
 import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/person.dart';
@@ -43,6 +44,23 @@ void main() {
       expect(reorderedBikes[0].id, "2");
       expect(reorderedBikes[1].id, "3");
       expect(reorderedBikes[2].id, "1");
+    });
+
+    test("Reordering bumps lastModified of the moved bikes only, so the order syncs", () async {
+      final old = DateTime.utc(2026, 1, 1);
+      for (final (index, id) in ['1', '2', '3'].indexed) {
+        await database.bikesDao.insertBike(
+          Bike(id: id, name: 'Bike $id', person: null, orderIndex: index, lastModified: old).toCompanion(),
+        );
+      }
+
+      await database.bikesDao.reorder(['1', '3', '2']);
+
+      final bikes = {for (final bike in await database.bikesDao.getAllBikesBypass()) bike.id: bike};
+      expect(bikes['1']!.lastModified, old);
+      expect(bikes['2']!.lastModified.isAfter(old), isTrue);
+      expect(bikes['3']!.lastModified.isAfter(old), isTrue);
+      expect([bikes['1']!.orderIndex, bikes['3']!.orderIndex, bikes['2']!.orderIndex], [0, 1, 2]);
     });
 
     test("Reorder Components", () async {

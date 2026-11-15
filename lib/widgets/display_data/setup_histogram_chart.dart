@@ -11,10 +11,12 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../models/setup.dart';
+import '../../services/component_slot.dart';
 import '../../theme.dart';
 import '../../utils/adjustment_activity_histogram_grouping.dart';
 import '../../utils/table_column.dart';
 import '../empty_state_placeholder.dart';
+import 'histogram_slot_stack.dart';
 
 class SetupHistogramChart extends StatefulWidget {
   final List<TableColumn> activeColumns;
@@ -26,9 +28,17 @@ class SetupHistogramChart extends StatefulWidget {
   final TableColumn? selectedHistogramColumn;
   final AdjustmentValue? Function(Setup setup, TableColumn column) valueFor;
   final Adjustment? Function(TableColumn column) adjustmentFor;
+
+  /// Where the column's component was mounted at the setup; bars are split by
+  /// it once there are two or more.
+  final ComponentSlot? Function(Setup setup, TableColumn column)? slotFor;
   final String Function(TableColumn column) columnLabel;
   final ValueChanged<TableColumn> onSelectedColumnChanged;
   final ValueChanged<TableColumn> onColumnRemoved;
+
+  /// The column's value right now. Dims every bar but the one holding it;
+  /// null (or a value without a bar) dims nothing.
+  final AdjustmentValue? Function(TableColumn column)? currentValueFor;
 
   const SetupHistogramChart({
     super.key,
@@ -41,9 +51,11 @@ class SetupHistogramChart extends StatefulWidget {
     required this.selectedHistogramColumn,
     required this.valueFor,
     required this.adjustmentFor,
+    this.slotFor,
     required this.columnLabel,
     required this.onSelectedColumnChanged,
     required this.onColumnRemoved,
+    this.currentValueFor,
   });
 
   @override
@@ -61,6 +73,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
           setupId: setup.id,
           value: widget.valueFor(setup, column),
           activityCount: widget.setupActivityCounts[setup.id] ?? 0,
+          slot: widget.slotFor?.call(setup, column),
         ),
       ),
     );
@@ -114,6 +127,7 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     final colors = chartColors(Theme.of(context).colorScheme.primary, chartColumns.length);
     final color = colors[chartColumns.indexOf(selectedColumn)];
     final histogram = _histogramFor(selectedColumn, widget.adjustmentFor(selectedColumn)!);
+    final highlighted = adjustmentHistogramBarIndexesFor(histogram, widget.currentValueFor?.call(selectedColumn));
 
     return Column(
       children: [
@@ -124,8 +138,22 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
             title: context.l10n.chartHistogramNoLinkedTitle,
             subtitle: context.l10n.chartHistogramNoLinkedSubtitle(widget.columnLabel(selectedColumn)),
           )
-        else
-          _buildChart(context, histogram, color),
+        else ...[
+          _buildChart(context, histogram, color, highlighted),
+          if (histogram.isStacked)
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
+              // Neutral, so it reads as a pattern key and not as one more column.
+              child: HistogramSlotLegend(
+                histogram: histogram,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                stroke: Theme.of(context).scaffoldBackgroundColor,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+        ],
         const SizedBox(height: 16),
         _buildLegend(context, chartColumns, selectedColumn, colors),
         const SizedBox(height: 16),
@@ -133,7 +161,12 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     );
   }
 
-  Widget _buildChart(BuildContext context, AdjustmentActivityHistogram histogram, Color color) {
+  Widget _buildChart(
+    BuildContext context,
+    AdjustmentActivityHistogram histogram,
+    Color color,
+    Set<int> highlighted,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final labelStyle = theme.textTheme.bodySmall;
@@ -146,8 +179,18 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
     return Semantics(
       container: true,
       label: context.l10n.chartActivityDistribution(
-        bars
-            .map((bar) => context.l10n.chartHistogramBarSemantics(histogram.barLabel(bar, context.l10n), bar.activityCount, 'false', 'false'))
+        bars.indexed
+            .map((entry) {
+              final (index, bar) = entry;
+              final semantics = context.l10n.chartHistogramBarSemantics(
+                histogram.barLabel(bar, context.l10n),
+                bar.activityCount,
+                '${highlighted.contains(index)}',
+                'false',
+              );
+              if (!histogram.isStacked) return semantics;
+              return '$semantics (${histogram.segmentLines(bar, context.l10n).join(', ')})';
+            })
             .join(', '),
       ),
       child: ExcludeSemantics(
@@ -164,13 +207,24 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                   alignment: BarChartAlignment.spaceAround,
                   barGroups: bars.mapIndexed((index, bar) {
                     final isTouched = _touchedBarIndex == index;
+                    final alpha = isTouched
+                        ? 1.0
+                        : highlighted.isEmpty
+                        ? 0.75
+                        : highlighted.contains(index)
+                        ? 1.0
+                        : 0.5;
+                    final barColor = color.withValues(alpha: alpha);
                     return BarChartGroupData(
                       x: index,
                       barRods: [
                         BarChartRodData(
                           toY: bar.activityCount.toDouble(),
                           width: (slotWidth * 0.7).clamp(4.0, 32.0),
-                          color: isTouched ? color : color.withValues(alpha: 0.75),
+                          color: histogram.isStacked ? Colors.transparent : barColor,
+                          rodStackItems: histogram.isStacked
+                              ? histogramStackItems(histogram, bar, color: barColor, stroke: theme.scaffoldBackgroundColor)
+                              : const [],
                           borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                         ),
                       ],
@@ -205,7 +259,9 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                               _abbreviate(histogram.barLabel(bars[index], context.l10n)),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: labelStyle,
+                              style: highlighted.contains(index)
+                                  ? labelStyle?.copyWith(fontWeight: FontWeight.bold)
+                                  : labelStyle,
                             ),
                           );
                         },
@@ -256,6 +312,16 @@ class _SetupHistogramChartState extends State<SetupHistogramChart> {
                               text: context.l10n.initialStatsActivities(bar.activityCount),
                               style: style.copyWith(color: color),
                             ),
+                            if (highlighted.contains(group.x))
+                              TextSpan(
+                                text: '\n${context.l10n.badgeCurrentSetup}',
+                                style: style.copyWith(fontWeight: FontWeight.normal),
+                              ),
+                            if (histogram.isStacked)
+                              TextSpan(
+                                text: '\n${histogram.segmentLines(bar, context.l10n).join('\n')}',
+                                style: style.copyWith(fontWeight: FontWeight.normal),
+                              ),
                           ],
                         );
                       },

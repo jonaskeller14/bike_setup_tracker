@@ -19,7 +19,8 @@ class AddTagChip extends StatefulWidget {
   /// The tooltip and the field's hint, for what the chip adds. Tags by default.
   final String? tooltip;
   final String? hint;
-  final IconData icon;
+  final IconData? icon;
+  final Color? color; // border and icon
 
   /// Returns an error message to show inline, or null once the tag was added.
   final String? Function(String value) onSubmit;
@@ -32,6 +33,7 @@ class AddTagChip extends StatefulWidget {
     this.tooltip,
     this.hint,
     this.icon = Icons.tag,
+    this.color,
     required this.onSubmit,
   });
 
@@ -116,7 +118,13 @@ class _AddTagChipState extends State<AddTagChip> {
     final double verticalPadding = widget.prominent ? 14 : 8;
 
     // Prefix slot + content padding + the suffix button's own tap target.
-    final double chrome = 32 + horizontalPadding * 2 + 40;
+    final double chrome = (widget.icon == null ? 0 : 32) + horizontalPadding * 2 + 40;
+    final InputBorder? coloredBorder = widget.color == null
+        ? null
+        : OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            borderSide: BorderSide(color: widget.color!, width: 2),
+          );
     final String hint = widget.hint ?? context.l10n.addTagHint;
     final double minWidth = _widthFor(hint, style, chrome);
 
@@ -148,15 +156,17 @@ class _AddTagChipState extends State<AddTagChip> {
             isDense: true,
             hintText: hint,
             errorText: _error,
-            prefixIcon: Icon(widget.icon, size: iconSize),
+            prefixIcon: widget.icon == null ? null : Icon(widget.icon, size: iconSize),
             prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 0),
             contentPadding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
             border: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)),
             ),
+            focusedBorder: coloredBorder,
             suffixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
             suffixIcon: IconButton(
               icon: Icon(Icons.check, size: iconSize),
+              color: widget.color,
               tooltip: context.l10n.addTagConfirm,
               visualDensity: VisualDensity.compact,
               onPressed: _submit,

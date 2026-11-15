@@ -21,11 +21,19 @@ bank below. A new headline goes into the bank before it goes onto an asset.
 **Is / is not:** a logbook, not an AI tuner or a suspension calculator. Copy never claims the app
 finds, recommends or optimizes a setting; the rider does, the app remembers.
 
+Two features come close, so their copy is fixed (v1.8.0, both opt-in):
+- **Setup Guides** show *the manufacturer's published starting values* for the rider's weight, from
+  the fork or shock manual; say "the manual's starting values", never "the app recommends". They are
+  a starting point, and the rider decides.
+- **Pressure Check** shows what the pump would read today for the pressure the rider last set, after
+  a change in temperature or altitude. The target stays the rider's own value; the app never
+  suggests a new one.
+
 ## Pillars
 
 | # | Pillar | Proof in the app | Flag state |
 |---|---|---|---|
-| R | **Remember what worked** | Setups with every fork, shock, tire and cockpit value; weather and location filled in automatically; a fork and shock catalog that fills in the click ranges | Released; the catalog from v1.6.4 |
+| R | **Remember what worked** | Setups with every fork, shock, tire and cockpit value; weather and location filled in automatically; a fork and shock catalog that fills in the click ranges; the manual's starting values (Setup Guides); what the pump reads today for the pressure you set (Pressure Check) | Released; the catalog from v1.6.4; Setup Guides and Pressure Check opt-in from v1.8.0 |
 | C | **See what changed** | Setup history with `9 → 10` diffs, setup comparison, line and radial charts | Released |
 | S | **Service on time** | Tasks with date intervals; distance-based intervals and component km with Strava; suggested service tasks with the manufacturer's intervals for catalog parts | Tasks are opt-in (Settings → Features); km needs Strava, the one paid add-on; suggestions from v1.6.4 |
 | D | **Your data stays yours** | No account, no ads, local database, export to Excel, CSV and JSON | Released |
@@ -46,7 +54,8 @@ build.
 
 - **Bike context in every headline.** Each one names the bike, a part or a bike unit: MTB, fork,
   shock, suspension, tire pressure, clicks, psi (DE: MTB, Federgabel, Dämpfer, Fahrwerk,
-  Reifendruck, Klicks). "Setup" or "Fahrwerk" alone is too generic.
+  Reifendruck, Klicks). "Setup" or "Fahrwerk" alone is too generic. One exception, the maintainer's
+  call: R20, for the v1.7.0 languages Short, where the next line and the screen give the context.
 - **One headline per store-funnel surface.** The search asset, header, Play feature graphic and
   screenshot 1 each use a different headline (table below). The OG image and Shorts sit outside
   the funnel and may repeat a funnel headline.
@@ -54,10 +63,45 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R18, C5–C8, S4–S8, D4, D5) open Shorts and
-  posts; store assets use statements.
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R22, R26–R27, C5–C10, C12, S4–S9, D4, D5) open Shorts and
+  posts; store assets use statements. Two Shorts formats (`brand.md`, Formats) have their own hook
+  shape, which opens the same loop: **How to** hooks start "How to …" (R23–R25, C11), **For riders
+  who…** hooks are "Why every <rider> needs …" (R28, C13, S10). The bike context stays in the line.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
+
+## Voiceover scripts
+
+- **Tone:** plain and dry, with one concrete, slightly wry detail per Short. No hype words, no exclamation marks, no ad phrasing ("with X, you can…", "effortlessly").
+- **Sentences:** short and simple, 6–14 words, one idea each, in spoken order: who, does what, then where or when. No
+  fronted clauses ("At 78 kilos, that's…"), no fragments without a verb, at most one comma, and at most one ", and"
+  per paragraph. Vary the openings. Don't start every sentence with a verb.
+- **Subjects are people:** "you", "your fork", "your pump". The app, a chart or a card is never the subject, and
+  nothing inanimate acts like a person (sits on top, waits, lays out). Say "you see" or "you tap", not "it shows" or
+  "it's marked". Name a feature only when the rider taps it.
+- **Words:** everyday spoken English, and the words riders use (pressure, clicks, rebound). One word per thing, so
+  always "setup". Use "tap" for the screen and "click" only for suspension. No app jargon (garage, marked as pumped)
+  unless the sentence explains it.
+- **Numbers:** one per sentence, with what it is said before it ("rebound, nine clicks"), and the unit named on first
+  mention ("three degrees Celsius", "seventy-eight kilos"). Introduce examples with "say" ("Say you weigh
+  seventy-eight kilos."). Spell numbers out for the voice.
+- **Flow:** each sentence picks up where the last stopped (so, because, but, then). It must make sense with the screen
+  off, so no "like this", "here" or "this one".
+- **Ending:** the last sentence says what the rider gets next time, in everyday words ("so next time it rains, you
+  know what you rode"). It never ends on a button, a screen or an app state.
+- **Steps (How to):** every step says where the rider is and how they got there from the last one, so nobody has to
+  guess a screen change (which catalog? where is it? which form does the weight go in?). Name the action that opens
+  the next screen ("add a component", "add a new setup") before what they do on it.
+
+  > Before: "Next you add your fork from the catalog. Say you weigh seventy-eight kilos with your gear on. You tap
+  > apply all in a new setup and get seventy-six psi."
+  >
+  > After: "Next you add a component and pick your fork from the catalog. Then you add a new setup and type your
+  > weight in kilos. Say you weigh seventy-eight kilos with your gear on. You tap apply all and get seventy-six psi."
+- **Opt-in notes:** decided per Short, and by default they go in the post text. When a How to needs the switch as a
+  step, say it in one short sentence ("Turn it on in Settings, under Features.") and keep it as step 1.
+- **Facts:** numbers come from the sample. List no more than the story needs. Everything
+  else goes in the post text.
 
 ## Headline bank
 
@@ -86,6 +130,16 @@ German riders, not translated word for word.
 | R16 | Thinking about upgrading your fork? | Überlegst du, deine Gabel aufzurüsten? |
 | R17 | Red dial or blue dial: which one was rebound? | Rotes oder blaues Rad: Welches war die Zugstufe? |
 | R18 | You changed your fork settings. But you liked it better before? | Du hast deine Gabel verstellt. Aber vorher war es besser? |
+| R19 | Rebound, Zugstufe or détente: what do you call it? | Rebound, Zugstufe oder Détente: Wie sagst du dazu? |
+| R20 | What language are you speaking? | Welche Sprache sprichst du? |
+| R21 | You moved your pedals to another bike. Who gets the kilometers? | Du hast deine Pedale ans andere Bike geschraubt. Wer bekommt die Kilometer? |
+| R22 | Writing down every fork click sounds like too much work? | Jeden Gabel-Klick aufschreiben klingt nach zu viel Arbeit? |
+| R23 | How to set your fork to the manual's starting values | So stellst du deine Gabel auf die Startwerte aus dem Handbuch |
+| R24 | How to check your fork pressure before a ride | So prüfst du vor der Ausfahrt den Druck deiner Gabel |
+| R25 | How to log a fork setup in 20 seconds | So notierst du ein Gabel-Setup in 20 Sekunden |
+| R26 | You set your fork pressure on a warm evening. Is it still right on a cold morning? | Gabeldruck an einem warmen Abend eingestellt. Stimmt er an einem kalten Morgen noch? |
+| R27 | Still looking up your fork's starting values in the manual? | Suchst du die Startwerte deiner Gabel immer noch im Handbuch? |
+| R28 | Why every racer needs a fork setup history | Warum jeder Racer eine Gabel-Setup-Historie braucht |
 
 ### C — See what changed
 
@@ -99,6 +153,11 @@ German riders, not translated word for word.
 | C6 | How did your fork setup change this season? | Wie hat sich dein Gabel-Setup diese Saison verändert? |
 | C7 | What did you change on your bike before that ride? | Was hast du vor der Ausfahrt an deinem Bike geändert? |
 | C8 | Which tire pressure have you ridden the most? | Mit welchem Reifendruck bist du am meisten gefahren? |
+| C9 | How many rides have you done on nine clicks of rebound? | Wie viele Ausfahrten hast du mit neun Klicks Zugstufe gemacht? |
+| C10 | What tire pressure did you ride when it was wet? | Welchen Reifendruck bist du bei Nässe gefahren? |
+| C11 | How to see how your fork setup changed this season | So siehst du, wie sich dein Gabel-Setup diese Saison verändert hat |
+| C12 | Still writing your fork clicks on tape? | Schreibst du deine Gabel-Klicks immer noch auf Klebeband? |
+| C13 | Why every downhill rider needs a suspension setup for each track | Warum jeder Downhiller ein Fahrwerks-Setup pro Strecke braucht |
 
 ### S — Service on time
 
@@ -112,6 +171,8 @@ German riders, not translated word for word.
 | S6 | How many km has your chain done? | Wie viele Kilometer hat deine Kette schon? |
 | S7 | How often does your fork need a lower leg service? | Wie oft braucht deine Gabel einen Lower-Leg-Service? |
 | S8 | Off-season: what's due on your fork? | Winterpause: Was ist an deiner Gabel fällig? |
+| S9 | When is your next fork service due? | Wann ist dein nächster Gabel-Service fällig? |
+| S10 | Why every home mechanic needs a bike service log | Warum jeder Hobby-Schrauber ein Wartungsbuch fürs Bike braucht |
 
 ### D — Your data stays yours
 

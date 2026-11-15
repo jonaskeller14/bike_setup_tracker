@@ -7,15 +7,19 @@ import 'package:uuid/uuid.dart';
 import '../context/context_place.dart';
 import '../context/context_position.dart';
 import '../context/context_weather.dart';
+import '../syncable.dart';
 import 'custom_issue.dart';
 import 'feedback_comparison.dart';
 import 'feedback_key.dart';
 import 'feedback_observation.dart';
 
 @immutable
-class RideFeedback {
+class RideFeedback implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String bike;
   final String setupId; // Write-once provenance; display and ranking resolve the setup by time.
@@ -74,6 +78,7 @@ class RideFeedback {
 
   bool get nothingStoodOut => observations.any((o) => o.key is NoIssueKey);
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 1,
     'id': id,

@@ -1,0 +1,241 @@
+<!doctype html>
+<!--
+  The format Short (README.md; brand.md, Formats): standard.html's captions, phone and lifts, plus one of the
+  series looks. build_kit.py fills in the {{…}} like standard.html's, {{FORMAT}} from the Short's "format" and
+  {{PHONE}} from build_kit.FORMAT_PHONES (the lifts use the same box):
+
+  howto         Blueprint. After the hook, a big step number rolls 01 → 02 → 03 at the voice lines in "steps",
+                its caption beside it (video_9x16.html?step), the whole phone below.
+                {"kind": "howto", "label": "How to · 01", "steps": [1, 2, 3]}
+  before-after  Notebook. A handwritten note, or a manual's spec "table", and a BEFORE stamp, no phone; from
+                voice line "after" the page turns white, the note leaves and the phone slides up.
+                {"kind": "before-after", "note": ["Lyrik 85 psi", "Reb 9? or 10??"], "after": 3}
+                "table": {"source": "…", "title": "…", "head": ["lb", "140 mm", …], "rows": [["120–140", "60–70", …], …],
+                          "circle": 2, "scribble": "78 kg = ? lb"}: row "circle" (0-based) gets a pen circle.
+  rider         Near-black, the rider type huge in its colour above the hook; the phone slides up when the
+                hook ends. {"kind": "rider", "word": "Racers", "color": "#ff5a1f", "label": "For racers", "size": 170}
+
+  The brand bar is on the hook only; the captions after it move up to 236 px. Before / After captions before the
+  reveal end above the note (video_9x16.html?note). The note, the table and the step
+  number are drawn type, never UI. Every look hides the phone until its reveal (voice line 1, or "after"), so
+  the hook may run to 4 lines (video_9x16.html?tall) and the kit's first segment only has to cover that time.
+  Text stays in the Shorts safe area (y 220–1400, left of x 920 below y 760).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}}; window.FORMAT = {{FORMAT}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  @font-face { font-family: 'Space Grotesk'; font-weight: 500 700; font-display: block; src: url('assets/fonts/spacegrotesk-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 500 800; font-display: block; src: url('assets/fonts/jetbrainsmono-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Caveat'; font-weight: 500 700; font-display: block; src: url('assets/fonts/caveat-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Archivo Expanded'; font-weight: 900; font-display: block; src: url('assets/fonts/archivo-expanded-latin.woff2') format('woff2'); }
+
+  .caption { top: 262px; width: 960px; height: 350px; }
+  /* The brand bar leaves with the hook, so everything after it sits higher: as high as the type's ascent
+     stays inside the safe area (y 220). */
+  .caption ~ .caption { top: 236px; }
+  /* Measured on video_9x16.html?tall, ?note and ?step. */
+  .caption.tall, .caption.note { width: 860px; }
+  /* Space Grotesk's ascent box reaches 19 px above a 105 px line (measured), so the step box sits a little lower. */
+  .caption.step { left: 290px; top: 240px; width: 730px; height: 192px; }
+  {{PHONE}}
+  .lift video { position: absolute; max-width: none; }
+  #label { position: absolute; right: 60px; top: 142px; font-size: 28px; color: var(--muted); z-index: 4; }
+  /* body takes its colour from :root; the looks set their own tokens on #root. */
+  #root { color: var(--ink); }
+  #paper { position: absolute; inset: 0; background: var(--paper); z-index: 0; }
+
+  /* How to: Blueprint (H2). */
+  .howto { --paper: #0e3a5b; --ink: #f2f6f8; --muted: #8fb0c6; --headline: #7fd3f7; --changed: #ffb74d; }
+  .howto .caption { font-family: 'Space Grotesk', 'Archivo', sans-serif; font-weight: 700; letter-spacing: -.035em; height: 300px; }
+  .howto #label { font-family: 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: .02em; }
+  #grid { position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(rgba(255,255,255,.06) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.06) 2px, transparent 2px);
+    background-size: 90px 90px; background-position: 60px 0; }
+  /* One column of numbers in a clipped window, so the roll is one text element. data-decor: the font's ascent
+     box reaches above y 220, the digits themselves start below it. */
+  #stepno { position: absolute; left: 60px; top: 226px; z-index: 3; font-family: 'JetBrains Mono', monospace; }
+  #stepno .window { height: 160px; overflow: hidden; }
+  #stepno .digits { font-weight: 800; font-size: 184px; line-height: 160px; letter-spacing: -.06em; white-space: pre-line; color: var(--headline); }
+  #stepno .of { margin-top: 4px; font-weight: 700; font-size: 32px; line-height: 1; letter-spacing: .04em; color: var(--muted); }
+
+  /* Before / After: Notebook (B1). The page turns to the brand's white paper at the reveal. */
+  .before-after { --paper: #faf7ef; }
+  #white { position: absolute; inset: 0; background: #ffffff; z-index: 0; }
+  #note { position: absolute; left: 90px; top: 760px; width: 780px; padding: 40px 50px 56px; z-index: 3; background: #fffdf4;
+    background-image: repeating-linear-gradient(transparent 0 92px, #9db7d8 92px 94px); background-position: 0 30px;
+    box-shadow: 0 24px 50px rgba(0,0,0,.16); }
+  #note .line { display: block; font: 700 92px/94px 'Caveat', cursive; color: #1f3a8a; white-space: nowrap; }
+  #stamp { position: absolute; left: 470px; top: 1150px; z-index: 4; padding: 8px 20px; border: 8px solid #c8102e; color: #c8102e;
+    font-weight: 900; font-size: 64px; line-height: 1; letter-spacing: .06em; }
+  /* A manual's spec page, drawn: kept left of the platforms' buttons (x 920). */
+  #table { position: absolute; left: 90px; top: 770px; width: 800px; box-sizing: border-box; padding: 24px 32px 28px; z-index: 3;
+    background: #fff; color: #222; box-shadow: 0 24px 50px rgba(0,0,0,.16); }
+  #table .source { font-weight: 700; font-size: 22px; line-height: 1.2; letter-spacing: .05em; text-transform: uppercase; color: #777; }
+  #table .title { margin: 6px 0 14px; font-weight: 800; font-size: 34px; line-height: 1.15; }
+  #table table { width: 100%; border-collapse: collapse; font-weight: 600; font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+  #table th, #table td { padding: 10px 8px; border-bottom: 2px solid #ddd; text-align: center; white-space: nowrap; }
+  #table th { background: #2b2b2b; color: #fff; font-weight: 800; border-bottom: 0; }
+  #table th:first-child, #table td:first-child { text-align: left; }
+  #table tr:last-child td { border-bottom: 0; color: #666; }
+  #table td:first-child { position: relative; }
+  /* In the circled row's first cell, as wide as the table. */
+  #circle { position: absolute; left: -14px; top: -10px; bottom: -10px; width: 764px; box-sizing: border-box;
+    border: 6px solid #1f3a8a; border-radius: 50%; transform: rotate(-1.5deg); }
+  #scribble { position: absolute; left: 110px; top: 1270px; z-index: 4; font: 700 84px/1 'Caveat', cursive; color: #1f3a8a; white-space: nowrap; }
+  .has-table #stamp { left: 480px; top: 1250px; }
+
+  /* For riders who…: one colour per rider type (F3). */
+  .rider { --paper: #141414; --ink: #f5f5f5; --muted: #9a9a9a; --changed: #ffb74d; }
+  .rider #label { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--headline); }
+  #word { position: absolute; left: 60px; right: 40px; top: 262px; z-index: 3; font-family: 'Archivo Expanded', 'Archivo', sans-serif;
+    font-weight: 900; font-size: 170px; line-height: .84; letter-spacing: -.04em; text-transform: uppercase; color: var(--headline); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="{{LENGTH}}" data-width="1080" data-height="1920">
+  <div id="paper"></div>
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div id="label" data-decor></div>
+    <div class="rule"></div>
+  </div>
+{{CAPTIONS}}
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="0" data-duration="{{LENGTH}}" data-track-index="1"></video>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+{{LIFTS}}
+</div>
+<script>
+  const F = window.FORMAT;
+  const root = document.getElementById('root');
+  const lineAt = (line) => window.VOICE[line].at;
+  const add = (html, before) => {
+    const tpl = document.createElement('template');
+    tpl.innerHTML = html.trim();
+    const el = tpl.content.firstChild;
+    root.insertBefore(el, before || null);
+    return el;
+  };
+  const text = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+
+  root.classList.add(F.kind);
+  if (F.kind === 'rider') root.style.setProperty('--headline', F.color);
+  // The mark is white on the dark looks.
+  if (F.kind !== 'before-after') document.querySelector('#top .brand img').src = 'assets/logo_1024_white_transparent.png';
+  document.getElementById('label').textContent = F.label || '';
+
+  const paper = document.getElementById('paper');
+  const two = (n) => String(n).padStart(2, '0');
+  if (F.kind === 'howto') {
+    add('<div id="grid"></div>', paper.nextSibling);
+    add('<div id="stepno" data-decor><div class="window"><div class="digits" data-layout-allow-occlusion>' + F.steps.map((_, i) => two(i + 1)).join('\n')
+      + '</div></div><div class="of">of ' + two(F.steps.length) + '</div></div>');
+  }
+  if (F.kind === 'before-after') {
+    add('<div id="white"></div>', paper.nextSibling);
+    if (F.table) {
+      const T = F.table;
+      const cells = (row, tag, circled) => '<tr>' + row.map((c, i) => '<' + tag + '>' + text(c)
+        + (circled && i === 0 ? '<div id="circle"></div>' : '') + '</' + tag + '>').join('') + '</tr>';
+      add('<div id="table"><div class="source">' + text(T.source) + '</div><div class="title">' + text(T.title) + '</div><table>'
+        + cells(T.head, 'th') + T.rows.map((r, i) => cells(r, 'td', i === T.circle)).join('') + '</table></div>');
+      root.classList.add('has-table');
+      add('<div id="scribble">' + text(T.scribble) + '</div>');
+    } else {
+      add('<div id="note">' + F.note.map((l) => '<span class="line">' + text(l) + '</span>').join('') + '</div>');
+    }
+    add('<div id="stamp">BEFORE</div>');
+  }
+  // A longer rider word sets a smaller "size" (px), so it stays inside the frame.
+  if (F.kind === 'rider') add('<div id="word">' + text(F.word) + '</div>').style.fontSize = (F.size || 170) + 'px';
+
+  const motion = Motion.create();
+  const captions = [...document.querySelectorAll('.caption')];
+  captions.forEach((el) => motion.caption(el, Number(el.dataset.from), Number(el.dataset.to)));
+  document.querySelectorAll('.lift').forEach((el) => {
+    const from = Number(el.dataset.from);
+    const to = Number(el.dataset.to);
+    gsap.set(el, { opacity: 0 });
+    motion.tl.fromTo(el, { opacity: 0, scale: Number(el.dataset.shrink) }, { opacity: 1, scale: 1, duration: .4, ease: 'power2.inOut' }, from);
+    motion.tl.to(el, { opacity: 0, duration: .4, ease: 'power2.inOut' }, to - .4);
+  });
+
+  // The phone waits below the frame and slides up once, at the reveal.
+  const reveal = (t) => {
+    gsap.set('#move', { y: 1960 - document.getElementById('move').offsetTop });
+    motion.tl.to('#move', { y: 0, duration: .6, ease: 'power3.out' }, t);
+  };
+
+  // The brand bar belongs to the hook.
+  motion.leave('#top', lineAt(1) - .16);
+
+  if (F.kind === 'howto') {
+    // The hook has the frame to itself; the step number and the phone arrive with the first step,
+    // and the number rolls on like an odometer at each next one.
+    gsap.set('#stepno', { opacity: 0 });
+    motion.tl.to('#stepno', { opacity: 1, duration: .3 }, lineAt(F.steps[0]));
+    reveal(lineAt(F.steps[0]));
+    const row = document.querySelector('#stepno .window').offsetHeight;
+    F.steps.slice(1).forEach((line, i) => {
+      motion.tl.to('#stepno .digits', { y: -row * (i + 1), duration: .45, ease: 'power3.inOut' }, lineAt(line) - .1);
+    });
+  }
+
+  if (F.kind === 'before-after') {
+    const after = lineAt(F.after);
+    gsap.set('#white', { opacity: 0 });
+    // The note is written line by line while the hook is said, the stamp lands on the last line.
+    const lines = [...document.querySelectorAll('#note .line')];
+    lines.forEach((el, i) => {
+      gsap.set(el, { clipPath: 'inset(-20px 100% -20px 0)' });
+      motion.tl.to(el, { clipPath: 'inset(-20px 0% -20px 0)', duration: .5, ease: 'none' }, .25 + i * .6);
+    });
+    let stampAt = .25 + lines.length * .6;
+    const drawn = [F.table ? '#table' : '#note', '#stamp'];
+    if (!F.table) gsap.set('#note', { rotation: -3 });
+    if (F.table) {
+      // The page is there from frame 0; the pen circles the rider's row, then asks the question.
+      gsap.set('#circle', { clipPath: 'inset(-20px 100% -20px -20px)' });
+      motion.tl.to('#circle', { clipPath: 'inset(-20px -20px -20px -20px)', duration: .45, ease: 'none' }, .5);
+      gsap.set('#scribble', { clipPath: 'inset(-20px 100% -20px 0)' });
+      motion.tl.to('#scribble', { clipPath: 'inset(-20px 0% -20px 0)', duration: .6, ease: 'none' }, 1.05);
+      stampAt = 1.85;
+      drawn.push('#scribble');
+    }
+    gsap.set('#stamp', { opacity: 0 });
+    // Next to the table the stamp has less room to land from.
+    motion.tl.fromTo('#stamp', { opacity: 0, scale: F.table ? 1.3 : 1.6, rotation: 8 }, { opacity: 1, scale: 1, rotation: 8, duration: .22, ease: 'power3.in', immediateRender: false }, stampAt);
+    motion.leave(drawn, after - .2);
+    motion.tl.to('#white', { opacity: 1, duration: .35, ease: 'power1.inOut' }, after - .2);
+    reveal(after);
+  }
+
+  if (F.kind === 'rider') {
+    // The word sits above the hook, the hook below it; both leave when the hook ends.
+    const hook = captions[0];
+    hook.style.top = '440px';
+    const end = Number(hook.dataset.to);
+    // A fade, not motion.leave: rising 90 px would take the word above y 220.
+    motion.tl.to('#word', { autoAlpha: 0, duration: .16, ease: 'power2.in' }, end - .16);
+    reveal(end);
+  }
+
+  motion.finish();
+</script>
+</body>
+</html>

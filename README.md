@@ -46,9 +46,10 @@ Here are the current development goals and their status:
 - [x] **Sub-components**: infinitely deep component hierarchy, Strava stats inherited from the parent ➡️ **Live, opt-in**
 - [x] Add **URL support for bike/components** ➡️ **URLs are recognized in notes**
 - [x] **Component & task presets** for the most common forks and shocks ➡️ **Live since v1.6.4**
-- [ ] **Rating procedure** to distinguish good setups from bad ➡️ **In development**
+- [x] **Multiple languages** ➡️ **Live since v1.7.0** (English, German, Spanish, French, Italian, Portuguese)
+- [ ] **Cloud sync** across iOS and Android (Firebase, offline-first) to replace the Google Drive beta ➡️ **In development**
+- [ ] **Test sessions**: structured test rides to compare setups and see which adjustment made the difference ➡️ **In development**
 - [ ] **Marketing** push to grow the user base ➡️ **In progress**
-- [ ] **Multiple languages** ➡️ **Planned**
 
 I am open for feedback, suggestions, and bug reports—please feel free to open a new issue for any of these.
 
@@ -58,7 +59,7 @@ I am open for feedback, suggestions, and bug reports—please feel free to open 
 | Area | Stack |
 |---|---|
 | **App** | Flutter / Dart for iOS and Android from one codebase. Provider for state management, Drift (SQLite) as an offline-first local database with versioned migrations, feature flags for staged rollouts |
-| **Backend** | Firebase: Cloud Functions (Node.js), Firestore, Auth, App Check, Cloud Messaging, Crashlytics and Analytics. Powers the Strava sync and the server-validated in-app subscriptions |
+| **Backend** | Firebase: Cloud Functions (Node.js), Firestore, Auth, App Check, Cloud Messaging, Crashlytics and Analytics. Powers the Strava sync and the server-validated in-app subscriptions. Strava activities arrive through webhooks and are processed by queued, idempotent workers; App Store and Google Play purchases are validated server-side, including renewal and cancellation notifications. The source lives in a [private repository](https://github.com/jonaskeller14/bike_setup_tracker_backend) |
 | **Testing** | Unit, widget and golden tests (Alchemist), CI on GitHub Actions with Codecov coverage reports |
 | **Screenshot automation** | Store screenshots captured from a seeded demo app with Maestro flows and rendered into store frames from an HTML template |
 | **Deployment** | Store listings, release notes and screenshots versioned in the repo and uploaded via `asc` (App Store) and fastlane (Google Play) |
@@ -82,6 +83,10 @@ I am open for feedback, suggestions, and bug reports—please feel free to open 
 - Now you can correlate your settings with the actual trail conditions.
 
 📝 **Setup History & Evolution:** Never lose a good setup again. Browse your detailed history to see exactly what you changed and when. Compare your current setup to previous sessions (e.g., "Finale Ligure Trip" vs. "Local Trails").
+
+🛠️ **Service on time** *(opt-in under Settings → Features)*: Plan fork, shock and chain services by date, km, hours or rides (km and hours with Strava). The app predicts when each one comes due from how much you ride, and suggests the manufacturer's intervals for catalog parts.
+
+🧩 **Sub-components & part history** *(opt-in)*: Put the tire on the wheel and the wheel on the bike. Move a wheelset to another bike and its tires come along, with every part's kilometers and installation history intact.
 
 📊 **Strava Integration** *(optional subscription)*: Connect Strava to see which setup you ran on every ride — automatically linked by date and gear. Activity start points and saved setups appear together on a map, so you can revisit what worked at a spot.
 

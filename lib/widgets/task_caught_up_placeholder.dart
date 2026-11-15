@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
 import '../l10n/l10n.dart';
 import 'empty_state_placeholder.dart';
+import 'fireworks_painter.dart';
 
 class TaskCaughtUpPlaceholder extends StatefulWidget {
   final String? bikeName;
@@ -23,12 +25,15 @@ class TaskCaughtUpPlaceholder extends StatefulWidget {
   State<TaskCaughtUpPlaceholder> createState() => _TaskCaughtUpPlaceholderState();
 }
 
-class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with SingleTickerProviderStateMixin {
+class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with TickerProviderStateMixin {
   late final AnimationController _controller;
+  late final AnimationController _fireworks;
+  late final List<FireworkBurst> _bursts;
   late final Animation<double> _contentOpacity;
   late final Animation<double> _contentScale;
   late final Animation<double> _iconScale;
   bool _started = false;
+  bool _celebrate = false;
 
   @override
   void initState() {
@@ -37,6 +42,8 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
       vsync: this,
       duration: const Duration(milliseconds: 850),
     );
+    _fireworks = AnimationController(vsync: this, duration: FireworksPainter.duration);
+    _bursts = FireworkBurst.decliningSalvo(Random());
     _contentOpacity = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.18, 0.82, curve: Curves.easeOut),
@@ -69,20 +76,22 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
       _controller.value = 1;
       return;
     }
+    _celebrate = true;
     unawaited(_controller.forward());
+    unawaited(_fireworks.forward());
   }
 
   @override
   void dispose() {
+    _fireworks.dispose();
     _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = Theme.of(
-      context,
-    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.35);
+    final colorScheme = Theme.of(context).colorScheme;
+    final iconColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.35);
     final l10n = context.l10n;
     final scope = widget.bikeName == null ? l10n.taskCaughtUpScope : l10n.taskCaughtUpScopeBike(widget.bikeName!);
     final semanticsLabel =
@@ -93,22 +102,44 @@ class _TaskCaughtUpPlaceholderState extends State<TaskCaughtUpPlaceholder> with 
       container: true,
       liveRegion: true,
       label: semanticsLabel,
-      child: FadeTransition(
-        opacity: _contentOpacity,
-        child: ScaleTransition(
-          scale: _contentScale,
-          child: EmptyStatePlaceholder(
-            icon: Icons.task_alt,
-            iconWidget: ScaleTransition(
-              scale: _iconScale,
-              child: Icon(Icons.task_alt, size: 40, color: iconColor),
+      child: Stack(
+        fit: StackFit.passthrough,
+        clipBehavior: Clip.none,
+        children: [
+          if (_celebrate)
+            Positioned.fill(
+              child: ExcludeSemantics(
+                child: IgnorePointer(
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      painter: FireworksPainter(
+                        animation: _fireworks,
+                        bursts: _bursts,
+                        colors: [colorScheme.primary, colorScheme.tertiary, colorScheme.secondary],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            title: l10n.taskCaughtUpTitle,
-            subtitle: scope,
-            actionLabel: l10n.taskCaughtUpAction,
-            onAction: widget.onAddTask,
+          FadeTransition(
+            opacity: _contentOpacity,
+            child: ScaleTransition(
+              scale: _contentScale,
+              child: EmptyStatePlaceholder(
+                icon: Icons.task_alt,
+                iconWidget: ScaleTransition(
+                  scale: _iconScale,
+                  child: Icon(Icons.task_alt, size: 40, color: iconColor),
+                ),
+                title: l10n.taskCaughtUpTitle,
+                subtitle: scope,
+                actionLabel: l10n.taskCaughtUpAction,
+                onAction: widget.onAddTask,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

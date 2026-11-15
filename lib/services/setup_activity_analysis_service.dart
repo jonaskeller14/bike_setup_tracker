@@ -7,9 +7,12 @@ import '../database/mappers.dart';
 import '../models/adjustment/adjustment.dart';
 import '../models/adjustment_activity_histogram.dart';
 import '../utils/adjustment_activity_histogram_grouping.dart';
+import 'component_hierarchy_resolver.dart';
+import 'component_slot.dart';
 
 class SetupActivityAnalysisService extends ChangeNotifier {
   final AppDatabase _database;
+  final ComponentHierarchyResolver Function()? _hierarchy;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   final Completer<void> _changeStreamReady = Completer<void>();
   final Completer<void> _activityGateReady = Completer<void>();
@@ -23,7 +26,7 @@ class SetupActivityAnalysisService extends ChangeNotifier {
   bool _disposed = false;
   int _generation = 0;
 
-  SetupActivityAnalysisService(this._database) {
+  SetupActivityAnalysisService(this._database, {this._hierarchy}) {
     var receivedInitialChange = false;
     _subscriptions.add(
       _database
@@ -34,6 +37,8 @@ class SetupActivityAnalysisService extends ChangeNotifier {
               _database.setupAdjustmentValues,
               _database.adjustments,
               _database.bikes,
+              _database.components,
+              _database.installations,
               _database.stravaActivities,
             },
           )
@@ -106,6 +111,7 @@ class SetupActivityAnalysisService extends ChangeNotifier {
     final setupsFuture = _database.setupsDao.getAllSetupsWithValuesBypass();
     final counts = await countsFuture;
     final setups = await setupsFuture;
+    final hierarchy = _hierarchy?.call();
 
     AdjustmentDb? adjustmentDb;
     final values = <AdjustmentActivityValue>[];
@@ -115,11 +121,20 @@ class SetupActivityAnalysisService extends ChangeNotifier {
         final adjustment = typedValue.adjustment;
         if (adjustment == null || adjustment.id != adjustmentId) continue;
         adjustmentDb ??= adjustment;
+        final component = hierarchy?.components[adjustment.componentId];
         values.add(
           AdjustmentActivityValue(
             setupId: setup.setup.id,
             value: AdjustmentValue.decode(typedValue.value.value, adjustment.type),
             activityCount: counts[setup.setup.id] ?? 0,
+            slot: hierarchy == null || component == null
+                ? null
+                : slotOnBikeAt(
+                    hierarchy,
+                    component,
+                    bikeId: setup.setup.bikeId,
+                    atUTC: setup.setup.datetimeLocal.toUtc(),
+                  ),
           ),
         );
       }

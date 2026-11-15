@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// Lays out [header] above [content] like a column, but while the section
+/// Lays out `header` above `content` like a column, but while the section
 /// straddles the top of the enclosing scrollable the header is shifted down
 /// so it stays visible ("pinned"), clamped to the section's own bounds so the
 /// next section pushes it out.

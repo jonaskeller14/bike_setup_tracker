@@ -173,6 +173,95 @@ class FeedbackOutcomeColors extends ThemeExtension<FeedbackOutcomeColors> {
   }
 }
 
+class EntityColors extends ThemeExtension<EntityColors> {
+  final Color setup;
+  final Color onSetup;
+  final Color task;
+  final Color onTask;
+  final Color installation;
+  final Color onInstallation;
+  final Color feedback;
+  final Color onFeedback;
+
+  /// Strava brand orange, the same in light and dark.
+  static const strava = Color(0xFFFC5200);
+  static const onStrava = Colors.white;
+
+  const EntityColors({
+    required this.setup,
+    required this.onSetup,
+    required this.task,
+    required this.onTask,
+    required this.installation,
+    required this.onInstallation,
+    required this.feedback,
+    required this.onFeedback,
+  });
+
+  static final light = EntityColors(
+    setup: _lightColorScheme.primary,
+    onSetup: _lightColorScheme.onPrimary,
+    task: const Color(0xFF5C5B7D), // violet grey — the blue-grey seed's former tertiary
+    onTask: Colors.white,
+    installation: const Color(0xFF4D616B), // blue grey — the blue-grey seed's former secondary
+    onInstallation: Colors.white,
+    feedback: const Color(0xFFAD1457), // pink 800
+    onFeedback: Colors.white,
+  );
+
+  static final dark = EntityColors(
+    setup: _darkColorScheme.primary,
+    onSetup: _darkColorScheme.onPrimary,
+    task: const Color(0xFFC5C2EA),
+    onTask: const Color(0xFF2E2D4D),
+    installation: const Color(0xFFB4CAD5),
+    onInstallation: const Color(0xFF1E333C),
+    feedback: const Color(0xFFF06292), // pink 300
+    onFeedback: Colors.black,
+  );
+
+  static EntityColors of(ThemeData theme) =>
+      theme.extension<EntityColors>() ?? (theme.brightness == Brightness.dark ? dark : light);
+
+  @override
+  EntityColors copyWith({
+    Color? setup,
+    Color? onSetup,
+    Color? task,
+    Color? onTask,
+    Color? installation,
+    Color? onInstallation,
+    Color? feedback,
+    Color? onFeedback,
+  }) {
+    return EntityColors(
+      setup: setup ?? this.setup,
+      onSetup: onSetup ?? this.onSetup,
+      task: task ?? this.task,
+      onTask: onTask ?? this.onTask,
+      installation: installation ?? this.installation,
+      onInstallation: onInstallation ?? this.onInstallation,
+      feedback: feedback ?? this.feedback,
+      onFeedback: onFeedback ?? this.onFeedback,
+    );
+  }
+
+  @override
+  EntityColors lerp(EntityColors? other, double t) {
+    if (other == null) return this;
+    return EntityColors(
+      setup: Color.lerp(setup, other.setup, t)!,
+      onSetup: Color.lerp(onSetup, other.onSetup, t)!,
+      task: Color.lerp(task, other.task, t)!,
+      onTask: Color.lerp(onTask, other.onTask, t)!,
+      installation: Color.lerp(installation, other.installation, t)!,
+      onInstallation: Color.lerp(onInstallation, other.onInstallation, t)!,
+      feedback: Color.lerp(feedback, other.feedback, t)!,
+      onFeedback: Color.lerp(onFeedback, other.onFeedback, t)!,
+    );
+  }
+}
+
 /// Dedicated "Sand" palette for app hints so they read as guidance, not regular UI.
 /// Primary roles of `ColorScheme.fromSeed(seedColor: Color(0xFFC8A165))` (tonal spot), matching the app theme's tonality.
 class HintColors extends ThemeExtension<HintColors> {
@@ -322,7 +411,7 @@ final materialAppTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light, HintColors.light, FeedbackOutcomeColors.light],
+  extensions: [ValueHighlightColors.light, TaskStatusColors.light, SnackBarColors.light, DialColors.light, HintColors.light, FeedbackOutcomeColors.light, EntityColors.light],
 );
 
 final _darkColorScheme = ColorScheme.fromSeed(
@@ -341,7 +430,7 @@ final materialAppDarkTheme = ThemeData(
     headlineLarge: TextStyle(fontWeight: FontWeight.bold),
     titleLarge: TextStyle(fontWeight: FontWeight.bold),
   ),
-  extensions: const [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark, HintColors.dark, FeedbackOutcomeColors.dark],
+  extensions: [ValueHighlightColors.dark, TaskStatusColors.dark, SnackBarColors.dark, DialColors.dark, HintColors.dark, FeedbackOutcomeColors.dark, EntityColors.dark],
 );
 
 List<Color> chartColors(Color primary, int count, {int hueStep = 137}) {

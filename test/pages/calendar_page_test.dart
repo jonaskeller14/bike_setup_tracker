@@ -8,6 +8,7 @@ import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/timeline_entry.dart';
 import 'package:bike_setup_tracker/models/timeline_row.dart';
 import 'package:bike_setup_tracker/pages/calendar_page.dart';
+import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/calendar_add_setup_appointment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -151,6 +152,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         <Object>[CalendarAddSetupSlot(date)],
         const ColorScheme.light(),
+        EntityColors.light,
         englishL10n,
       );
 
@@ -160,13 +162,14 @@ void main() {
     });
 
     test('renders a predicted task as a faded 30-minute ghost', () {
-      const cs = ColorScheme.light();
+      final colors = EntityColors.light;
       final date = DateTime(2026, 8, 28, 14, 30);
       final source = CalendarTimelineDataSource(
         <Object>[
           CalendarPredictedTask(taskRuleId: 'rule', name: 'Wax chain', date: date),
         ],
-        cs,
+        const ColorScheme.light(),
+        colors,
         englishL10n,
       );
 
@@ -175,8 +178,8 @@ void main() {
       expect(source.getSubject(0), 'Wax chain');
       // Month cells below the appointment threshold paint indicator dots from
       // getColor, so the ghost has to be faded here and not only in the builder.
-      expect(source.getColor(0), cs.tertiary.withValues(alpha: kCalendarGhostAlpha));
-      expect(source.getColor(0), isNot(cs.tertiary));
+      expect(source.getColor(0), colors.task.withValues(alpha: kCalendarGhostAlpha));
+      expect(source.getColor(0), isNot(colors.task));
     });
 
     test('uses a Strava entry local anchor and elapsed duration', () {
@@ -188,6 +191,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         [SingleEntryRow(entry)],
         const ColorScheme.light(),
+        EntityColors.light,
         englishL10n,
       );
 
@@ -220,6 +224,7 @@ void main() {
       final source = CalendarTimelineDataSource(
         [row],
         const ColorScheme.light(),
+        EntityColors.light,
         englishL10n,
       );
 

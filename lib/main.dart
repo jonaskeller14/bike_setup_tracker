@@ -24,9 +24,12 @@ import 'pages/onboarding_page.dart';
 import 'repositories/app_repository.dart';
 import 'repositories/component_catalog_repository.dart';
 import 'repositories/filter_persistence.dart';
+import 'services/account_service.dart';
 import 'services/app_hint_service.dart';
+import 'services/attachment_storage_service.dart';
 import 'services/backup_service.dart';
 import 'services/catalog_migration_service.dart';
+import 'services/cloud_sync_service.dart';
 import 'services/database_migration_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/error_reporter.dart';
@@ -37,9 +40,11 @@ import 'services/quick_actions_service.dart';
 import 'services/setup_activity_analysis_service.dart';
 import 'services/strava_service.dart';
 import 'services/subscription_service.dart';
+import 'services/task_trigger_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
 import 'utils/regional_defaults.dart';
+import 'widgets/account_notice_listener.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -67,7 +72,7 @@ void main() async {
 
   await FirebaseAppCheck.instance.activate(
     providerAndroid: kDebugMode 
-        ? const AndroidDebugProvider() 
+        ? const AndroidDebugProvider(debugToken: "a824fa4b-40a4-4e14-b1e7-3e4120ea0b15")
         : const AndroidPlayIntegrityProvider(),
     providerApple: kDebugMode 
         ? const AppleDebugProvider() 
@@ -227,6 +232,17 @@ class _LoadingGateState extends State<LoadingGate> {
     await widget.appRepository.initialDataLoaded;
   }
 
+  /// What signing out of an account removes from the device.
+  Future<void> _clearLocalData({required bool removeData}) async {
+    final repository = widget.appRepository;
+    if (removeData) {
+      await repository.database.deleteAllUserData();
+      await repository.database.syncDao.reset();
+      await AttachmentStorageService().deleteAll();
+    }
+    await repository.clearStravaData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -247,7 +263,10 @@ class _LoadingGateState extends State<LoadingGate> {
             providers: [
               Provider<AppDatabase>.value(value: widget.appRepository.database),
               ChangeNotifierProvider<SetupActivityAnalysisService>(
-                create: (_) => SetupActivityAnalysisService(widget.appRepository.database),
+                create: (_) => SetupActivityAnalysisService(
+                  widget.appRepository.database,
+                  hierarchy: () => widget.appRepository.componentHierarchy,
+                ),
               ),
               Provider<ComponentCatalogRepository>.value(value: _catalogRepository),
               ChangeNotifierProvider.value(value: widget.appSettings),
@@ -277,23 +296,57 @@ class _LoadingGateState extends State<LoadingGate> {
                   return googleDriveService!;
                 },
               ),
-              ChangeNotifierProxyProvider2<AppSettings, AppRepository, StravaService>(
+              ChangeNotifierProxyProvider<AppSettings, AccountService>(
+                lazy: false,
+                create: (context) => AccountService(clearLocalData: _clearLocalData),
+                update: (context, settings, accountService) {
+                  unawaited(
+                    accountService!.initialize(
+                      enableAccounts: settings.enableAccounts,
+                      enableCloudSync: settings.enableCloudSync,
+                    ),
+                  );
+                  return accountService;
+                },
+              ),
+              ChangeNotifierProxyProvider3<AppSettings, AppRepository, AccountService, StravaService>(
                 lazy: false,
                 create: (context) => widget.createStravaService(widget.appRepository, widget.appSettings),
-                update: (context, settings, appRepo, stravaService) {
+                update: (context, settings, appRepo, accountService, stravaService) {
                   if (settings.enableStrava) {
-                    unawaited(stravaService!.update(appRepository: appRepo, appSettings: settings));
+                    unawaited(
+                      stravaService!.update(appRepository: appRepo, appSettings: settings, accountService: accountService),
+                    );
                   }
                   return stravaService!;
                 },
               ),
-              ChangeNotifierProxyProvider<AppSettings, SubscriptionService>(
+              ChangeNotifierProxyProvider2<AppSettings, AccountService, SubscriptionService>(
                 lazy: false,
                 create: (context) => widget.createSubscriptionService(),
-                update: (context, settings, subscriptionService) {
-                  unawaited(subscriptionService!.initialize(enableStrava: settings.enableStrava));
+                update: (context, settings, accountService, subscriptionService) {
+                  unawaited(
+                    subscriptionService!.initialize(enableStrava: settings.enableStrava, accountService: accountService),
+                  );
                   return subscriptionService;
                 },
+              ),
+              ChangeNotifierProxyProvider3<AppSettings, AccountService, SubscriptionService, CloudSyncService>(
+                lazy: false,
+                create: (context) => CloudSyncService(widget.appRepository.database),
+                update: (context, settings, accountService, subscriptionService, cloudSyncService) =>
+                    cloudSyncService!..update(
+                      enabled: settings.enableCloudSync,
+                      premium: subscriptionService.hasStravaEntitlement,
+                      account: accountService,
+                    ),
+              ),
+              ProxyProvider<CloudSyncService, TaskTriggerService>(
+                lazy: false,
+                create: (context) => TaskTriggerService(widget.appRepository),
+                update: (context, cloudSyncService, taskTriggerService) =>
+                    taskTriggerService!..update(uid: cloudSyncService.activeUid),
+                dispose: (context, taskTriggerService) => taskTriggerService.dispose(),
               ),
               ChangeNotifierProvider<TipService>(
                 lazy: false,
@@ -357,14 +410,19 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettings>();
-    final locale = appLocaleOf(appSettings);
+    final (themeMode, localeCode, showOnboarding) = context.select<AppSettings, (ThemeMode, String?, bool)>(
+      (settings) => (settings.themeMode, settings.localeCode, settings.showOnboarding),
+    );
+    final locale = resolveAppLocale(
+      override: localeCode,
+      deviceLocales: WidgetsBinding.instance.platformDispatcher.locales,
+    );
 
     return MaterialApp(
       title: 'Bike Setup Tracker',
       theme: materialAppTheme,
       darkTheme: materialAppDarkTheme,
-      themeMode: appSettings.themeMode,
+      themeMode: themeMode,
       locale: locale,
       localeResolutionCallback: keepRegionLocale,
       localizationsDelegates: appLocalizationsDelegates,
@@ -376,10 +434,11 @@ class _BikeSetupTrackerAppState extends State<BikeSetupTrackerApp> with WidgetsB
         final loadedLocale = Localizations.localeOf(context);
         Intl.defaultLocale = loadedLocale.toString();
         unawaited(QuickActionsService().updateLocale(loadedLocale));
-        return child!;
+        unawaited(context.read<StravaService>().updateNotificationLanguage(loadedLocale.languageCode));
+        return AccountNoticeListener(child: child!);
       },
       navigatorKey: NavigationService.navigatorKey,
-      home: appSettings.showOnboarding ? const OnboardingPage() : const HomePage(),
+      home: showOnboarding ? const OnboardingPage() : const HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }

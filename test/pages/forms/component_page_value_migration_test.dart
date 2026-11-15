@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
@@ -12,6 +14,7 @@ import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/component_actions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +30,7 @@ class _MockSubscriptionService extends Mock implements SubscriptionService {
 /// migration sheet, save the form through [ComponentActions.editComponent] and
 /// read the setups back from the database.
 void main() {
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
   const psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'psi');
   const bar = KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar');
 
@@ -35,6 +39,10 @@ void main() {
   late AppSettings settings;
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     repository = AppRepository(database);
@@ -42,6 +50,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await repository.disposeAndAwaitCancellation();

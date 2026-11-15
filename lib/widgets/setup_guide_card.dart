@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
@@ -9,9 +13,12 @@ import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
 import '../utils/adjustment_role.dart';
+import '../utils/automation_ids.dart';
 import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
+import '../utils/unit_conversion.dart';
+import 'hint_card_parts.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
 
@@ -47,10 +54,12 @@ class GuideWeightInput {
   });
 }
 
-/// Recommended first values for components linked to a catalog product with a
-/// setup guide, styled like the app hints since it only shows until values are
-/// recorded. Tapping a row applies its value; [onApplyAll] applies every one.
-class SetupGuideCard extends StatelessWidget {
+/// Recommended values for components linked to a catalog product with a setup
+/// guide, styled like the app hints. Collapsed unless [initiallyExpanded],
+/// with the header icon in the status colours: orange while a value differs from
+/// the guide, green while every value that has a recommendation follows it.
+/// Tapping a row applies its value; [onApplyAll] applies every one.
+class SetupGuideCard extends StatefulWidget {
   final List<SetupGuideSection> sections;
   final GuideInputs inputs;
   final void Function(GuideRecommendation recommendation) onApply;
@@ -60,6 +69,7 @@ class SetupGuideCard extends StatelessWidget {
 
   /// Shown in place of the weight line while no riding weight is recorded.
   final GuideWeightInput? weightInput;
+  final bool initiallyExpanded;
 
   const SetupGuideCard({
     super.key,
@@ -68,98 +78,130 @@ class SetupGuideCard extends StatelessWidget {
     required this.onApply,
     required this.onApplyAll,
     this.weightInput,
+    this.initiallyExpanded = true,
   });
 
   @override
+  State<SetupGuideCard> createState() => _SetupGuideCardState();
+}
+
+class _SetupGuideCardState extends State<SetupGuideCard> {
+  /// Null until the rider toggles the card; until then it follows [SetupGuideCard.initiallyExpanded].
+  bool? _expanded;
+
+  @override
   Widget build(BuildContext context) {
+    final sections = widget.sections;
     if (sections.isEmpty) return const SizedBox.shrink();
 
     final hint = HintColors.of(context);
     final textTheme = Theme.of(context).textTheme;
     final onContainer = TextStyle(color: hint.onContainer);
-    final weightInput = this.weightInput;
+    final inputs = widget.inputs;
+    final weightInput = widget.weightInput;
+    final expanded = _expanded ?? widget.initiallyExpanded;
+    final statuses = [
+      for (final section in sections)
+        for (final recommendation in section.recommendations) ?GuideStatus.of(recommendation, context.l10n),
+    ];
+    final summary = switch (statuses) {
+      _ when statuses.any((s) => s.kind == GuideStatusKind.off) => const GuideStatus(GuideStatusKind.off),
+      _ when statuses.isNotEmpty && statuses.every((s) => s.kind.isOnGuide) => const GuideStatus(
+        GuideStatusKind.matches,
+      ),
+      _ => null,
+    };
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(color: hint.container, borderRadius: BorderRadius.circular(18)),
-      padding: const EdgeInsets.only(top: 4, bottom: 12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 4),
-            child: Row(
-              spacing: 6,
-              children: [
-                Icon(Icons.tips_and_updates_outlined, size: 16, color: hint.accent),
-                Expanded(
-                  child: Text(
-                    context.l10n.guideCardTitle.toUpperCase(),
-                    style: textTheme.labelSmall?.copyWith(
-                      color: hint.accent,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Material(
+        color: hint.container,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        clipBehavior: Clip.antiAlias,
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 200),
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              HintCardHeader(
+                status: Icon(
+                  Icons.tips_and_updates_outlined,
+                  size: 18,
+                  color: summary?.color(context) ?? hint.accent,
+                  semanticLabel: summary?.label(context.l10n),
+                ),
+                title: context.l10n.guideCardTitle,
+                expanded: expanded,
+                onToggle: () => setState(() => _expanded = !expanded),
+              ),
+              if (expanded) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.guideCardHeadline,
+                        style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
+                      ),
+                      if (weightInput == null)
+                        Text(_inputsText(inputs, context.l10n), style: textTheme.bodyMedium?.merge(onContainer))
+                      else
+                        _WeightField(input: weightInput, ridingStyle: inputs.ridingStyle),
+                    ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => showSetupGuideInfoSheet(context, sections: sections),
-                  icon: const Icon(Icons.info_outline_rounded),
-                  iconSize: 18,
-                  color: hint.accent,
-                  tooltip: context.l10n.guideCardInfoTooltip,
+                for (final (i, section) in sections.indexed) ...[
+                  _SectionHeader(section: section, first: i == 0),
+                  const _ColumnsHeader(),
+                  for (final recommendation in section.recommendations)
+                    _RecommendationRow(
+                      recommendation: recommendation,
+                      component: section.guided.component,
+                      hasRiderWeight: inputs.riderWeight != null,
+                      riderWeightUnit: inputs.riderWeightUnit,
+                      onApply: widget.onApply,
+                    ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    spacing: 12,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: HintLearnMoreText(
+                          text: context.l10n.guideCardStartingPoint,
+                          style: textTheme.bodySmall?.merge(onContainer),
+                          onLearnMore: () => showSetupGuideInfoSheet(context, sections: sections),
+                        ),
+                      ),
+                      // Shrinks only where a long label or large text would squeeze the text out.
+                      Flexible(
+                        flex: 2,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Semantics(
+                            identifier: AutomationIds.setupGuideApplyAll,
+                            child: FilledButton.icon(
+                              style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
+                              onPressed: widget.onApplyAll,
+                              icon: const Icon(Icons.done_all),
+                              label: Text(context.l10n.guideCardApplyAll),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-            ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.guideCardHeadline,
-                  style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: hint.onContainer),
-                ),
-                if (weightInput == null)
-                  Text(_inputsText(inputs, context.l10n), style: textTheme.bodyMedium?.merge(onContainer))
-                else
-                  _WeightField(input: weightInput, ridingStyle: inputs.ridingStyle),
-              ],
-            ),
-          ),
-          for (final (i, section) in sections.indexed) ...[
-            _SectionHeader(section: section, first: i == 0),
-            for (final recommendation in section.recommendations)
-              _RecommendationRow(
-                recommendation: recommendation,
-                component: section.guided.component,
-                hasRiderWeight: inputs.riderWeight != null,
-                riderWeightUnit: inputs.riderWeightUnit,
-                onApply: onApply,
-              ),
-          ],
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Text(context.l10n.guideCardStartingPoint, style: textTheme.bodySmall?.merge(onContainer)),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
-                  onPressed: onApplyAll,
-                  icon: const Icon(Icons.done_all),
-                  label: Text(context.l10n.guideCardApplyAll),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -176,16 +218,43 @@ class _WeightField extends StatefulWidget {
 }
 
 class _WeightFieldState extends State<_WeightField> {
+  static const _pounds = KnownUnit(quantity: UnitQuantity.mass, unitId: 'pounds');
+  static const _kilograms = KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms');
+
   late final _controller = TextEditingController(text: _format(widget.input.weight));
 
-  String _format(double? weight) =>
-      weight == null ? '' : localizeDecimalSeparator(formatSpecNumber(weight), locale: context.l10n.localeName);
+  /// What the field shows; the weight is still reported in [GuideWeightInput.unit].
+  late KnownUnit _displayUnit = widget.input.unit;
+
+  KnownUnit get _otherUnit => widget.input.unit == _pounds ? _kilograms : _pounds;
+
+  double _toStorage(double weight) => convertUnit(weight, _displayUnit, widget.input.unit);
+
+  String _format(double? weight) {
+    if (weight == null) return '';
+    final locale = context.l10n.localeName;
+    if (_displayUnit == widget.input.unit) return localizeDecimalSeparator(formatSpecNumber(weight), locale: locale);
+    final shown = convertUnit(weight, widget.input.unit, _displayUnit);
+    return formatLocalizedDouble(double.parse(shown.toStringAsFixed(1)), locale: locale);
+  }
+
+  void _toggleUnit() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      _displayUnit = _displayUnit == widget.input.unit ? _otherUnit : widget.input.unit;
+      _controller.text = _format(widget.input.weight);
+    });
+  }
 
   @override
   void didUpdateWidget(covariant _WeightField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // The weight may also change on the Rider tab.
-    if (parseLocalizedDouble(_controller.text) != widget.input.weight) _controller.text = _format(widget.input.weight);
+    if (widget.input.weight == oldWidget.input.weight) return;
+    final typed = parseLocalizedDouble(_controller.text);
+    final weight = widget.input.weight;
+    final matches = typed == null || weight == null ? typed == weight : (_toStorage(typed) - weight).abs() < 1e-9;
+    if (!matches) _controller.text = _format(weight);
   }
 
   @override
@@ -219,25 +288,36 @@ class _WeightFieldState extends State<_WeightField> {
             ),
             ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 64, maxWidth: 96),
-              child: TextField(
-                controller: _controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                textAlign: TextAlign.end,
-                style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
-                cursorColor: hint.accent,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixText: " ${input.unit.label}",
-                  suffixStyle: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+              child: Semantics(
+                identifier: AutomationIds.setupGuideWeight,
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.end,
+                  style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
+                  cursorColor: hint.accent,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffix: InkWell(
+                      borderRadius: BorderRadius.circular(4),
+                      onTap: _toggleUnit,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Text(_displayUnit.label, style: textTheme.bodyMedium?.copyWith(color: hint.onContainer)),
+                      ),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
                   ),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
+                  // The iOS number pad has no Done key and would keep covering Apply all.
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onChanged: (text) {
+                    final weight = parseLocalizedDouble(text);
+                    input.onChanged(weight != null && weight > 0 ? _toStorage(weight) : null);
+                  },
                 ),
-                onChanged: (text) {
-                  final weight = parseLocalizedDouble(text);
-                  input.onChanged(weight != null && weight > 0 ? weight : null);
-                },
               ),
             ),
           ],
@@ -301,6 +381,8 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+/// One adjuster: what it is, what is set now, what the guide recommends and
+/// whether the two agree. Tapping applies the recommendation.
 class _RecommendationRow extends StatelessWidget {
   final GuideRecommendation recommendation;
   final Component component;
@@ -324,83 +406,181 @@ class _RecommendationRow extends StatelessWidget {
     final adjustment = recommendation.adjustment;
     final value = recommendation.value;
     final shown = value ?? recommendation.unappliedValue;
-    final canApply = value != null && recommendation.current != value;
+    final current = recommendation.current;
+    final canApply = value != null && current != value;
     final note = recommendation.rule.note;
     final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
-    final status = GuideStatus.of(recommendation, context.l10n);
-    final current = recommendation.current;
-    final band = guideBandText(recommendation, context.l10n);
-    final statusDetail = switch (status?.kind) {
-      GuideStatusKind.inRange || GuideStatusKind.off when current != null => [
-        context.l10n.guideCardNow(guideValueText(adjustment, current, context.l10n)),
-        if (band != null) context.l10n.guideCardInRange(band),
-      ].join(" · "),
-      _ => null,
-    };
+    final band = _bandText(recommendation, context.l10n);
 
     return InkWell(
       onTap: canApply ? () => onApply(recommendation) : null,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          spacing: 12,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    adjustment.name,
-                    style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    guideDetailText(recommendation, component, context.l10n),
-                    style: mutedStyle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (reverseLookup != null)
-                    Text(reverseLookup, style: mutedStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  if (note != null) Text(note, style: mutedStyle, maxLines: 2, overflow: TextOverflow.ellipsis),
-                ],
+        child: _ColumnsLayout(
+          name: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                adjustment.name,
+                style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                spacing: 2,
-                children: [
-                  Text(
-                    shown == null ? "–" : guideValueText(adjustment, shown, context.l10n),
-                    style: textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: value == null ? hint.onContainer.withValues(alpha: 0.6) : hint.onContainer,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (status != null) GuideStatusPill(status),
-                  if (statusDetail != null)
-                    Text(
-                      statusDetail,
-                      style: mutedStyle,
-                      maxLines: 2,
-                      textAlign: TextAlign.end,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
+              Text(guideDetailText(recommendation, component, context.l10n), style: mutedStyle),
+              if (reverseLookup != null) Text(reverseLookup, style: mutedStyle),
+              if (note != null) Text(note, style: mutedStyle),
+            ],
+          ),
+          now: Text(
+            current == null ? "–" : guideValueText(adjustment, current, context.l10n),
+            style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
+            textAlign: TextAlign.end,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          guide: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                shown == null ? "–" : guideValueText(adjustment, shown, context.l10n),
+                style: textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: value == null ? hint.onContainer.withValues(alpha: 0.6) : hint.onContainer,
+                ),
+                textAlign: TextAlign.end,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+              if (band != null)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(band, style: mutedStyle, maxLines: 1),
+                ),
+            ],
+          ),
+          status: _StatusIcon(recommendation: recommendation),
         ),
       ),
     );
   }
+}
+
+/// The "Now" and "Guide" captions above a section's rows.
+class _ColumnsHeader extends StatelessWidget {
+  const _ColumnsHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    final hint = HintColors.of(context);
+    final style = Theme.of(context).textTheme.labelMedium?.copyWith(
+      color: hint.onContainer.withValues(alpha: 0.75),
+      fontWeight: FontWeight.w600,
+    );
+    Widget caption(String text) =>
+        Text(text, style: style, textAlign: TextAlign.end, maxLines: 1, overflow: TextOverflow.ellipsis);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      child: _ColumnsLayout(
+        now: caption(context.l10n.guideCardColumnNow),
+        guide: caption(context.l10n.guideCardColumnGuide),
+      ),
+    );
+  }
+}
+
+/// Shared by [_ColumnsHeader] and [_RecommendationRow] so the columns line up.
+class _ColumnsLayout extends StatelessWidget {
+  final Widget? name;
+  final Widget now;
+  final Widget guide;
+  final Widget? status;
+
+  const _ColumnsLayout({this.name, required this.now, required this.guide, this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 4, child: name ?? const SizedBox.shrink()),
+        Expanded(flex: 2, child: now),
+        Expanded(flex: 2, child: guide),
+        SizedBox(width: 24, child: status),
+      ],
+    );
+  }
+}
+
+/// The status icon, or for a value that is off, which way to move it: one
+/// chevron for a small step, two for a large one, measured against the row's
+/// scale. The tooltip keeps the exact distance.
+class _StatusIcon extends StatelessWidget {
+  final GuideRecommendation recommendation;
+
+  const _StatusIcon({required this.recommendation});
+
+  /// Up to this share of the scale counts as a small step.
+  static const _smallShare = 0.15;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = GuideStatus.of(recommendation, context.l10n);
+    if (status == null) return const SizedBox.shrink();
+    final delta = recommendation.deviation?.delta;
+    final span = _scaleSpan(recommendation);
+    final icon = switch ((status.kind, delta, span)) {
+      (GuideStatusKind.off, final delta?, final span?) => switch ((delta < 0, delta.abs() / span <= _smallShare)) {
+        (true, true) => Icons.keyboard_arrow_up,
+        (true, false) => Icons.keyboard_double_arrow_up,
+        (false, true) => Icons.keyboard_arrow_down,
+        (false, false) => Icons.keyboard_double_arrow_down,
+      },
+      _ => status.icon,
+    };
+    return Tooltip(
+      message: status.label(context.l10n),
+      child: Icon(icon, size: 20, color: status.color(context), semanticLabel: status.label(context.l10n)),
+    );
+  }
+}
+
+/// How wide the scale is that a row's values are compared on: the adjuster's
+/// range, widened to every value shown, or padded around the values where the
+/// adjuster has no bounds. Null for options and switches, which have no scale.
+double? _scaleSpan(GuideRecommendation recommendation) {
+  final adjustment = recommendation.adjustment;
+  if (adjustment is! StepAdjustment && adjustment is! NumericalAdjustment) return null;
+  final current = recommendation.current?.asNum?.toDouble();
+  final recommended = (recommendation.value ?? recommendation.unappliedValue)?.asNum?.toDouble();
+  final band = recommendation.band;
+  final points = [?current, ?recommended, ?band?.min, ?band?.max];
+  if (points.isEmpty) return null;
+
+  var low = points.reduce(math.min);
+  var high = points.reduce(math.max);
+  final pad = math.max((high - low) * 0.5, math.max(low.abs(), high.abs()) * 0.1);
+  final (min, max) = switch (adjustment) {
+    StepAdjustment(:final min, :final max) => (min.toDouble(), max.toDouble()),
+    NumericalAdjustment(:final min, :final max) => (min, max),
+    _ => (double.negativeInfinity, double.infinity),
+  };
+  final bounded = min.isFinite && max.isFinite && max > min;
+  low = bounded ? math.min(low, min) : low - pad;
+  high = bounded ? math.max(high, max) : high + pad;
+  return high - low < 1e-9 ? 2 : high - low;
+}
+
+/// "−4…−3 clicks": an ellipsis, so negative ends don't run into a dash.
+String? _bandText(GuideRecommendation recommendation, AppLocalizations l10n) {
+  final band = recommendation.band;
+  if (band == null) return null;
+  String number(double value) =>
+      formatLocalizedDouble(double.parse(value.toStringAsFixed(1)), locale: l10n.localeName);
+
+  return "${number(band.min)}…${number(band.max)}${recommendation.adjustment.unitSuffix()}";
 }
 
 String _inputsText(GuideInputs inputs, AppLocalizations l10n) {
@@ -418,6 +598,7 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
   if (issue == null) {
     final basis = [
       ?recommendation.inputText,
+      if (recommendation.followsSpring case final spring?) l10n.guideDetailFollowsSpring(spring),
       if (recommendation.interpolated) l10n.guideDetailInterpolated,
       if (recommendation.converted) l10n.guideDetailConverted,
     ];
@@ -433,12 +614,29 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
       PresetGuideInput(:final id) => l10n.guideIssueNeedsSpec(id.replaceAll('_', ' ')),
       null => l10n.guideIssueNeedsMore,
     },
-    GuideIssue.outsideRange => l10n.guideIssueOutsideRange,
+    GuideIssue.outsideRange => switch (_outsideRangeInput(recommendation, l10n)) {
+      final input? => l10n.guideIssueOutsideRangeFor(input),
+      null => l10n.guideIssueOutsideRange,
+    },
     GuideIssue.placeholderMax => l10n.guideIssuePlaceholderMax,
     GuideIssue.aboveMax => l10n.guideIssueAboveMax,
     GuideIssue.belowMin => l10n.guideIssueBelowMin,
     GuideIssue.incompatible => l10n.guideIssueIncompatible,
     GuideIssue.directionUnknown => l10n.guideIssueDirectionUnknown,
+  };
+}
+
+/// The looked-up input with its name, e.g. "Riding weight 140 kg" or
+/// "Pressure 120 psi"; an adjuster's [GuideRecommendation.inputText] has its
+/// name already, as has the spring a rule follows.
+String? _outsideRangeInput(GuideRecommendation recommendation, AppLocalizations l10n) {
+  final text = recommendation.inputText;
+  if (text == null) return null;
+  if (recommendation.followsSpring != null) return text;
+  return switch (recommendation.rule.input) {
+    RiderGuideInput(key: GuideInputKey.riderWeight) => "${l10n.guideCardRidingWeight} $text",
+    PresetGuideInput(:final id) => "${id.replaceAll('_', ' ')} $text",
+    _ => text,
   };
 }
 

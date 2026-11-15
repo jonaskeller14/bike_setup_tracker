@@ -109,7 +109,7 @@ Future<void> showColumnFilterSheet<T extends SelectableColumn>({
 }
 
 /// A sub-header inside a section of the column sheet, e.g. one slot lane.
-/// [info] rows are shown as a table in a tooltip behind an info icon.
+/// `info` rows are shown as a table in a tooltip behind an info icon.
 typedef ColumnGroup = ({String title, List<List<String>>? info});
 
 class _ColumnGroupHeader extends StatelessWidget {

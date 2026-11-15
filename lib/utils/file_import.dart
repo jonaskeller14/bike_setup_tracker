@@ -10,6 +10,7 @@ import '../database/app_database.dart';
 import '../l10n/l10n.dart';
 import '../models/selected_data.dart';
 import '../models/service_error.dart';
+import '../models/syncable.dart';
 import '../services/attachment_storage_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/data_export_service.dart';
@@ -19,12 +20,12 @@ import '../widgets/app_snackbar.dart';
 import 'backup.dart';
 
 class FileImport {
-  static Future<GetLocalBackupsResult> getBackups() async {
+  static Future<DataResult<List<LocalBackup>>> getBackups() async {
     final List<LocalBackup> backups = [];
     try {
       final dir = await getApplicationDocumentsDirectory();  //catch MissingPlatformDirectoryException
       final backupDir = Directory('${dir.path}/backup');
-      if (!await backupDir.exists()) return GetLocalBackupsResult.success(backups);
+      if (!await backupDir.exists()) return DataSuccess(backups);
       
       await for (final entity in backupDir.list()) {
         if (entity is File) {
@@ -32,13 +33,13 @@ class FileImport {
           backups.add(LocalBackup(createdAt: stat.modified, filepath: entity.path));
         }
       }
-      return GetLocalBackupsResult.success(backups);
+      return DataSuccess(backups);
     } catch (e) {
-      return GetLocalBackupsResult.failure(DataError(DataErrorKind.getLocalBackups, e.toString()));
+      return DataFailure(DataError(DataErrorKind.getLocalBackups, e.toString()));
     }
   }
 
-  static Future<ReadLocalBackupResult> readBackup({required String path, required AppDatabase appDatabase}) async {
+  static Future<DataResult<SelectedData>> readBackup({required String path, required AppDatabase appDatabase}) async {
     try {
       final file = File(path);
       if (!await file.exists()) throw Exception("File does not exist");
@@ -46,21 +47,21 @@ class FileImport {
       final jsonString = await file.readAsString();
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadLocalBackupResult.success(SelectedData.fromJson(jsonData));
+      return DataSuccess(SelectedData.fromJson(jsonData));
     } catch (e, st) {
       debugPrint("Reading backup failed: $e\n$st");
-      return ReadLocalBackupResult.failure(DataError(DataErrorKind.readLocalBackup, e.toString()));
+      return DataFailure(DataError(DataErrorKind.readLocalBackup, e.toString()));
     }
   }
 
-  static Future<ReadJsonFileResult> pickAndReadJsonFile({required AppDatabase appDatabase, VoidCallback? onPicked}) async {
+  static Future<DataResult<SelectedData>> pickAndReadJsonFile({required AppDatabase appDatabase, VoidCallback? onPicked}) async {
     try {
       // Step 1 — pick a file
       final pickedFile = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
-      if (pickedFile == null) return ReadJsonFileResult.failure(const DataError(DataErrorKind.noFileSelected));
+      if (pickedFile == null) return const DataFailure(DataError(DataErrorKind.noFileSelected));
       onPicked?.call();
 
       final fileBytes = await pickedFile.readAsBytes();
@@ -68,10 +69,10 @@ class FileImport {
       final jsonString = utf8.decode(fileBytes);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
 
-      return ReadJsonFileResult.success(SelectedData.fromJson(jsonData));
+      return DataSuccess(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint("Import failed: $e");
-      return ReadJsonFileResult.failure(DataError(DataErrorKind.importFile, e.toString()));
+      return DataFailure(DataError(DataErrorKind.importFile, e.toString()));
     }
   }
 
@@ -93,19 +94,22 @@ class FileImport {
     }
   }
 
-  static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) async {
-    final purgedAttachments = cleanupIsDeleted(data: remoteData);
-    await _importDataToDb(database, remoteData);
-    await AttachmentStorageService().deleteFiles(purgedAttachments);
-  }
+  /// Overwrites by id and moves every other local item to the trash: as
+  /// tombstones, the removals reach the other devices through cloud sync.
+  static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) =>
+      overwrite(remoteData: remoteData, database: database, trashRest: true);
 
-  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) async {
+  static Future<void> overwrite({
+    required SelectedData remoteData,
+    required AppDatabase database,
+    bool trashRest = false,
+  }) async {
     // 1. Fetch current DB state into memory
     final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
     final localData = SelectedData.fromJson(localJson);
 
     // 2. Perform merge in memory
-    _overwriteInternal(remoteData: remoteData, localData: localData);
+    _overwriteInternal(remoteData: remoteData, localData: localData, trashRest: trashRest);
     final purgedAttachments = cleanupIsDeleted(data: localData);
 
     // 3. Write merged state back to DB
@@ -115,10 +119,7 @@ class FileImport {
     await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
-  static Future<void> merge({
-    required SelectedData remoteData,
-    required AppDatabase database,
-  }) async {
+  static Future<void> merge({required SelectedData remoteData, required AppDatabase database}) async {
     // 1. Fetch current DB state into memory
     final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
     final localData = SelectedData.fromJson(localJson);
@@ -154,7 +155,6 @@ class FileImport {
     required SelectedData remoteData,
     required SelectedData localData,
   }) {
-    //FIXME: Preserve Order (except setups?)
     // Last Write Wins (LWW) strategy
     for (final remotePerson in remoteData.persons.values) {
       final localPerson = localData.persons[remotePerson.id];
@@ -273,21 +273,54 @@ class FileImport {
     }
   }
 
+  /// Every item written gets the current time as its lastModified, so a
+  /// restored older version counts as the newest edit. Otherwise last-writer-wins
+  /// sync would bring back the newer version the cloud still has. Items whose
+  /// content is unchanged are left as they are.
   static void _overwriteInternal({
     required SelectedData remoteData,
     required SelectedData localData,
+    bool trashRest = false,
   }) {
-    // Overwrite existing local items individually with remote entries (by ID).
-    // Unique local items that are not present in remoteData are preserved.
-    localData.persons.addAll(remoteData.persons);
-    localData.bikes.addAll(remoteData.bikes);
-    localData.components.addAll(remoteData.components);
-    localData.setups.addAll(remoteData.setups);
-    localData.taskRules.addAll(remoteData.taskRules);
-    localData.taskEntries.addAll(remoteData.taskEntries);
-    localData.feedbacks.addAll(remoteData.feedbacks);
-    localData.testSessions.addAll(remoteData.testSessions);
+    final now = DateTime.now().toUtc();
+    _overwriteRecords(localData.persons, remoteData.persons, trashRest,
+        (p, isDeleted) => p.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.bikes, remoteData.bikes, trashRest,
+        (b, isDeleted) => b.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.components, remoteData.components, trashRest,
+        (c, isDeleted) => c.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.setups, remoteData.setups, trashRest,
+        (s, isDeleted) => s.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.taskRules, remoteData.taskRules, trashRest,
+        (tr, isDeleted) => tr.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.taskEntries, remoteData.taskEntries, trashRest,
+        (te, isDeleted) => te.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.feedbacks, remoteData.feedbacks, trashRest,
+        (f, isDeleted) => f.copyWith(isDeleted: isDeleted, lastModified: now));
+    _overwriteRecords(localData.testSessions, remoteData.testSessions, trashRest,
+        (ts, isDeleted) => ts.copyWith(isDeleted: isDeleted, lastModified: now));
   }
+
+  static void _overwriteRecords<T extends Syncable>(
+    Map<String, T> local,
+    Map<String, T> imported,
+    bool trashRest,
+    T Function(T record, bool isDeleted) stamp,
+  ) {
+    if (trashRest) {
+      for (final record in local.values.toList()) {
+        if (!record.isDeleted && !imported.containsKey(record.id)) local[record.id] = stamp(record, true);
+      }
+    }
+    for (final record in imported.values) {
+      final current = local[record.id];
+      if (current != null && _sameContent(current, record)) continue;
+      local[record.id] = stamp(record, record.isDeleted);
+    }
+  }
+
+  static bool _sameContent(Syncable a, Syncable b) =>
+      jsonEncode(a.toJson()..remove('lastModified')) == jsonEncode(b.toJson()..remove('lastModified'));
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
     final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);
@@ -337,31 +370,4 @@ class FileImport {
     }.map((a) => a.filename).toSet();
     return purgedAttachments.where((f) => !stillReferenced.contains(f)).toList();
   }
-}
-
-class GetLocalBackupsResult {
-  final List<LocalBackup> backups;
-  final DataError? error;
-  final bool isError;
-
-  GetLocalBackupsResult.success(this.backups) : error = null, isError = false;
-  GetLocalBackupsResult.failure(this.error) : backups = [], isError = true;
-}
-
-class ReadLocalBackupResult {
-  final SelectedData? appData;
-  final DataError? error;
-  final bool isError;
-
-  ReadLocalBackupResult.success(this.appData) : error = null, isError = false;
-  ReadLocalBackupResult.failure(this.error) : appData = null, isError = true;
-}
-
-class ReadJsonFileResult {
-  final SelectedData? appData;
-  final DataError? error;
-  final bool isError;
-
-  ReadJsonFileResult.success(this.appData) : error = null, isError = false;
-  ReadJsonFileResult.failure(this.error) : appData = null, isError = true;
 }

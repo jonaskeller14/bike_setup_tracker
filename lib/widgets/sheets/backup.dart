@@ -11,6 +11,7 @@ import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/selected_data.dart';
 import '../../models/service_error.dart';
+import '../../services/cloud_sync_service.dart';
 import '../../services/google_drive_service.dart';
 import '../../utils/backup.dart';
 import '../../utils/file_import.dart';
@@ -33,6 +34,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
 
   DataError? _localBackupError;
   DataError? _googleDriveBackupError;
+  DataError? _cloudBackupError;
   DataError? _readBackupError;
   Backup? _restoringBackup;
 
@@ -46,15 +48,17 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
       leading: switch (backup) {
         LocalBackup() => const Icon(Icons.phone_android),
         GoogleDriveBackup() => const Icon(SimpleIcons.googledrive),
+        CloudBackup() => const Icon(Icons.cloud_outlined),
       },
       title: switch (backup) {
         LocalBackup() => Text(context.l10n.backupLocal),
         GoogleDriveBackup() => Text(context.l10n.backupGoogleDrive),
+        CloudBackup() => Text(context.l10n.backupCloud),
       },
       subtitle: Text(isRestoring
           ? switch (backup) {
               LocalBackup() => context.l10n.backupReading,
-              GoogleDriveBackup() => context.l10n.backupDownloading,
+              GoogleDriveBackup() || CloudBackup() => context.l10n.backupDownloading,
             }
           : context.l10n.backupCreatedAt(timeFormat.format(backup.createdAt.toLocal()))),
       trailing: isRestoring ? const Padding(
@@ -63,27 +67,21 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
       ) : IconButton(
         onPressed: _restoringBackup != null ? null : () async {
           setState(() => _restoringBackup = backup);
-          switch (backup) {
-            case LocalBackup():
-              final appDatabase = context.read<AppDatabase>();
-              final result = await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase);
-              if (!mounted) return;
-              setState(() => _restoringBackup = null);
-              if (result.isError) {
-                setState(() => _readBackupError = result.error);
-              } else {
-                widget.onRestore(result.appData!);
-              }
-            case GoogleDriveBackup(): 
-              final appDatabase = context.read<AppDatabase>();
-              final result = await context.read<GoogleDriveService>().readBackup(fileId: backup.fileId, appDatabase: appDatabase);
-              if (!mounted) return;
-              setState(() => _restoringBackup = null);
-              if (result.isError) {
-                setState(() => _readBackupError = result.error);
-              } else {
-                widget.onRestore(result.appData!);
-              }
+          final appDatabase = context.read<AppDatabase>();
+          final googleDriveService = context.read<GoogleDriveService>();
+          final cloudSyncService = context.read<CloudSyncService>();
+          final result = switch (backup) {
+            LocalBackup() => await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase),
+            GoogleDriveBackup() => await googleDriveService.readBackup(fileId: backup.fileId, appDatabase: appDatabase),
+            CloudBackup() => await cloudSyncService.readBackup(backup),
+          };
+          if (!mounted) return;
+          setState(() => _restoringBackup = null);
+          switch (result) {
+            case DataSuccess(:final value):
+              widget.onRestore(value);
+            case DataFailure(:final error):
+              setState(() => _readBackupError = error);
           }
         },
         icon: const Icon(Icons.upload),
@@ -123,11 +121,14 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
 
   Future<List<Backup>> _fetchBackups() async {
     final appSettings = context.read<AppSettings>();
+    final cloudSyncService = context.read<CloudSyncService>();
 
     final results = await Future.wait([
       _fetchLocalBackups(),
       if (appSettings.enableGoogleDrive)
         _fetchGoogleDriveBackups(),
+      if (cloudSyncService.isActive)
+        _fetchCloudBackups(cloudSyncService),
     ]);
 
     if (mounted) { 
@@ -140,15 +141,33 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
   }
 
   Future<List<LocalBackup>> _fetchLocalBackups() async {
-    final result = await FileImport.getBackups();
-    if (result.isError) _localBackupError = result.error;
-    return result.backups;
+    switch (await FileImport.getBackups()) {
+      case DataSuccess(:final value):
+        return value;
+      case DataFailure(:final error):
+        _localBackupError = error;
+        return [];
+    }
   }
-  
+
   Future<List<GoogleDriveBackup>> _fetchGoogleDriveBackups() async {
-    final result = await context.read<GoogleDriveService>().getBackups();
-    if (result.isError) _googleDriveBackupError = result.error;
-    return result.backups;
+    switch (await context.read<GoogleDriveService>().getBackups()) {
+      case DataSuccess(:final value):
+        return value;
+      case DataFailure(:final error):
+        _googleDriveBackupError = error;
+        return [];
+    }
+  }
+
+  Future<List<CloudBackup>> _fetchCloudBackups(CloudSyncService cloudSyncService) async {
+    switch (await cloudSyncService.listBackups()) {
+      case DataSuccess(:final value):
+        return value;
+      case DataFailure(:final error):
+        _cloudBackupError = error;
+        return [];
+    }
   }
 
   @override
@@ -192,6 +211,12 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
                     ListTile(
                       leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
                       title: SelectableText(_googleDriveBackupError!.message(context.l10n)),
+                      dense: true,
+                    ),
+                  if (_cloudBackupError != null)
+                    ListTile(
+                      leading: Icon(Icons.error_outline, color: Theme.of(context).colorScheme.error),
+                      title: SelectableText(_cloudBackupError!.message(context.l10n)),
                       dense: true,
                     ),
                   if (_readBackupError != null)

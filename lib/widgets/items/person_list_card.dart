@@ -6,7 +6,6 @@ import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
-import '../../pages/details/person_details_page.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/person_actions.dart';
@@ -53,7 +52,6 @@ class PersonListCard extends StatelessWidget {
     final appRepository = context.watch<AppRepository>();
     final subscriptionService = context.watch<SubscriptionService>();
     final appSettings = context.watch<AppSettings>();
-    final advanced = appSettings.showAdvancedPersonUi;
     final bikes = appRepository.bikes;
     final index = this.index;
 
@@ -63,21 +61,11 @@ class PersonListCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       clipBehavior: Clip.antiAlias, // Borderradius for InkWell
       child: InkWell(
-        onTap: !advanced
-            ? null
-            : () async {
-                await Navigator.push<void>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonDetailsPage(personId: person.id),
-                  ),
-                );
-              },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: advanced && appSettings.enableStrava && subscriptionService.hasStravaEntitlement
+              leading: appSettings.developerMode && appSettings.enableStrava && subscriptionService.hasStravaEntitlement
                   ? Badge(
                       label: person.stravaAthlete == null
                           ? Icon(
@@ -127,7 +115,7 @@ class PersonListCard extends StatelessWidget {
                       }
                     },
                     itemBuilder: (BuildContext context) => _PersonOptions.values
-                        .where((option) => advanced || option != _PersonOptions.duplicate)
+                        .where((option) => appSettings.developerMode || option != _PersonOptions.duplicate)
                         .map((option) {
                       return PopupMenuItem<_PersonOptions>(
                         value: option,

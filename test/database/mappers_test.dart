@@ -213,6 +213,7 @@ void main() {
         lastModified: DateTime(2023, 1, 1).toUtc(),
         attachments: const [],
         isBookmarked: false,
+        setNowAdjustmentIds: const {},
       );
       
       final model = data.toModel();
@@ -234,6 +235,7 @@ void main() {
         tags: {},
         attachments: const [],
         isBookmarked: false,
+        setNowAdjustmentIds: const {},
       );
 
       final stepAdj = const AdjustmentDb(
@@ -587,6 +589,7 @@ void main() {
         testSessionId: 'session1',
         sourceSetupId: 'r1',
         sourceKind: SetupSourceKind.testSessionRun,
+        setNowAdjustmentIds: const {'adj1'},
       );
       await database.into(database.setups).insert(setup.toCompanion());
 
@@ -594,6 +597,7 @@ void main() {
       expect(row.testSessionId, 'session1');
       expect(row.sourceSetupId, 'r1');
       expect(row.sourceKind, SetupSourceKind.testSessionRun);
+      expect(row.setNowAdjustmentIds, {'adj1'});
       expect(row.toModel(), setup);
     });
 

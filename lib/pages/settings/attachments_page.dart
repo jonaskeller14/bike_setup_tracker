@@ -13,6 +13,7 @@ import '../../services/attachment_storage_service.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/attachment_index.dart';
 import '../../widgets/animated_app_bar_switcher.dart';
+import '../../widgets/attachment_file_loader.dart';
 import '../../widgets/attachment_strip.dart';
 import '../../widgets/attachment_viewer.dart';
 import '../../widgets/empty_state_placeholder.dart';
@@ -129,14 +130,20 @@ class _AttachmentsPageState extends State<AttachmentsPage> {
 
   Widget _tileContent(BuildContext context, Attachment attachment, String attachmentsDir) {
     if (!attachment.isImage) return AttachmentFileTile(attachment: attachment);
-    return Image.file(
-      File(p.join(attachmentsDir, attachment.filename)),
-      fit: BoxFit.cover,
-      cacheWidth: 400,
-      errorBuilder: (_, _, _) => Container(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: const Center(child: Icon(Icons.broken_image_outlined, size: 32)),
-      ),
+    return AttachmentFileLoader(
+      attachment: attachment,
+      attachmentsDir: attachmentsDir,
+      builder: (context, file, state) => state.showsPlaceholder
+          ? AttachmentFilePlaceholder(state: state)
+          : Image.file(
+              file,
+              fit: BoxFit.cover,
+              cacheWidth: 400,
+              errorBuilder: (_, _, _) => Container(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                child: const Center(child: Icon(Icons.broken_image_outlined, size: 32)),
+              ),
+            ),
     );
   }
 

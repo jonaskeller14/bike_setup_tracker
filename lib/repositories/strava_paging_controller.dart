@@ -9,7 +9,7 @@ import '../models/strava/strava_activity_query.dart';
 
 /// Owns the paged, filtered window of Strava activities.
 ///
-/// Strava is paginated per active query (see [StravaDao.getActivitiesPaginated]),
+/// Strava is paginated per active query (see `StravaDao.getActivitiesPaginated`),
 /// so the loaded window *is* the filtered set. The owning repository supplies the
 /// current query via [query] and is told about changes through [onLoadingChanged]
 /// (spinner only) and [onWindowChanged] (window contents).
@@ -204,4 +204,8 @@ class StravaPagingController {
     final dbActivity = await database.stravaDao.getActivityById(id);
     return dbActivity?.toModel();
   }
+
+  /// Reads the database rather than the loaded window, which may not hold [id].
+  Stream<StravaActivity?> watchActivity(int id) =>
+      database.stravaDao.watchActivityById(id).map((a) => a?.toModel());
 }

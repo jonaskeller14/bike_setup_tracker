@@ -188,7 +188,7 @@ void main() {
       expect(personsInDb.first.name, 'Local Person');
     });
 
-    test('replace - clears local state and replaces with remote', () async {
+    test('replace - moves the local items to the trash and adds the remote ones', () async {
       // 1. Setup local data
       final localPerson = createPerson(id: 'p1', name: 'Local Person');
       final localBike = createBike(id: 'b1', name: 'Local Bike', person: 'p1');
@@ -209,15 +209,61 @@ void main() {
       // 3. Perform replace
       await FileImport.replace(remoteData: remoteData, database: database);
 
-      // 4. Verify
+      // 4. Verify: the local items stay as tombstones, so the removal syncs.
       final personsInDb = await database.select(database.persons).get();
       final bikesInDb = await database.select(database.bikes).get();
       final componentsInDb = await database.select(database.components).get();
 
-      expect(personsInDb, hasLength(1));
-      expect(personsInDb.first.name, 'Remote Person');
-      expect(bikesInDb, isEmpty);
-      expect(componentsInDb, isEmpty);
+      expect({for (final p in personsInDb) p.name: p.isDeleted}, {'Local Person': true, 'Remote Person': false});
+      expect(bikesInDb.single.isDeleted, isTrue);
+      expect(componentsInDb.single.isDeleted, isTrue);
+    });
+
+    test('replace - stamps the trashed items, so the removal wins over older versions elsewhere', () async {
+      final before = DateTime.now().toUtc().subtract(const Duration(seconds: 1));
+      final oneHourAgo = DateTime.now().toUtc().subtract(const Duration(hours: 1));
+      await database.into(database.bikes).insert(createBike(id: 'b1', name: 'Local', lastModified: oneHourAgo).toCompanion());
+      await database
+          .into(database.bikes)
+          .insert(createBike(id: 'b2', name: 'Trashed', lastModified: oneHourAgo, isDeleted: true).toCompanion());
+
+      await FileImport.replace(remoteData: SelectedData(), database: database);
+
+      final bikes = {for (final b in await database.select(database.bikes).get()) b.id: b};
+      expect(bikes['b1']!.isDeleted, isTrue);
+      expect(bikes['b1']!.lastModified.isBefore(before), isFalse);
+      expect(bikes['b2']!.lastModified, oneHourAgo.copyWith(millisecond: 0, microsecond: 0),
+          reason: 'already in the trash: its 30 days are not restarted');
+    });
+
+    test('overwrite - a changed item becomes the newest version, an unchanged one keeps its date', () async {
+      final before = DateTime.now().toUtc().subtract(const Duration(seconds: 1));
+      final oneHourAgo = DateTime.now().toUtc().subtract(const Duration(hours: 1)).copyWith(millisecond: 0, microsecond: 0);
+      final twoHoursAgo = oneHourAgo.subtract(const Duration(hours: 1));
+      await database.into(database.bikes).insert(createBike(id: 'b1', name: 'Edited', lastModified: oneHourAgo).toCompanion());
+      await database.into(database.bikes).insert(createBike(id: 'b2', name: 'Same', lastModified: oneHourAgo).toCompanion());
+      await database
+          .into(database.bikes)
+          .insert(createBike(id: 'b3', name: 'Deleted', lastModified: oneHourAgo, isDeleted: true).toCompanion());
+
+      // A backup from two hours ago.
+      await FileImport.overwrite(
+        remoteData: SelectedData(
+          bikes: {
+            'b1': createBike(id: 'b1', name: 'Original', lastModified: twoHoursAgo),
+            'b2': createBike(id: 'b2', name: 'Same', lastModified: twoHoursAgo),
+            'b3': createBike(id: 'b3', name: 'Deleted', lastModified: twoHoursAgo),
+          },
+        ),
+        database: database,
+      );
+
+      final bikes = {for (final b in await database.select(database.bikes).get()) b.id: b};
+      expect(bikes['b1']!.name, 'Original');
+      expect(bikes['b1']!.lastModified.isBefore(before), isFalse);
+      expect(bikes['b2']!.lastModified, oneHourAgo);
+      expect(bikes['b3']!.isDeleted, isFalse, reason: 'restored from the trash');
+      expect(bikes['b3']!.lastModified.isBefore(before), isFalse);
     });
 
     test('overwrite - replaces existing items by ID but keeps unique local items', () async {

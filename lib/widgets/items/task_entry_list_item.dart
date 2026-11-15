@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
-import '../../models/attachment.dart';
 import '../../models/component_stats.dart';
 import '../../models/task/task_association.dart';
 import '../../repositories/app_repository.dart';
@@ -88,7 +87,7 @@ class _TaskEntryListItemState extends State<TaskEntryListItem> {
         taskEntry.snapshot != null &&
         taskRules.containsKey(taskEntry.taskRule) &&
         taskEntry.association is! GeneralTaskAssociation;
-    final attachments = appSettings.enableAttachments ? taskEntry.attachments : const <Attachment>[];
+    final attachments = taskEntry.attachments;
     final showAttachmentStrip = widget.showAttachments && widget.attachmentsDir != null && attachments.isNotEmpty;
     final hasBottomBlock = showLinkWarning || hasNotes || resolvedShowStats || showAttachmentStrip;
 

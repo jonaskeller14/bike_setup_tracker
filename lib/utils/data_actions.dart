@@ -91,6 +91,7 @@ class DataActions {
 
     try {
       await database.deleteAllUserData();
+      await database.syncDao.reset();
       await AttachmentStorageService().deleteAll();
       if (!context.mounted) return;
       messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataClearDatabaseDone));

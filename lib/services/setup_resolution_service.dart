@@ -136,8 +136,9 @@ class SetupResolutionService {
   ///
   /// Setups carry pre-filled values forward unchanged, so a repeated value is
   /// not a modification: a value keeps pointing at the earlier setup that
-  /// introduced it until a setup records a different one. Different adjustments
-  /// therefore commonly resolve to different setups.
+  /// introduced it until a setup records a different one, or marks it in
+  /// [Setup.setNowAdjustmentIds]. Different adjustments therefore commonly
+  /// resolve to different setups.
   static Map<String, AdjustmentProvenance> resolveHistoricalProvenanceAt({
     required DateTime datetime,
     required Iterable<Setup> setups,
@@ -152,7 +153,7 @@ class SetupResolutionService {
     for (final setup in sortedSetups) {
       for (final entry in [...setup.bikeAdjustmentValues.entries, ...setup.personAdjustmentValues.entries]) {
         final known = provenance[entry.key];
-        if (known != null && known.value == entry.value) continue;
+        if (known != null && known.value == entry.value && !setup.setNowAdjustmentIds.contains(entry.key)) continue;
         provenance[entry.key] = (value: entry.value, setup: setup);
       }
     }

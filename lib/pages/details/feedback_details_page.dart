@@ -31,7 +31,7 @@ import '../../widgets/sheets/sheet.dart';
 import '../../widgets/sheets/strava_activity.dart';
 
 /// Every answer of one feedback, with its setup and context. Shown in
-/// [showFeedbackDetailsSheet]; nothing opens it as a page of its own.
+/// `showFeedbackDetailsSheet`; nothing opens it as a page of its own.
 class FeedbackDetailsContent extends StatelessWidget {
   final String feedbackId;
   final bool showEditButton;
@@ -388,7 +388,7 @@ class FeedbackDetailsContent extends StatelessWidget {
 
     return _compactCard(
       context,
-      icon: Icons.flag_outlined,
+      icon: Icons.warning_amber_rounded,
       title: context.l10n.feedbackFormAnythingTitle,
       trailing: answered
           ? null

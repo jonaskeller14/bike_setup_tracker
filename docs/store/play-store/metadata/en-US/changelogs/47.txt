@@ -1,0 +1,8 @@
+• Setup Guides: the manual's starting values for your riding weight
+• Pressure Check: notice when fork or shock pressure needs topping up after a temperature drop
+• Switch both on under Settings > Features
+• Catalog clicks for more forks and shocks now follow your pressure
+• Component charts show where a part was mounted and highlight your current value
+• Equal setups share one line on the radar chart
+• Strava import notifications come in your language
+• Attachments are always on

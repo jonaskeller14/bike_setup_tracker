@@ -333,6 +333,7 @@ extension SetupMapper on Setup {
       testSessionId: Value<String?>(testSessionId),
       sourceSetupId: Value<String?>(sourceSetupId),
       sourceKind: Value<SetupSourceKind?>(sourceKind),
+      setNowAdjustmentIds: Value<Set<String>>(setNowAdjustmentIds),
     );
   }
 
@@ -398,6 +399,7 @@ extension SetupDbMapper on SetupDb {
       testSessionId: testSessionId,
       sourceSetupId: sourceSetupId,
       sourceKind: sourceKind,
+      setNowAdjustmentIds: setNowAdjustmentIds,
     );
   }
 }

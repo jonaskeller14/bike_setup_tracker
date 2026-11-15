@@ -21,9 +21,27 @@ enum DataErrorKind {
   driveApi,
   driveUnexpected,
   readDriveBackup,
+  getCloudBackups,
+  readCloudBackup,
 }
 
 typedef DataError = ServiceError<DataErrorKind>;
+
+sealed class DataResult<T> {
+  const DataResult();
+}
+
+final class DataSuccess<T> extends DataResult<T> {
+  final T value;
+
+  const DataSuccess(this.value);
+}
+
+final class DataFailure<T> extends DataResult<T> {
+  final DataError error;
+
+  const DataFailure(this.error);
+}
 
 enum GoogleDriveErrorKind {
   setupFailed,
@@ -60,6 +78,8 @@ enum StravaErrorKind {
   noInternet,
   authentication,
   rateLimited,
+  ownedByOtherAccount,
+  limitReached,
 }
 
 typedef StravaFailure = ServiceError<StravaErrorKind>;

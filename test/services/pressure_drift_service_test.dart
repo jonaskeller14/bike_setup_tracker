@@ -11,10 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// Conditions the pressures were set in: a mild spring day at low elevation.
 const double _referenceTemperatureC = 20;
 const double _referenceAltitudeM = 500;
+const _reference = PressureConditions(temperatureC: _referenceTemperatureC, altitudeM: _referenceAltitudeM);
 
 /// Conditions now: colder and much higher up.
 const double _currentTemperatureC = 5;
 const double _currentAltitudeM = 1800;
+const _current = PressureConditions(temperatureC: _currentTemperatureC, altitudeM: _currentAltitudeM);
 
 Setup _setup({
   required String id,
@@ -33,27 +35,40 @@ Setup _setup({
     bikeAdjustmentValues: bikeAdjustmentValues,
     personAdjustmentValues: const {},
     position: altitudeM == null ? null : ContextPosition(latitude: 47, longitude: 11, altitude: altitudeM),
-    weather: temperatureC == null
-        ? null
-        : ContextWeather(currentDateTime: datetime, currentTemperature: temperatureC),
+    weather: temperatureC == null ? null : ContextWeather(currentDateTime: datetime, currentTemperature: temperatureC),
   );
 }
 
-Component _component({required String name, required List<Adjustment> adjustments}) {
+/// The moment every check runs at, unless a test passes its own.
+final DateTime _checkedAt = DateTime(2025, 4, 20).toUtc();
+
+Component _component({
+  required String name,
+  required List<Adjustment> adjustments,
+  ComponentType componentType = ComponentType.fork,
+}) {
   return Component(
     name: name,
-    componentType: ComponentType.fork,
+    componentType: componentType,
     adjustments: adjustments,
     installations: [Installation.sinceBeginning(parent: 'bike_1')],
   );
 }
 
 NumericalAdjustment _pressureAdjustment({required String id, required String name, String unit = 'psi'}) {
-  return NumericalAdjustment(
-    id: id,
-    name: name,
+  return NumericalAdjustment(id: id, name: name, notes: null, unit: AdjustmentUnit.fromLegacy(unit));
+}
+
+StepAdjustment _clicksAdjustment() {
+  return StepAdjustment(
+    id: 'adj_clicks',
+    name: 'Rebound',
     notes: null,
-    unit: AdjustmentUnit.fromLegacy(unit),
+    unit: AdjustmentUnit.fromLegacy('clicks'),
+    step: 1,
+    min: 0,
+    max: 20,
+    visualization: StepAdjustmentVisualization.slider,
   );
 }
 
@@ -63,22 +78,32 @@ ContextWeather _currentWeather({double? temperatureC = _currentTemperatureC}) =>
 ContextPosition _currentPosition({double? altitudeM = _currentAltitudeM}) =>
     ContextPosition(latitude: 47, longitude: 11, altitude: altitudeM);
 
-List<PressureDriftEntry> _compute({
+PressureCheck _check({
   required List<Component> components,
   required Iterable<Setup> setups,
   ContextWeather? weather,
   ContextPosition? position,
+  double significanceThreshold = PressureDriftService.defaultSignificanceThreshold,
 }) {
-  return PressureDriftService.compute(
+  return PressureDriftService.check(
     components: components,
     provenance: SetupResolutionService.resolveHistoricalProvenanceAt(
-      datetime: DateTime(2025, 4, 20).toUtc(),
+      datetime: _checkedAt,
       setups: setups,
     ),
     currentWeather: weather ?? _currentWeather(),
     currentPosition: position ?? _currentPosition(),
+    at: _checkedAt,
+    significanceThreshold: significanceThreshold,
   );
 }
+
+List<PressureDriftEntry> _driftEntries({
+  required List<Component> components,
+  required Iterable<Setup> setups,
+  ContextWeather? weather,
+  ContextPosition? position,
+}) => _check(components: components, setups: setups, weather: weather, position: position).driftEntries;
 
 void main() {
   group('PressureDriftService atmosphere model', () {
@@ -106,21 +131,163 @@ void main() {
       // Desired outcome: Round-tripping returns the original gauge pressure.
       // Not desired outcome: Drift accumulating through the temperature ratio.
       const gaugePa = 551581.0; // 80 psi
-      final atDestination = PressureDriftService.readingAtPa(
-        gaugePa: gaugePa,
-        fromTemperatureC: _referenceTemperatureC,
-        fromAltitudeM: _referenceAltitudeM,
-        toTemperatureC: _currentTemperatureC,
-        toAltitudeM: _currentAltitudeM,
-      );
-      final backHome = PressureDriftService.readingAtPa(
-        gaugePa: atDestination,
-        fromTemperatureC: _currentTemperatureC,
-        fromAltitudeM: _currentAltitudeM,
-        toTemperatureC: _referenceTemperatureC,
-        toAltitudeM: _referenceAltitudeM,
-      );
+      final atDestination = PressureDriftService.readingAtPa(gaugePa: gaugePa, from: _reference, to: _current);
+      final backHome = PressureDriftService.readingAtPa(gaugePa: atDestination, from: _current, to: _reference);
       expect(backHome, closeTo(gaugePa, 0.001));
+    });
+
+    test('a prediction splits the drift into shares that add up to it', () {
+      // Intention: The card and the info sheet both show the split, from the same function.
+      // Desired outcome: 80 psi reads ~77.2 psi, and the shares reconstruct the total.
+      // Not desired outcome: Shares computed in a different unit than the reading.
+      final prediction = PressureDriftService.predict(
+        value: 80,
+        unit: AdjustmentUnit.fromLegacy('psi') as KnownUnit,
+        from: _reference,
+        to: _current,
+      );
+      expect(prediction.reading, closeTo(77.22, 0.05));
+      expect(prediction.altitudeShare, closeTo(2.03, 0.05));
+      expect(prediction.leakShare, 0);
+      expect(prediction.temperatureShare + prediction.altitudeShare, closeTo(prediction.reading - 80, 0.0001));
+    });
+  });
+
+  group('PressureDriftService air loss', () {
+    late NumericalAdjustment tirePressure;
+    late NumericalAdjustment forkPressure;
+    late Component tire;
+    late Component fork;
+
+    setUp(() {
+      tirePressure = _pressureAdjustment(id: 'adj_tire_pressure', name: 'Tire Pressure');
+      forkPressure = _pressureAdjustment(id: 'adj_fork_pressure', name: 'Air Pressure');
+      tire = _component(name: 'Rear Tire', adjustments: [tirePressure], componentType: ComponentType.tire);
+      fork = _component(name: 'Fork', adjustments: [forkPressure]);
+    });
+
+    /// The reference is passed as provenance directly, so a reference at or
+    /// after the checked moment can be tested too.
+    PressureDriftEntry entryAfter(
+      Duration age, {
+      required Component component,
+      required Adjustment adjustment,
+      bool sameConditions = true,
+    }) {
+      const value = NumericalValue(30.0);
+      return PressureDriftService.check(
+        components: [component],
+        provenance: {
+          adjustment.id: (
+            value: value,
+            setup: _setup(id: 's1', datetime: _checkedAt.subtract(age), bikeAdjustmentValues: {adjustment.id: value}),
+          ),
+        },
+        currentWeather: _currentWeather(temperatureC: sameConditions ? _referenceTemperatureC : _currentTemperatureC),
+        currentPosition: _currentPosition(altitudeM: sameConditions ? _referenceAltitudeM : _currentAltitudeM),
+        at: _checkedAt,
+      ).driftEntries.single;
+    }
+
+    test('only tyres and wheels leak at a steady rate', () {
+      for (final type in [ComponentType.tire, ComponentType.wheelFront, ComponentType.wheelRear]) {
+        expect(PressureDriftService.leakRatePerDay(type), PressureDriftService.tireLeakRatePerDay);
+      }
+      for (final type in [ComponentType.fork, ComponentType.shock, ComponentType.seatpost, ComponentType.other]) {
+        expect(PressureDriftService.leakRatePerDay(type), 0);
+      }
+      expect(PressureDriftService.tireLeakRatePerDay, closeTo(0.00435, 0.00001));
+    });
+
+    test('a tyre loses 3 % in a week of identical weather, all of it as leak', () {
+      // Intention: Verify the assumed rate end to end, with no other cause in play.
+      // Desired outcome: 30 psi reads 29.1 psi after 7 days, and the leak is the whole drift.
+      // Not desired outcome: A linear psi-per-day loss, or leak counted as temperature.
+      final entry = entryAfter(const Duration(days: 7), component: tire, adjustment: tirePressure);
+
+      expect(entry.elapsedDays, closeTo(7, 0.0001));
+      expect(entry.relativeDelta, closeTo(-0.03, 0.00001));
+      expect(entry.leakShare, closeTo(entry.delta, 0.00001));
+      expect(entry.temperatureShare, closeTo(0, 0.00001));
+      expect(entry.altitudeShare, closeTo(0, 0.00001));
+    });
+
+    test('a fork left for a month leaks nothing', () {
+      // Intention: Healthy air springs have no steady leak, so the model assumes none.
+      // Desired outcome: No leak share and no drift in identical weather.
+      // Not desired outcome: The tyre rate applied to every pressure.
+      final entry = entryAfter(const Duration(days: 30), component: fork, adjustment: forkPressure);
+
+      expect(entry.elapsedDays, closeTo(30, 0.0001));
+      expect(entry.leakShare, 0);
+      expect(entry.delta, closeTo(0, 0.00001));
+    });
+
+    test('a tyre checked right after its reference matches the model without leakage', () {
+      // Intention: A second setup on the same ride must read exactly as before Phase 3.
+      final entry = entryAfter(Duration.zero, component: tire, adjustment: tirePressure, sameConditions: false);
+      final withoutLeak = PressureDriftService.predict(
+        value: 30,
+        unit: tirePressure.unit as KnownUnit,
+        from: _reference,
+        to: _current,
+      );
+
+      expect(entry.elapsedDays, 0);
+      expect(entry.leakShare, 0);
+      expect(entry.predictedReading, closeTo(withoutLeak.reading, 0.0000001));
+    });
+
+    test('a reference dated after the checked moment leaks nothing', () {
+      // Intention: Clock skew between devices, or an edited setup dated before
+      // its reference, must not turn into a pressure gain.
+      // Desired outcome: Elapsed time clamps to zero.
+      // Not desired outcome: A negative elapsed time growing the pressure.
+      final entry = entryAfter(const Duration(days: -3), component: tire, adjustment: tirePressure);
+
+      expect(entry.elapsedDays, 0);
+      expect(entry.leakShare, 0);
+      expect(entry.delta, closeTo(0, 0.00001));
+    });
+
+    test('leak, temperature and altitude shares add up to the total drift', () {
+      final entry = entryAfter(
+        const Duration(days: 10),
+        component: tire,
+        adjustment: tirePressure,
+        sameConditions: false,
+      );
+
+      expect(entry.leakShare, lessThan(0));
+      expect(entry.temperatureShare, lessThan(0));
+      expect(entry.altitudeShare, greaterThan(0));
+      expect(entry.leakShare + entry.temperatureShare + entry.altitudeShare, closeTo(entry.delta, 0.0000001));
+    });
+
+    test('the default 3 % threshold is crossed after about a week', () {
+      // Intention: The expected effect stated in the plan: an untouched tyre is
+      // flagged after roughly a week, even when the weather hasn't changed.
+      expect(entryAfter(const Duration(days: 6), component: tire, adjustment: tirePressure).isSignificant, isFalse);
+      expect(entryAfter(const Duration(days: 8), component: tire, adjustment: tirePressure).isSignificant, isTrue);
+    });
+  });
+
+  group('PressureConditions', () {
+    test('needs both a temperature and an altitude', () {
+      final weather = _currentWeather();
+      final position = _currentPosition();
+
+      expect(PressureConditions.of(weather, position), _current);
+      expect(PressureConditions.of(null, position), isNull);
+      expect(PressureConditions.of(weather, null), isNull);
+      expect(PressureConditions.of(_currentWeather(temperatureC: null), position), isNull);
+      expect(PressureConditions.of(weather, _currentPosition(altitudeM: null)), isNull);
+    });
+
+    test('a temperature at or below absolute zero is bad data', () {
+      final position = _currentPosition();
+      expect(PressureConditions.of(_currentWeather(temperatureC: -273.15), position), isNull);
+      expect(PressureConditions.of(_currentWeather(temperatureC: -300), position), isNull);
     });
   });
 
@@ -141,7 +308,7 @@ void main() {
       // Desired outcome: ~77.2 psi, i.e. the fork has gone soft by ~2.8 psi.
       // Not desired outcome: A rise (altitude applied with the wrong sign) or a
       // temperature ratio taken in Celsius.
-      final entries = _compute(
+      final entries = _driftEntries(
         components: [fork],
         setups: [
           _setup(
@@ -161,6 +328,8 @@ void main() {
       expect(entry.referenceSetup.id, 's1');
       expect(entry.componentName, 'Fork');
       expect(entry.adjustmentName, 'Air Pressure');
+      expect(entry.referenceConditions, _reference);
+      expect(entry.currentConditions, _current);
     });
 
     test('the significance threshold is configurable', () {
@@ -168,19 +337,14 @@ void main() {
       // Desired outcome: The same ~3.5 % drift is flagged at 3 % but not at 5 %.
       // Not desired outcome: The default threshold applied regardless of the setting.
       final setups = [
-        _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
+        _setup(
+          id: 's1',
+          datetime: referenceDateTime,
+          bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+        ),
       ];
-      final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
-        datetime: DateTime(2025, 4, 20).toUtc(),
-        setups: setups,
-      );
-      PressureDriftEntry entryAt(double threshold) => PressureDriftService.compute(
-        components: [fork],
-        provenance: provenance,
-        currentWeather: _currentWeather(),
-        currentPosition: _currentPosition(),
-        significanceThreshold: threshold,
-      ).single;
+      PressureDriftEntry entryAt(double threshold) =>
+          _check(components: [fork], setups: setups, significanceThreshold: threshold).driftEntries.single;
 
       expect(entryAt(0.03).isSignificant, isTrue);
       expect(entryAt(0.05).isSignificant, isFalse);
@@ -191,10 +355,14 @@ void main() {
       // opposite directions, so a big temperature swing can still be harmless.
       // Desired outcome: Temperature loses ~4.8 psi, altitude gains ~2.0 psi.
       // Not desired outcome: Shares that don't reconstruct the total drift.
-      final entry = _compute(
+      final entry = _driftEntries(
         components: [fork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+          ),
         ],
       ).single;
 
@@ -213,10 +381,14 @@ void main() {
       final tirePressure = _pressureAdjustment(id: 'adj_tire_pressure', name: 'Tire Pressure');
       final wheel = _component(name: 'Front Wheel', adjustments: [tirePressure]);
 
-      final entry = _compute(
+      final entry = _driftEntries(
         components: [wheel],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {tirePressure.id: const NumericalValue(25.0)}),
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {tirePressure.id: const NumericalValue(25.0)},
+          ),
         ],
       ).single;
 
@@ -228,10 +400,14 @@ void main() {
       // Intention: The common case of logging a second setup on the same ride.
       // Desired outcome: The pump reads exactly what it read before.
       // Not desired outcome: Rounding noise presented as a drift.
-      final entry = _compute(
+      final entry = _driftEntries(
         components: [fork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)}),
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+          ),
         ],
         weather: _currentWeather(temperatureC: _referenceTemperatureC),
         position: _currentPosition(altitudeM: _referenceAltitudeM),
@@ -249,10 +425,14 @@ void main() {
       final barPressure = _pressureAdjustment(id: 'adj_bar', name: 'Air Pressure', unit: 'bar');
       final barFork = _component(name: 'Fork', adjustments: [barPressure]);
 
-      final entry = _compute(
+      final entry = _driftEntries(
         components: [barFork],
         setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {barPressure.id: const NumericalValue(5.5158)}),
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {barPressure.id: const NumericalValue(5.5158)},
+          ),
         ],
       ).single;
 
@@ -265,16 +445,7 @@ void main() {
       // Intention: Only pump-read values may appear; clicks, sag and travel must not.
       // Desired outcome: No entries at all for those adjustment types.
       // Not desired outcome: A "drift" reported for a rebound click count.
-      final clicks = StepAdjustment(
-        id: 'adj_clicks',
-        name: 'Rebound',
-        notes: null,
-        unit: AdjustmentUnit.fromLegacy('clicks'),
-        step: 1,
-        min: 0,
-        max: 20,
-        visualization: StepAdjustmentVisualization.slider,
-      );
+      final clicks = _clicksAdjustment();
       final travel = NumericalAdjustment(
         id: 'adj_travel',
         name: 'Travel',
@@ -284,30 +455,34 @@ void main() {
       final sag = SagAdjustment(id: 'adj_sag', name: 'Sag', notes: null);
       final component = _component(name: 'Fork', adjustments: [clicks, travel, sag]);
 
-      final entries = _compute(
+      final check = _check(
         components: [component],
         setups: [
           _setup(
             id: 's1',
             datetime: referenceDateTime,
-            bikeAdjustmentValues: {clicks.id: const StepValue(5), travel.id: const NumericalValue(160.0), sag.id: const NumericalValue(20.0)},
+            bikeAdjustmentValues: {
+              clicks.id: const StepValue(5),
+              travel.id: const NumericalValue(160.0),
+              sag.id: const NumericalValue(20.0),
+            },
           ),
         ],
       );
 
-      expect(entries, isEmpty);
+      expect(check.entries, isEmpty);
     });
 
     test('an adjustment that was never recorded has nothing to compare against', () {
       // Intention: A pressure added to a component but not yet logged.
       // Desired outcome: Skipped silently.
       // Not desired outcome: An entry built on a missing reference value.
-      final entries = _compute(
+      final check = _check(
         components: [fork],
         setups: [_setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {})],
       );
 
-      expect(entries, isEmpty);
+      expect(check.entries, isEmpty);
     });
 
     test('a zero or negative recorded pressure is skipped', () {
@@ -315,14 +490,19 @@ void main() {
       // relative delta would divide by zero.
       // Desired outcome: No entry.
       // Not desired outcome: An infinite or NaN percentage on screen.
-      final entries = _compute(
-        components: [fork],
-        setups: [
-          _setup(id: 's1', datetime: referenceDateTime, bikeAdjustmentValues: {forkPressure.id: const NumericalValue(0.0)}),
-        ],
-      );
-
-      expect(entries, isEmpty);
+      for (final value in [0.0, -5.0]) {
+        final check = _check(
+          components: [fork],
+          setups: [
+            _setup(
+              id: 's1',
+              datetime: referenceDateTime,
+              bikeAdjustmentValues: {forkPressure.id: NumericalValue(value)},
+            ),
+          ],
+        );
+        expect(check.entries, isEmpty);
+      }
     });
   });
 
@@ -337,13 +517,13 @@ void main() {
       referenceDateTime = DateTime(2025, 4, 2).toUtc();
     });
 
-    List<PressureDriftEntry> computeWith({
+    List<PressureDriftEntry> driftWith({
       double? referenceTemperatureC = _referenceTemperatureC,
       double? referenceAltitudeM = _referenceAltitudeM,
       ContextWeather? weather,
       ContextPosition? position,
     }) {
-      return _compute(
+      return _driftEntries(
         components: [fork],
         setups: [
           _setup(
@@ -359,27 +539,308 @@ void main() {
       );
     }
 
-    test('nothing is reported when a temperature or altitude is missing', () {
+    test('no drift is reported when a temperature or altitude is missing', () {
       // Intention: Both conditions are needed on both sides. Substituting a
       // standard value (sea level, say) would turn missing data into a
       // confidently wrong recommendation.
-      // Desired outcome: No entry whenever any of the four inputs is absent.
+      // Desired outcome: No drift entry whenever any of the four inputs is absent.
       // Not desired outcome: A partial estimate presented like a full one.
-      expect(computeWith(referenceTemperatureC: null), isEmpty);
-      expect(computeWith(referenceAltitudeM: null), isEmpty);
-      expect(computeWith(weather: _currentWeather(temperatureC: null)), isEmpty);
-      expect(computeWith(position: _currentPosition(altitudeM: null)), isEmpty);
+      expect(driftWith(referenceTemperatureC: null), isEmpty);
+      expect(driftWith(referenceAltitudeM: null), isEmpty);
+      expect(driftWith(weather: _currentWeather(temperatureC: null)), isEmpty);
+      expect(driftWith(position: _currentPosition(altitudeM: null)), isEmpty);
       expect(
-        PressureDriftService.compute(
+        PressureDriftService.check(
           components: [fork],
           provenance: const {},
           currentWeather: null,
           currentPosition: null,
-        ),
+          at: _checkedAt,
+        ).entries,
         isEmpty,
       );
       // Sanity check that the fixture itself does produce an entry.
-      expect(computeWith(), hasLength(1));
+      expect(driftWith(), hasLength(1));
+    });
+  });
+
+  group('PressureDriftService gap', () {
+    late NumericalAdjustment forkPressure;
+    late Component fork;
+    late DateTime referenceDateTime;
+
+    setUp(() {
+      forkPressure = _pressureAdjustment(id: 'adj_fork_pressure', name: 'Air Pressure');
+      fork = _component(name: 'Fork', adjustments: [forkPressure]);
+      referenceDateTime = DateTime(2025, 4, 2).toUtc();
+    });
+
+    PressureDriftGap? gapWith({
+      AdjustmentValue? recorded = const NumericalValue(80.0),
+      double? referenceTemperatureC = _referenceTemperatureC,
+      double? referenceAltitudeM = _referenceAltitudeM,
+      ContextWeather? weather,
+      ContextPosition? position,
+    }) {
+      return _check(
+        components: [fork],
+        setups: [
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {forkPressure.id: ?recorded},
+            temperatureC: referenceTemperatureC,
+            altitudeM: referenceAltitudeM,
+          ),
+        ],
+        weather: weather,
+        position: position,
+      ).gap;
+    }
+
+    test('there is no gap while a drift can be computed', () {
+      expect(gapWith(), isNull);
+    });
+
+    test('a pressure never recorded, or recorded empty, has nothing to compare', () {
+      expect(gapWith(recorded: null), PressureDriftGap.noRecordedPressure);
+      expect(gapWith(recorded: const NumericalValue(0.0)), PressureDriftGap.noRecordedPressure);
+    });
+
+    test('a pressure recorded without conditions is listed, not a gap', () {
+      expect(gapWith(referenceTemperatureC: null), isNull);
+      expect(gapWith(referenceAltitudeM: null), isNull);
+    });
+
+    test('missing current conditions beat a reference without conditions, since fetching fixes both', () {
+      // Intention: The page shows a loading state for this gap while fetching,
+      // and a reference without conditions can be re-marked once they arrive.
+      expect(gapWith(weather: _currentWeather(temperatureC: null)), PressureDriftGap.noCurrentConditions);
+      expect(gapWith(position: _currentPosition(altitudeM: null)), PressureDriftGap.noCurrentConditions);
+      expect(
+        gapWith(recorded: null, weather: _currentWeather(temperatureC: null)),
+        PressureDriftGap.noRecordedPressure,
+      );
+      expect(
+        gapWith(referenceTemperatureC: null, weather: _currentWeather(temperatureC: null)),
+        PressureDriftGap.noCurrentConditions,
+      );
+    });
+
+    test('a bike needs a pressure adjustment for the check', () {
+      expect(PressureDriftService.hasPressureAdjustment([fork]), isTrue);
+      final shock = _component(
+        name: 'Shock',
+        adjustments: [
+          NumericalAdjustment(id: 'adj_travel', name: 'Travel', notes: null, unit: AdjustmentUnit.fromLegacy('mm')),
+        ],
+      );
+      expect(PressureDriftService.hasPressureAdjustment([shock]), isFalse);
+    });
+  });
+
+  group('PressureDriftService pressures without reference conditions', () {
+    late NumericalAdjustment forkPressure;
+    late NumericalAdjustment shockPressure;
+    late Component fork;
+    late Component shock;
+    late DateTime referenceDateTime;
+
+    setUp(() {
+      forkPressure = _pressureAdjustment(id: 'adj_fork_pressure', name: 'Air Pressure');
+      shockPressure = _pressureAdjustment(id: 'adj_shock_pressure', name: 'Shock Pressure');
+      fork = _component(name: 'Fork', adjustments: [forkPressure]);
+      shock = _component(name: 'Shock', adjustments: [shockPressure]);
+      referenceDateTime = DateTime(2025, 4, 2).toUtc();
+    });
+
+    test('pressures split between drift entries and reference gaps, in component order', () {
+      // Intention: The card lists both kinds of rows, so every recorded pressure
+      // must land in exactly one of them.
+      // Desired outcome: The fork (reference with conditions) is a drift entry,
+      // the shock (reference without temperature) a reference gap.
+      // Not desired outcome: A pressure listed twice, or dropped.
+      final check = _check(
+        components: [shock, fork],
+        setups: [
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+          ),
+          _setup(
+            id: 's2',
+            datetime: referenceDateTime.add(const Duration(days: 1)),
+            bikeAdjustmentValues: {
+              forkPressure.id: const NumericalValue(80.0),
+              shockPressure.id: const NumericalValue(200.0),
+            },
+            temperatureC: null,
+          ),
+        ],
+      );
+
+      expect(check.entries.map((entry) => entry.adjustmentId), [shockPressure.id, forkPressure.id]);
+      expect(check.driftEntries.single.referenceSetup.id, 's1');
+      final gap = check.referenceGapEntries.single;
+      expect(gap.adjustmentId, shockPressure.id);
+      expect(gap.adjustmentName, 'Shock Pressure');
+      expect(gap.componentName, 'Shock');
+      expect(gap.unit.label, 'psi');
+      expect(gap.referenceSetup.id, 's2');
+      expect(gap.referenceValue, 200.0);
+      expect(check.gap, isNull);
+    });
+
+    test('a reference missing either temperature or altitude is a gap', () {
+      final check = _check(
+        components: [fork, shock],
+        setups: [
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {shockPressure.id: const NumericalValue(200.0)},
+            altitudeM: null,
+          ),
+          _setup(
+            id: 's2',
+            datetime: referenceDateTime.add(const Duration(days: 1)),
+            bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+            temperatureC: null,
+          ),
+        ],
+      );
+
+      expect(check.referenceGapEntries.map((entry) => entry.adjustmentId), [forkPressure.id, shockPressure.id]);
+      expect(check.driftEntries, isEmpty);
+      expect(check.gap, isNull);
+      expect(check.currentConditions, _current);
+    });
+
+    test('nothing is listed while the current conditions are missing', () {
+      // Intention: A mark made without today's conditions could not start a
+      // usable reference, so there is nothing to offer.
+      final setups = [
+        _setup(
+          id: 's1',
+          datetime: referenceDateTime,
+          bikeAdjustmentValues: {forkPressure.id: const NumericalValue(80.0)},
+          temperatureC: null,
+        ),
+      ];
+
+      expect(_check(components: [fork], setups: setups).referenceGapEntries, hasLength(1));
+      for (final check in [
+        _check(components: [fork], setups: setups, weather: _currentWeather(temperatureC: null)),
+        _check(components: [fork], setups: setups, position: _currentPosition(altitudeM: null)),
+      ]) {
+        expect(check.entries, isEmpty);
+        expect(check.currentConditions, isNull);
+      }
+    });
+
+    test('zero, negative and non-numerical values are skipped', () {
+      final clicks = _clicksAdjustment();
+      final component = _component(name: 'Fork', adjustments: [forkPressure, shockPressure, clicks]);
+
+      final check = _check(
+        components: [component],
+        setups: [
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {
+              forkPressure.id: const NumericalValue(0.0),
+              shockPressure.id: const NumericalValue(-5.0),
+              clicks.id: const StepValue(5),
+            },
+            temperatureC: null,
+            altitudeM: null,
+          ),
+        ],
+      );
+
+      expect(check.entries, isEmpty);
+      expect(check.gap, PressureDriftGap.noRecordedPressure);
+    });
+
+    test('only pressures of the given components are listed', () {
+      // Intention: The caller already filters out hidden component types, so a
+      // component it leaves out must not appear.
+      final check = _check(
+        components: [fork],
+        setups: [
+          _setup(
+            id: 's1',
+            datetime: referenceDateTime,
+            bikeAdjustmentValues: {
+              forkPressure.id: const NumericalValue(80.0),
+              shockPressure.id: const NumericalValue(200.0),
+            },
+            temperatureC: null,
+          ),
+        ],
+      );
+
+      expect(check.entries.map((entry) => entry.adjustmentId), [forkPressure.id]);
+    });
+  });
+
+  group('PressureDriftService keptSetNowIds', () {
+    const forkId = 'adj_fork_pressure';
+    const shockId = 'adj_shock_pressure';
+    final provenance = SetupResolutionService.resolveHistoricalProvenanceAt(
+      datetime: _checkedAt,
+      setups: [
+        _setup(
+          id: 's1',
+          datetime: DateTime(2025, 4, 2).toUtc(),
+          bikeAdjustmentValues: {forkId: const NumericalValue(80.0), shockId: const NumericalValue(200.0)},
+        ),
+      ],
+    );
+
+    Set<String> kept({
+      Set<String> ids = const {forkId},
+      Map<String, AdjustmentValue>? values,
+      ContextWeather? weather,
+      ContextPosition? position,
+      Map<String, AdjustmentProvenance>? provenanceOverride,
+    }) => PressureDriftService.keptSetNowIds(
+      ids: ids,
+      values: values ?? {forkId: const NumericalValue(80.0), shockId: const NumericalValue(200.0)},
+      provenance: provenanceOverride ?? provenance,
+      currentWeather: weather ?? _currentWeather(),
+      currentPosition: position ?? _currentPosition(),
+    );
+
+    test('a mark on an unchanged value with recorded conditions is kept', () {
+      expect(kept(ids: {forkId, shockId}), {forkId, shockId});
+    });
+
+    test('a mark is dropped once the value differs from the reference value', () {
+      // Intention: A changed pressure is a reference on its own, so the mark would be noise.
+      expect(
+        kept(
+          ids: {forkId, shockId},
+          values: {forkId: const NumericalValue(75.0), shockId: const NumericalValue(200.0)},
+        ),
+        {shockId},
+      );
+    });
+
+    test('a mark is dropped when the value is no longer in the form', () {
+      expect(kept(values: {}), isEmpty);
+    });
+
+    test('all marks are dropped without temperature or altitude', () {
+      expect(kept(ids: {forkId, shockId}, weather: _currentWeather(temperatureC: null)), isEmpty);
+      expect(kept(ids: {forkId, shockId}, position: _currentPosition(altitudeM: null)), isEmpty);
+    });
+
+    test('a mark without provenance is dropped', () {
+      expect(kept(ids: {'adj_unknown'}, values: {'adj_unknown': const NumericalValue(1.0)}), isEmpty);
+      expect(kept(provenanceOverride: const {}), isEmpty);
     });
   });
 }

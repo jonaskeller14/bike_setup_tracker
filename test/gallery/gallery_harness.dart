@@ -52,10 +52,14 @@ Future<void> _loadFonts() async {
 
   if (materialFonts != null) {
     final dir = materialFonts.path + Platform.pathSeparator;
-    await load('Roboto', [for (final w in ['light', 'regular', 'medium', 'bold']) '${dir}roboto-$w.ttf']);
+    // The Cupertino families stand in for SF Pro, which flutter_test can't load.
+    for (final family in ['Roboto', 'CupertinoSystemText', 'CupertinoSystemDisplay']) {
+      await load(family, [for (final w in ['light', 'regular', 'medium', 'bold']) '${dir}roboto-$w.ttf']);
+    }
     await load('MaterialIcons', ['${dir}materialicons-regular.otf']);
   }
   await load('BikeIcons', ['assets/fonts/BikeIcons.ttf']);
+  await load('SimpleIcons', ['assets/fonts/SimpleIcons.ttf']);
 }
 
 /// Collects the screenshots of one theme and writes them, plus the overview.

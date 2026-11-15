@@ -1,0 +1,8 @@
+• Setup-Anleitungen: Startwerte aus dem Handbuch für dein Fahrergewicht
+• Druckprüfung: erkenne, wann Gabel oder Dämpfer nach Temperaturabfall nachgepumpt werden müssen
+• Aktivieren unter Einstellungen > Funktionen
+• Katalog-Klicks folgen bei mehr Gabeln und Dämpfern deinem Druck
+• Diagramme zeigen den Montageort und markieren deinen aktuellen Wert
+• Gleiche Setups teilen sich im Netzdiagramm eine Linie
+• Strava-Benachrichtigungen kommen in deiner Sprache
+• Anhänge sind immer verfügbar

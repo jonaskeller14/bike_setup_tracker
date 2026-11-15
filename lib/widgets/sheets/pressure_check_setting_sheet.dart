@@ -5,6 +5,7 @@ import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/component/component.dart';
+import '../../utils/automation_ids.dart';
 import '../text/sheet_section_title.dart';
 import 'component_type_filter.dart';
 import 'sheet_header.dart';
@@ -46,7 +47,7 @@ class _PressureCheckSettingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.compress)),
+          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.tire_repair)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -62,10 +63,13 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SwitchListTile(
-                    title: Text(context.l10n.pressureCheckEnabled),
-                    value: enabled,
-                    onChanged: (v) => appSettings.enablePressureAssistant = v,
+                  Semantics(
+                    identifier: AutomationIds.pressureCheckEnabled,
+                    child: SwitchListTile(
+                      title: Text(context.l10n.pressureCheckEnabled),
+                      value: enabled,
+                      onChanged: (v) => appSettings.enablePressureAssistant = v,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -108,7 +112,6 @@ class _PressureCheckSettingSheet extends StatelessWidget {
                   ),
                   ListTile(
                     enabled: enabled,
-                    leading: const Icon(Icons.category_outlined),
                     title: Text(pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, context.l10n)),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                     onTap: () async {

@@ -48,7 +48,7 @@ appId: ${APP_ID}
     env:
       MS: 2000
 - runFlow: _close_sheet.yaml
-# Mia - Hometrails: the setup, then the ride it was used on
+# Home trails (Mia): the setup, then the ride it was used on
 - tapOn:
     id: calendar.entry.setup:5296ee57-47ed-40a1-91e6-f2c215a9b501
 - runFlow:

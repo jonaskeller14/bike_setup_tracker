@@ -1,0 +1,183 @@
+<!doctype html>
+<!--
+  The "forecast" Short of kit 06_v1.7.0: a Hyperframes composition (README.md), 30.8 s before the end card.
+  Words and drawings follow the voice (window.VOICE, batch-4 clip 8); the kit's voice.at sets the lines.
+
+    0.0  the hook, word by word
+    3.4  the fork service as a rule: 36 of 50 h done, 14 left
+   10.0  the last ten rides run on into a predicted date
+   13.1  the phone: the calendar at two paces of riding, a box on where the service lands each time
+   21.4  back to the weekly rider, with the rides above the phone
+   25.4  two more rides push the oldest two out; the date and the box jump from Dec 21 to Dec 3 at "down"
+
+  Four cuts joined with a 0.4 s crossfade at 17.5, 21.4 and 28.44: demo_forecast_weekly (Dec 21), _often (Nov 26),
+  _weekly again, _more (Dec 3, on the same December page). The boxes and dates depend on the day of the recording
+  (2026-11-06): after a new take, find the entries again. The pace and days are pinned in
+  test/screenshots/demo_scenario_test.dart: about 45, 20 and 27 days. The cut starts at Short second 13.1.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  .scene { position: absolute; left: 60px; z-index: 3; }
+  #hook { top: 300px; width: 860px; font-size: 128px; }
+
+  /* Keeps the caption readable when the camera pushes the phone up behind it. */
+  #band { position: absolute; inset: 0 0 auto 0; height: 456px; background: var(--paper); z-index: 2; }
+  .caption { top: 244px; width: 960px; height: 200px; font-size: 96px; }
+
+  #move { left: 190px; top: 470px; width: 700px; height: 1429px; }
+  #move .phone { --pw: 700; }
+  /* In recording pixels, inside the phone's screen. */
+  .box { position: absolute; border: 10px solid var(--ink); }
+
+  #service { top: 500px; width: 840px; }
+  #gauge { position: relative; height: 90px; border: 4px solid var(--ink); box-sizing: border-box; }
+  #fill { position: absolute; left: 0; top: 0; bottom: 0; width: 72%; background: var(--ink); transform-origin: left center; }
+  #scale { position: relative; height: 50px; margin-top: 14px; font-size: 34px; }
+  #scale div { position: absolute; top: 0; }
+  #left { margin-top: 44px; font-size: 200px; white-space: nowrap; }
+  #tenth { top: 1010px; width: 840px; height: 250px; }
+  .ride { position: absolute; bottom: 0; width: 38px; height: 180px; background: var(--ink); }
+  #tenth-rule { position: absolute; left: 0; bottom: 0; width: 510px; border-top: 4px solid var(--ink); }
+  #tenth-pace { position: absolute; left: 510px; bottom: 0; width: 330px; border-top: 4px dashed var(--ink); }
+  #tenth-label { position: absolute; left: 0; top: 0; font-size: 32px; }
+  #predicted-label { position: absolute; left: 540px; top: 0; font-size: 32px; }
+  .predicted { position: absolute; left: 540px; top: 76px; font-size: 80px; line-height: 1; white-space: nowrap; }
+  #g-weekly { left: 180px; top: 1690px; width: 206px; height: 180px; }
+  #g-often { left: 746px; top: 1690px; width: 206px; height: 180px; }
+  #g-more { left: 746px; top: 596px; width: 206px; height: 180px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="30.8" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+
+  <h1 id="hook" class="scene hl" data-words>When is your next <em>fork service</em> due?</h1>
+
+  <div id="service" class="scene">
+    <div id="gauge"><div id="fill"></div></div>
+    <div id="scale" class="meta">
+      <div class="muted" style="left: 0">0 h</div>
+      <div style="left: 72%; transform: translateX(-50%)">36 h</div>
+      <div class="muted" style="right: 0">50 h</div>
+    </div>
+    <div id="left" class="num">14 h left</div>
+  </div>
+  <div id="tenth" class="scene">
+    <div id="tenth-label" class="meta muted">Last ten rides</div>
+    <div id="tenth-rule"></div>
+    <div id="tenth-pace"></div>
+    <div id="predicted-label" class="meta muted">Predicted</div>
+    <div id="date-before" class="predicted num">Dec 21</div>
+    <div id="date-after" class="predicted num new">Dec 3</div>
+  </div>
+
+  <div id="band"></div>
+  <h1 id="c-every" class="caption hl" data-words>Fork service every 50 hours, <em>14 left</em></h1>
+  <h1 id="c-predict" class="caption hl" data-words>The app <em>predicts</em> the date</h1>
+  <h1 id="c-calendar" class="caption hl" data-words>On your <em>calendar</em></h1>
+  <h1 id="c-weekly" class="caption hl" data-words>Once a week: <em>about 6 weeks</em></h1>
+  <h1 id="c-often" class="caption hl" data-words>Every 3 days: <em>about 3 weeks</em></h1>
+  <h1 id="c-update" class="caption hl" data-words>Every new ride <em>updates it</em></h1>
+  <h1 id="c-two" class="caption hl" data-words>Two extra rides: <em>about 4 weeks</em></h1>
+
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="13.1" data-duration="17.7" data-track-index="1"></video>
+        <div id="g-weekly" class="box"></div>
+        <div id="g-often" class="box"></div>
+        <div id="g-more" class="box"></div>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+</div>
+<script>
+  const { tl, words, leave, say, when, finish } = Motion.create();
+  const at = (line) => window.VOICE[line].at;
+
+  const tenth = document.getElementById('tenth');
+  const bars = Array.from({ length: 12 }, (_, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'ride';
+    bar.style.left = i * 52 + 'px';
+    tenth.appendChild(bar);
+    return bar;
+  });
+
+  gsap.set(['#service', '#tenth', '#band', '.box', '#left', '#tenth-pace', '#predicted-label', '.predicted'], { autoAlpha: 0 });
+  gsap.set(bars.slice(10), { scaleY: 0, transformOrigin: 'center bottom' });
+  gsap.set('#move', { y: 1500 });
+
+  say('#hook', 0, undefined, 0);
+  leave('#hook', at(1) - .2);
+
+  tl.set('#c-every', { autoAlpha: 1 }, when(1, 'fork'));
+  tl.set('#c-every', { autoAlpha: 0 }, at(2) - .1);
+  words('#c-every', [when(1, 'fork'), when(1, 'service'), when(1, 'every'), when(1, 'fifty'), when(1, 'hours'), when(1, 'fourteen'), when(1, 'left')]);
+  tl.set('#service', { autoAlpha: 1 }, when(1, 'fork'));
+  tl.fromTo('#fill', { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: 'power2.out' }, when(1, 'fifty'));
+  tl.set('#left', { autoAlpha: 1 }, when(1, 'fourteen'));
+  tl.fromTo('#left', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .14, ease: 'power3.out' }, when(1, 'fourteen'));
+
+  say('#c-predict', 2, when(2, 'and') - .05);
+  tl.set('#tenth', { autoAlpha: 1 }, when(2, 'last'));
+  bars.slice(0, 10).forEach((bar, i) => tl.fromTo(bar, { scaleY: 0, transformOrigin: 'center bottom' }, { scaleY: 1, duration: .16, ease: 'power2.out' }, when(2, 'last') + i * .06));
+  tl.set(['#tenth-pace', '#predicted-label'], { autoAlpha: 1 }, when(2, 'rides'));
+  tl.fromTo('#tenth-pace', { clipPath: 'inset(-8px 100% -8px 0px)' }, { clipPath: 'inset(-8px 0% -8px 0px)', duration: .35, ease: 'none' }, when(2, 'rides'));
+  tl.set('#date-before', { autoAlpha: 1 }, when(2, 'rides') + .35);
+  tl.fromTo('#date-before', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .14, ease: 'power3.out' }, when(2, 'rides') + .35);
+  leave(['#service', '#tenth'], 12.95);
+
+  say('#c-calendar', 2, when(2, 'if') - .05, when(2, 'and'));
+  tl.set('#band', { autoAlpha: 1 }, 13.1);
+  tl.to('#move', { y: 0, duration: .4, ease: 'power3.out' }, 13.1);
+
+  say('#c-weekly', 2, 17.6, when(2, 'if'));
+  tl.set('#g-weekly', { autoAlpha: 1 }, when(2, 'six'));
+  tl.set('#g-weekly', { autoAlpha: 0 }, 17.5);
+
+  tl.set('#c-often', { autoAlpha: 1 }, when(2, 'if', 2));
+  tl.set('#c-often', { autoAlpha: 0 }, at(3) - .1);
+  words('#c-often', [when(2, 'every'), when(2, 'three'), when(2, 'days'), when(2, 'more'), when(2, 'like'), when(2, 'three', 2)]);
+  tl.set('#g-often', { autoAlpha: 1 }, when(2, 'more'));
+  tl.set('#g-often', { autoAlpha: 0 }, 21.4);
+
+  say('#c-update', 3, when(3, 'so') - .1);
+  tl.to('#move', { y: 280, duration: .35, ease: 'power3.inOut' }, 21.4);
+  tl.set('#g-weekly', { autoAlpha: 1 }, 21.6);
+  tl.set('#tenth', { y: -540, opacity: 1, autoAlpha: 1 }, 21.5);
+
+  tl.set('#c-two', { autoAlpha: 1 }, when(3, 'two'));
+  words('#c-two', [when(3, 'two'), when(3, 'extra'), when(3, 'rides'), when(3, 'about'), when(3, 'four'), when(3, 'four') + .13]);
+  for (const [step, spoken] of [[1, 'two'], [2, 'rides']]) {
+    const t = when(3, spoken);
+    tl.to(bars, { x: -52 * step, duration: .3, ease: 'power2.inOut' }, t);
+    tl.to(bars[step - 1], { opacity: 0, duration: .2 }, t);
+    tl.to(bars[9 + step], { scaleY: 1, duration: .2, ease: 'power2.out' }, t + .15);
+  }
+  const moved = when(3, 'down');
+  tl.set('#g-weekly', { autoAlpha: 0 }, moved);
+  tl.set('#g-more', { autoAlpha: 1 }, moved);
+  tl.set('#date-before', { autoAlpha: 0 }, moved);
+  tl.set('#date-after', { autoAlpha: 1 }, moved);
+  tl.fromTo('#date-after', { scale: 1.3, transformOrigin: 'left bottom' }, { scale: 1, duration: .22, ease: 'back.out(2)' }, moved);
+
+  finish();
+</script>
+</body>
+</html>

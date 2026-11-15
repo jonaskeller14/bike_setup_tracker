@@ -118,7 +118,7 @@ MergedAdjustment mergeAdjustment(
 
 @immutable
 class PresetMergeResult {
-  /// [existing] in its order with the merged ones replaced, then the new ones.
+  /// `existing` in its order with the merged ones replaced, then the new ones.
   final List<Adjustment> adjustments;
   final List<Adjustment> newAdjustments;
 

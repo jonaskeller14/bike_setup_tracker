@@ -42,6 +42,11 @@ class Setups extends Table {
   TextColumn get sourceSetupId => text().nullable()();
   TextColumn get sourceKind => textEnum<SetupSourceKind>().nullable()();
 
+  // Pressures the rider pumped back to (or checked at) this setup's conditions
+  // without changing the value, so this setup becomes their drift reference.
+  TextColumn get setNowAdjustmentIds =>
+      text().map(const StringListConverter()).withDefault(const Constant('[]'))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

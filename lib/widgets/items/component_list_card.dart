@@ -127,7 +127,7 @@ class ComponentListCard extends StatelessWidget{
                           textStyle: TextStyle(color: mutedColor, fontSize: 12),
                         ),
                       ),
-                      if (appSettings.enableAttachments && component.attachments.isNotEmpty)
+                      if (component.attachments.isNotEmpty)
                         TileMetaRow(icon: Icons.attach_file, text: '${component.attachments.length}'),
                     ],
                   ),

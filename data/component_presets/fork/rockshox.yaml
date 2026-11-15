@@ -494,6 +494,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -524,6 +525,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2025)
     label_pt: Especificações dos garfos RockShox (2025)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -554,6 +556,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -633,6 +636,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -664,6 +668,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -745,6 +750,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2024)
     label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -794,6 +800,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -887,6 +894,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -964,6 +972,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1037,6 +1046,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2026)
     label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1116,6 +1126,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1187,6 +1198,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1262,6 +1274,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2026)
     label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1378,6 +1391,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1477,6 +1491,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1537,6 +1552,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1593,6 +1609,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1656,6 +1673,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2026)
     label_pt: Especificações dos garfos RockShox (2026)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1705,6 +1723,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2023)
     label_pt: Especificações dos garfos RockShox (2023)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1767,6 +1786,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1797,6 +1817,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1826,6 +1847,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2024)
     label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1889,6 +1911,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2024)
     label_pt: Especificações dos garfos RockShox (2024)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi
@@ -1987,6 +2010,7 @@ guides:
     label_es: Especificaciones de las horquillas RockShox (2027)
     label_pt: Especificações dos garfos RockShox (2027)
     source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+    spring: pressure
     rules:
       - target: pressure
         unit: psi

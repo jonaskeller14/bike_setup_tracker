@@ -45,7 +45,7 @@ STORE_URL = re.compile(r"https://(?:apps\.apple\.com|play\.google\.com)[^\s)\]>]
 FIELD = re.compile(r"^### ([^\n]+)\n((?:(?!#|```)[^\n]*\n)*?)```text\n(.*?)\n```", re.MULTILINE | re.DOTALL)
 FILL_IN = re.compile(r"\[\[(.+?)\]\]")
 HASHTAG = re.compile(r"(?<![\w&/])#\w+")
-VIDEO_FILE = re.compile(r"\w+_(?:9x16|16x9)\.mp4")
+VIDEO_FILE = re.compile(r"[\w-]+_(?:9x16|16x9)\.mp4")
 STEP = re.compile(r"^- \[ \] .+\n", re.MULTILINE)
 
 

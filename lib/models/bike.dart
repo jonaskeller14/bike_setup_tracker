@@ -4,11 +4,15 @@ import 'package:uuid/uuid.dart';
 
 import 'attachment.dart';
 import 'component_stats.dart';
+import 'syncable.dart';
 
 @immutable
-class Bike {
+class Bike implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String name;
   final String? notes;
@@ -37,6 +41,7 @@ class Bike {
       isDeleted = isDeleted ?? false,
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc();
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 6,
     'id': id,

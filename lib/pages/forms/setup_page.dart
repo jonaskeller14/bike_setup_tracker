@@ -46,9 +46,11 @@ import '../../widgets/attachment_strip.dart';
 import '../../widgets/chips/utils.dart';
 import '../../widgets/dialogs/confirmation.dart';
 import '../../widgets/dialogs/discard_changes.dart';
+import '../../widgets/items/test_session_scope_card.dart';
 import '../../widgets/pressure_drift_card.dart';
 import '../../widgets/setup_guide_card.dart';
 import '../../widgets/setup_guide_scope.dart';
+import '../../widgets/setup_guide_status.dart';
 import '../../widgets/setup_page_tab_bike.dart';
 import '../../widgets/setup_page_tab_person.dart';
 import '../../widgets/sheets/set_condition.dart';
@@ -173,6 +175,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   final Map<String, AdjustmentValue> _danglingPersonAdjustmentValues = {};
 
   Map<String, AdjustmentProvenance>? _pressureDriftProvenance;
+  final Set<String> _setNowIds = {};
+  Set<String> _initialSetNowIds = {};
 
   /// Bumped on every adjustment value change, so the setup guide card follows
   /// the values (and the riding weight) as they are entered.
@@ -191,7 +195,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   double? _guideFallbackWeight;
 
   final LocationService _locationService = LocationService();
-  final ElevationService _elevationService = ElevationService();
+  final ElevationService _elevationService = createElevationService();
   final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();
@@ -229,7 +233,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     _isBookmarked = widget.setup?.isBookmarked ?? appRepository.filters.setup.bookmarkedOnly;
     _initialIsBookmarked = _isBookmarked;
 
-    _attachments = List.from(widget.setup?.attachments ?? []);
+    if (widget.mode == SetupPageMode.edit) _setNowIds.addAll(widget.setup?.setNowAdjustmentIds ?? const {});
+    _initialSetNowIds = {..._setNowIds};
+
+    _attachments =List.from(widget.setup?.attachments ?? []);
     _initialAttachments = List.from(_attachments);
     unawaited(_initAttachmentsDir());
 
@@ -399,13 +406,15 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _setPressureDriftProvenance() {
-    if (widget.mode != SetupPageMode.add || !context.read<AppSettings>().enablePressureAssistant) {
+    final isAddOrEdit = widget.mode == SetupPageMode.add || widget.mode == SetupPageMode.edit;
+    if (!isAddOrEdit || !context.read<AppSettings>().enablePressureAssistant) {
       _pressureDriftProvenance = null;
       return;
     }
     _pressureDriftProvenance = SetupResolutionService.resolveHistoricalProvenanceAt(
       datetime: _selectedDateTimeUtc,
       setups: context.read<AppRepository>().setups.values,
+      excludedSetupId: widget.mode == SetupPageMode.edit ? widget.setup?.id : null,
     );
   }
 
@@ -601,6 +610,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         !ContextPlace.equal(_currentPlace.value, widget.setup?.place) ||
         _currentWeather.value != widget.setup?.weather || 
         !setEquals(_tags, _initialTags) ||
+        !setEquals(_setNowIds, _initialSetNowIds) ||
         _isBookmarked != _initialIsBookmarked ||
         
         _bike != _initialBike || 
@@ -850,6 +860,21 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     }));
   }
 
+  Set<String> _savedSetNowIds() {
+    final provenance = _pressureDriftProvenance;
+    if (provenance != null) {
+      return PressureDriftService.keptSetNowIds(
+        ids: _setNowIds,
+        values: _bikeAdjustmentValues,
+        provenance: provenance,
+        currentWeather: _currentWeather.value,
+        currentPosition: _currentLocation.value,
+      );
+    }
+    // Without the pressure assistant an edit leaves the saved marks as they are.
+    return widget.mode == SetupPageMode.edit ? widget.setup?.setNowAdjustmentIds ?? const {} : const {};
+  }
+
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
       _revealFirstInvalidField();
@@ -886,6 +911,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         position: _currentLocation.value,
         place: _currentPlace.value,
         weather: _currentWeather.value,
+        setNowAdjustmentIds: _savedSetNowIds(),
         attachments: _attachments,
         testSessionId: widget.mode == SetupPageMode.edit || widget.mode == SetupPageMode.nextRun
             ? widget.setup?.testSessionId
@@ -898,8 +924,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
+    _dropStaleSetNowId(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
+  }
+
+  /// A changed pressure is a reference on its own, so its mark goes.
+  void _dropStaleSetNowId(String adjustmentId) {
+    final reference = _pressureDriftProvenance?[adjustmentId];
+    if (reference == null) return;
+    if (_bikeAdjustmentValues[adjustmentId] != reference.value) _setNowIds.remove(adjustmentId);
   }
 
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
@@ -910,6 +944,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
+    _dropStaleSetNowId(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
   }
@@ -1237,7 +1272,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                 ),
               ),
             ],
-            if (appSettings.enableAttachments && _attachmentsDirPath != null)
+            if (_attachmentsDirPath != null)
               ActionChip(
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 label: const SizedBox.shrink(),
@@ -1352,37 +1387,19 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
-  Widget _sessionNotice(TestSession session) {
-    final scheme = Theme.of(context).colorScheme;
+  String _sessionExplanation(TestSession session) {
     final source = context.read<AppRepository>().setups[widget.setup?.sourceSetupId];
     final l10n = context.l10n;
     final from = source == null
         ? l10n.setupFormSessionFromFallback
         : l10n.setupFormSessionFromSetup(source.label(context.l10n));
     // Starting a session lands here unexpectedly, so the first run says what to do.
-    final explanation = switch ((session.method, _isFirstRun)) {
+    return switch ((session.method, _isFirstRun)) {
       (Tournament(), true) => l10n.setupFormSessionFirstTournament(from),
       (Tournament(), false) => l10n.setupFormSessionNextTournament(from),
       (_, true) => l10n.setupFormSessionFirstBase,
       _ => l10n.setupFormSessionNextBase,
     };
-    return Card(
-      margin: EdgeInsets.zero,
-      color: scheme.secondaryContainer,
-      child: ListTile(
-        dense: true,
-        leading: Icon(TestSession.iconData, color: scheme.onSecondaryContainer),
-        title: Text(
-          _isFirstRun
-              ? l10n.setupFormSessionFirstRunTitle(session.label(context.l10n))
-              : l10n.setupFormSessionRunTitle(session.label(context.l10n)),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: scheme.onSecondaryContainer, fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(explanation, style: TextStyle(color: scheme.onSecondaryContainer)),
-      ),
-    );
   }
 
   Widget _tabBar() {
@@ -1398,23 +1415,57 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     );
   }
 
+  void _onSetNowChanged(String adjustmentId, bool setNow) {
+    setState(() => setNow ? _setNowIds.add(adjustmentId) : _setNowIds.remove(adjustmentId));
+    _changeListener();
+  }
+
   Widget? _pressureCheck(List<Component> bikeComponents) {
     final provenance = _pressureDriftProvenance;
     if (provenance == null) return null;
     final appSettings = context.read<AppSettings>();
     final hiddenTypes = appSettings.pressureCheckHiddenComponentTypes;
+    final components = bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)).toList();
+    if (!PressureDriftService.hasPressureAdjustment(components)) return null;
 
     return ListenableBuilder(
-      listenable: Listenable.merge([_currentLocation, _currentWeather]),
-      builder: (context, child) => PressureDriftCard(
-        entries: PressureDriftService.compute(
-          components: bikeComponents.where((component) => !hiddenTypes.contains(component.componentType)),
+      listenable: Listenable.merge([
+        _currentLocation,
+        _currentWeather,
+        _locationService,
+        _elevationService,
+        _weatherService,
+        _adjustmentValuesRevision,
+      ]),
+      builder: (context, child) {
+        final check = PressureDriftService.check(
+          components: components,
           provenance: provenance,
           currentWeather: _currentWeather.value,
           currentPosition: _currentLocation.value,
+          at: _selectedDateTimeUtc,
           significanceThreshold: appSettings.pressureCheckThreshold,
-        ),
-      ),
+        );
+        final gap = check.gap;
+        final fetching =
+            _locationService.status == LocationStatus.searching ||
+            _elevationService.status == ElevationStatus.searching ||
+            _weatherService.status is WeatherSearching;
+        // A mark only counts while the pressure still reads its reference value.
+        final setNowAvailableIds = {
+          for (final entry in check.entries)
+            if (_bikeAdjustmentValues[entry.adjustmentId] == provenance[entry.adjustmentId]?.value)
+              entry.adjustmentId,
+        };
+        return PressureDriftCard(
+          check: check,
+          // A fetch only matters while the current conditions are what's missing.
+          loading: fetching && (gap == null || gap == PressureDriftGap.noCurrentConditions),
+          setNowIds: _setNowIds.intersection(setNowAvailableIds),
+          setNowAvailableIds: setNowAvailableIds,
+          onSetNowChanged: _onSetNowChanged,
+        );
+      },
     );
   }
 
@@ -1422,14 +1473,13 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final appSettings = context.read<AppSettings>();
     if (!appSettings.enableSetupGuides) return null;
     final catalog = context.read<ComponentCatalogRepository>();
-    final guided = appSettings.developerMode
-        ? guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!))
-        : guidedComponentsWithoutValues(
-            bikeComponents,
-            resolve: (component) => catalog.loadedPreset(component.preset!),
-            previousValues: _previousBikeAdjustmentValues,
-          );
+    final guided = guidedComponents(bikeComponents, resolve: (component) => catalog.loadedPreset(component.preset!));
     if (guided.isEmpty) return null;
+    final firstSetup = guidedComponentsWithoutValues(
+      bikeComponents,
+      resolve: (component) => catalog.loadedPreset(component.preset!),
+      previousValues: _previousBikeAdjustmentValues,
+    ).isNotEmpty;
 
     return ListenableBuilder(
       listenable: _adjustmentValuesRevision,
@@ -1450,6 +1500,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           weightInput: _guideWeightInput(),
           onApply: _applyGuideValue,
           onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
+          initiallyExpanded: firstSetup,
         );
       },
     );
@@ -1549,9 +1600,16 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _applyGuideValue(GuideRecommendation recommendation) {
+    final adjustment = recommendation.adjustment;
+    final value = recommendation.value!;
+    final l10n = context.l10n;
+    final previous = {adjustment: _bikeAdjustmentValues[adjustment.id]};
     unawaited(HapticFeedback.selectionClick());
-    setState(() => _appliedGuideRevision++);
-    _onBikeAdjustmentValueChanged(adjustment: recommendation.adjustment, newValue: recommendation.value!);
+    _setBikeAdjustmentValues({adjustment: value});
+    _showGuideAppliedSnackBar(
+      l10n.setupFormGuideAppliedOne(adjustment.name, guideValueText(adjustment, value, l10n)),
+      onUndo: () => _setBikeAdjustmentValues(previous),
+    );
   }
 
   void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
@@ -1560,13 +1618,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     };
     if (values.isEmpty) return;
     unawaited(HapticFeedback.mediumImpact());
-    setState(() => _appliedGuideRevision++);
-    for (final MapEntry(key: adjustment, value: value) in values.entries) {
-      _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
-    }
+    final previous = {for (final adjustment in values.keys) adjustment: _bikeAdjustmentValues[adjustment.id]};
+    final previousNotes = _notesController.text;
+    _setBikeAdjustmentValues(values);
     final guides = sections.map((section) => section.guided.guide).toList();
     _notesController.text = appendNotesLine(
-      _notesController.text,
+      previousNotes,
       guideNotesLine(guides, inputs, context.l10n),
       // Apply all after a language switch must not add a second line.
       equivalents: [
@@ -1575,12 +1632,47 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
             guideNotesLine(guides, inputs, lookupAppLocalizations(locale), sourceLabels: sourceLabels),
       ],
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      AppSnackBar.success(
-        context,
-        context.l10n.setupFormGuideApplied(values.length),
-      ),
+    final appliedNotes = _notesController.text;
+    _showGuideAppliedSnackBar(
+      context.l10n.setupFormGuideApplied(values.length),
+      onUndo: () {
+        _setBikeAdjustmentValues(previous);
+        // Notes the rider has edited since stay as they are.
+        if (_notesController.text == appliedNotes) _notesController.text = previousNotes;
+      },
     );
+  }
+
+  /// Sets or, for a null value, clears the values and makes the bike tab's
+  /// fields read them again.
+  void _setBikeAdjustmentValues(Map<Adjustment, AdjustmentValue?> values) {
+    setState(() => _appliedGuideRevision++);
+    for (final MapEntry(key: adjustment, value: value) in values.entries) {
+      if (value == null) {
+        _removeFromBikeAdjustmentValues(adjustment: adjustment);
+      } else {
+        _onBikeAdjustmentValueChanged(adjustment: adjustment, newValue: value);
+      }
+    }
+  }
+
+  /// Replaces any earlier one, so tapping several rows leaves only the latest
+  /// undo instead of a queue.
+  void _showGuideAppliedSnackBar(String message, {required VoidCallback onUndo}) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
+        AppSnackBar.success(
+          context,
+          message,
+          action: AppSnackBarAction(
+            label: context.l10n.undo,
+            onPressed: () {
+              if (mounted) onUndo();
+            },
+          ),
+        ),
+      );
   }
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {
@@ -1678,7 +1770,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           title: switch (widget.mode) {
             SetupPageMode.add || SetupPageMode.restore => Text(context.l10n.homeAddSetup),
             SetupPageMode.edit => Text(context.l10n.setupFormEditTitle),
-            SetupPageMode.nextRun => Text(_isFirstRun ? context.l10n.setupFormFirstRun : context.l10n.setupFormNextRun),
+            SetupPageMode.nextRun => Text(
+              context.l10n.setupFormRunTitle(appRepository.setupsInSession(widget.session!.id).length + 1),
+            ),
           },
           actions: [
             Semantics(
@@ -1699,6 +1793,10 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (_runSession case final session?) ...[
+                          TestSessionScopeCard(session: session, explanation: _sessionExplanation(session)),
+                          const SizedBox(height: 16),
+                        ],
                         Semantics(
                           container: true,
                           identifier: AutomationIds.setupFormName,
@@ -1712,15 +1810,11 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
                         ),
                         const SizedBox(height: 12),
                         _wrap(),
-                        if (_runSession case final session?) ...[
-                          const SizedBox(height: 12),
-                          _sessionNotice(session),
-                        ],
                       ],
                     ),
                   ),
                 ),
-                if (context.read<AppSettings>().enableAttachments && _attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
+                if (_attachmentsDirPath != null && (_attachments.isNotEmpty || _importingAttachments))
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 12),

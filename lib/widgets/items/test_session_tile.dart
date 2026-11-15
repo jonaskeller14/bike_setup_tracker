@@ -15,8 +15,9 @@ import 'tile_meta_row.dart';
 class TestSessionTile extends StatelessWidget {
   final TestSession session;
   final VoidCallback? onTap;
+  final bool showOptionsMenu;
 
-  const TestSessionTile({super.key, required this.session, this.onTap});
+  const TestSessionTile({super.key, required this.session, this.onTap, this.showOptionsMenu = true});
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +59,7 @@ class TestSessionTile extends StatelessWidget {
           TileMetaRow(icon: Icons.repeat, text: context.l10n.testSessionRunsCount(runs)),
         ],
       ),
-      trailing: TestSessionOptionsMenu(session: session),
+      trailing: showOptionsMenu ? TestSessionOptionsMenu(session: session) : null,
     );
   }
 }

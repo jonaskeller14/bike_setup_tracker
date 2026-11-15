@@ -46,7 +46,6 @@ void main() {
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
     appSettings = AppSettings();
-    appSettings.enableAttachments = true;
     mockPathProvider((call) async => Directory.systemTemp.path);
   });
 
@@ -137,19 +136,6 @@ void main() {
       expect(find.byType(AttachmentViewer), findsOneWidget);
       expect(find.descendant(of: find.byType(AppBar), matching: find.text('Workshop Invoice')), findsOneWidget);
       expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('shows no strips with attachments disabled', (tester) async {
-      appSettings.enableAttachments = false;
-      await pumpPage(
-        tester,
-        entryAttachments: [
-          [invoice],
-        ],
-      );
-
-      expect(find.byType(AttachmentStrip), findsNothing);
-      expect(find.byIcon(Icons.attach_file), findsNothing);
     });
 
     testWidgets('rule and entries fall back to the count when the directory cannot be resolved', (tester) async {

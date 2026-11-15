@@ -16,7 +16,6 @@ import '../models/component/component.dart';
 import '../models/component/installation.dart';
 import '../models/component_stats.dart';
 import '../models/context/context_position.dart';
-import '../models/feedback/custom_issue.dart';
 import '../models/feedback/ride_feedback.dart';
 import '../models/feedback/test_session.dart';
 import '../models/filters/setup_filter.dart';
@@ -32,8 +31,10 @@ import '../models/strava/strava_athlete.dart';
 import '../models/strava/strava_gear.dart';
 import '../models/task/task_association.dart';
 import '../models/task/task_entry.dart';
+import '../models/task/task_progress_context.dart';
 import '../models/task/task_rule.dart';
 import '../models/task/task_threshold/task_threshold.dart';
+import '../models/task/task_trigger.dart';
 import '../services/backup_service.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/custom_issue_service.dart';
@@ -734,6 +735,108 @@ class AppRepository extends ChangeNotifier {
     );
   }
 
+  /// Per open rule that rides move and whose bike rides on Strava gear, what
+  /// the rides on that gear must add up to for it to become due. A component
+  /// counts on the bike it is on now; an uninstalled or archived one has none.
+  Future<List<TaskTrigger>> taskTriggers() async {
+    final now = DateTime.now().toUtc();
+    final open = [for (final rule in _taskRules.values) ?_openTaskTrigger(rule, now)];
+    if (open.isEmpty) return const [];
+
+    final rides = [
+      for (final ride in await database.stravaDao.getGearActivitiesSince(
+        {for (final trigger in open) trigger.gearId},
+        TaskTrigger.earliestCountFrom(now),
+      ))
+        ride.toModel(),
+    ];
+    return [
+      for (final trigger in open)
+        TaskTrigger(
+          ruleId: trigger.rule.id,
+          gearId: trigger.gearId,
+          metric: trigger.metric,
+          countFrom: trigger.countFrom,
+          // The rides from countFrom on count towards it; whatever the rule
+          // gathered before (earlier rides, another bike, initial stats) is
+          // already taken off.
+          needed: trigger.metric.fromThresholdUnit(
+            trigger.remaining +
+                trigger.interval.accumulated(
+                  TaskProgressContext(
+                    currentStats: _rideStats(rides, trigger.gearId, trigger.countFrom),
+                    baselineStats: ComponentStats.zero,
+                    now: now,
+                    baselineDate: now,
+                  ),
+                ),
+          ),
+          title: trigger.rule.name,
+        ),
+    ];
+  }
+
+  ({
+    TaskRule rule,
+    AccumulatingThreshold interval,
+    TaskTriggerMetric metric,
+    String gearId,
+    DateTime countFrom,
+    double remaining,
+  })?
+  _openTaskTrigger(TaskRule rule, DateTime now) {
+    final interval = rule.interval;
+    if (interval is! AccumulatingThreshold) return null;
+    final metric = TaskTriggerMetric.of(interval);
+    if (metric == null) return null;
+    final bikeId = switch (rule.association) {
+      ComponentTaskAssociation(:final id) => componentHierarchy.currentBike(id),
+      BikeTaskAssociation(:final id) => id,
+      GeneralTaskAssociation() => null,
+    };
+    final gearId = _bikes[bikeId]?.stravaGear;
+    if (gearId == null) return null;
+
+    final inputs = _taskRuleInputs(rule);
+    final remaining = TaskStatusService.remaining(
+      rule: rule,
+      currentStats: inputs.stats,
+      now: now,
+      lastEntry: inputs.lastEntry,
+      componentInstallationDate: inputs.installationDate,
+    );
+    if (remaining == null) return null;
+    return (
+      rule: rule,
+      interval: interval,
+      metric: metric,
+      gearId: gearId,
+      // From the last entry and from when the component got onto this bike,
+      // so only rides on this gear that the rule counts come after it.
+      countFrom: TaskTrigger.countFromFor(
+        now: now,
+        windowStarts: [inputs.lastEntry?.dateTimeUTC, inputs.installationDate],
+      ),
+      remaining: remaining,
+    );
+  }
+
+  static ComponentStats _rideStats(List<StravaActivity> rides, String gearId, DateTime from) {
+    var stats = ComponentStats.zero;
+    for (final ride in rides) {
+      if (ride.gearId != gearId || ride.startDate.isBefore(from)) continue;
+      stats += ComponentStats(
+        distance: ride.distance ?? 0,
+        elevationGain: ride.totalElevationGain ?? 0,
+        movingTime: ride.movingTime,
+        elapsedTime: ride.elapsedTime,
+        activityCount: 1,
+        kilojoules: ride.kilojoules ?? 0,
+      );
+    }
+    return stats;
+  }
+
   List<TaskRuleWithStatus> _openTaskRulesWithStatus(Iterable<TaskRule> rules) {
     final statusRules = rules.map((rule) => TaskRuleWithStatus(rule: rule, status: getTaskRuleStatus(rule)));
     final toDo = statusRules.where((tr) => tr.status.type != TaskStatusType.completed).toList();
@@ -1054,6 +1157,7 @@ class AppRepository extends ChangeNotifier {
 
   Future<List<StravaActivity>> searchStravaActivities(String query) => _strava.search(query);
   Future<StravaActivity?> getStravaActivity(int id) => _strava.getActivity(id);
+  Stream<StravaActivity?> watchStravaActivity(int id) => _strava.watchActivity(id);
 
   Future<void> initialStravaLoad() => _strava.initialLoad();
   Future<void> reloadStravaWindow() => _strava.reloadWindow();
@@ -1505,50 +1609,6 @@ class AppRepository extends ChangeNotifier {
       observations: updated.observationCompanions(),
       comparisons: updated.comparisonCompanions(),
     );
-  }
-
-  /// Renames the custom issue [slug] to [label] in every feedback, trashed ones
-  /// included, and in the goals of every session. Merges into the issue the new
-  /// label names when that exists. Returns false when [label] is blank.
-  Future<bool> renameCustomIssue(String slug, String label) async {
-    final to = CustomIssue.fromLabel(label);
-    if (to == null) return false;
-    await _rewriteCustomIssue(
-      feedback: (feedback) => CustomIssueService.rename(feedback, slug, to),
-      session: (session) => CustomIssueService.renameGoal(session, slug, to),
-    );
-    return true;
-  }
-
-  /// Strips the custom issue [slug] from every feedback, trashed ones included,
-  /// and from the goals of every session.
-  Future<void> removeCustomIssue(String slug) => _rewriteCustomIssue(
-    feedback: (feedback) => CustomIssueService.remove(feedback, slug),
-    session: (session) => CustomIssueService.removeGoal(session, slug),
-  );
-
-  Future<void> _rewriteCustomIssue({
-    required RideFeedback? Function(RideFeedback feedback) feedback,
-    required TestSession? Function(TestSession session) session,
-  }) async {
-    final now = DateTime.now().toUtc();
-    await database.transaction(() async {
-      for (final original in [..._feedbacks.values, ..._deletedFeedbacks]) {
-        if (feedback(original) case final changed?) {
-          final updated = changed.copyWith(lastModified: now);
-          await database.feedbackDao.upsertFeedbackWithChildren(
-            feedback: updated.toCompanion(),
-            observations: updated.observationCompanions(),
-            comparisons: updated.comparisonCompanions(),
-          );
-        }
-      }
-      for (final original in [..._testSessions.values, ..._deletedTestSessions]) {
-        if (session(original) case final changed?) {
-          await database.feedbackDao.upsertTestSession(changed.copyWith(lastModified: now).toCompanion());
-        }
-      }
-    });
   }
 
   Future<void> addTestSessions(Iterable<TestSession> sessions) async {

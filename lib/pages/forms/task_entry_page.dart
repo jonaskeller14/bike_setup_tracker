@@ -98,7 +98,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     _initialAssociation = _association;
 
     _attachments = List.from(widget.taskEntry?.attachments ?? []);
-    if (context.read<AppSettings>().enableAttachments) unawaited(_initAttachmentsDir());
+    unawaited(_initAttachmentsDir());
   }
 
   Future<void> _initAttachmentsDir() async {
@@ -378,7 +378,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final appRepository = context.watch<AppRepository>();
     final bikes = appRepository.bikes;
     final components = appRepository.components;
-    final showAttachments = appSettings.enableAttachments && _attachmentsDirPath != null;
+    final showAttachments = _attachmentsDirPath != null;
 
     return PopScope(
       canPop: !_formHasChanges,

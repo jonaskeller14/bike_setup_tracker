@@ -18,15 +18,21 @@ const int _firstShiftedYear = 2000;
 /// Days to add to every date in [json] so its newest date lands
 /// [daysBeforeToday] days before [today].
 int sampleShiftDays(Object? json, {required DateTime today, int daysBeforeToday = 1}) {
+  final newest = newestSampleDate(json);
+  if (newest == null) return 0;
+
+  final target = DateTime.utc(today.year, today.month, today.day - daysBeforeToday);
+  final newestDay = DateTime.utc(newest.year, newest.month, newest.day);
+  return target.difference(newestDay).inDays;
+}
+
+/// The newest date in [json], or `null` when it holds none.
+DateTime? newestSampleDate(Object? json) {
   DateTime? newest;
   _visitDates(json, (date) {
     if (newest == null || date.isAfter(newest!)) newest = date;
   });
-  if (newest == null) return 0;
-
-  final target = DateTime.utc(today.year, today.month, today.day - daysBeforeToday);
-  final newestDay = DateTime.utc(newest!.year, newest!.month, newest!.day);
-  return target.difference(newestDay).inDays;
+  return newest;
 }
 
 /// Returns a copy of [json] with every ISO-8601 date-time string moved by [days].

@@ -372,12 +372,23 @@ class StravaDao extends DatabaseAccessor<AppDatabase> with _$StravaDaoMixin {
     return (select(stravaActivities)..where((t) => t.id.equals(id))).getSingleOrNull();
   }
 
+  Stream<StravaActivityDb?> watchActivityById(int id) {
+    return (select(stravaActivities)..where((t) => t.id.equals(id))).watchSingleOrNull();
+  }
+
   Future<List<StravaActivityDb>> getActivitiesByIds(Iterable<int> ids) {
     final idSet = ids.toSet();
     if (idSet.isEmpty) {
       return Future.value(const []);
     }
     return (select(stravaActivities)..where((t) => t.id.isIn(idSet))).get();
+  }
+
+  /// The activities on [gearIds] that started at or after [from].
+  Future<List<StravaActivityDb>> getGearActivitiesSince(Set<String> gearIds, DateTime from) {
+    return (select(stravaActivities)
+          ..where((t) => t.gearId.isIn(gearIds) & t.startDate.isBiggerOrEqualValue(from.toUtc())))
+        .get();
   }
 
   Future<int> upsertAthlete(StravaAthletesCompanion entry) => into(stravaAthletes).insertOnConflictUpdate(entry);

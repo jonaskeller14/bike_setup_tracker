@@ -32,13 +32,21 @@ Between releases: `tool/store/ios.sh promo` (promotional text, no version needed
 
 A locale added to `LOCALES` in `tool/store/ios.sh` needs, before the first upload:
 
-- **App Store Connect:** every custom product page needs the locale added first, because
-  `ios.sh page-metadata` stops on a page without it. Run `ios.sh metadata --dry-run` before the first real
-  upload to see whether `migrate import` creates the version localizations itself (not yet verified). The header and search-results images are skipped until `creative/<header|search>_<locale>.png` exists.
+- **App Store Connect:** `ios.sh release` creates the version localizations itself, then stops at the app
+  info: App Store Connect has already created those entries with the English subtitle, so the import's create
+  fails. Set name and subtitle of the new locales with `asc api PATCH /v1/appInfoLocalizations/<id>`, then
+  what `release` didn't reach: copyright and What's New. Approved custom product pages are locked: create a
+  new page version and add the locales (`asc product-pages custom-pages versions create` and
+  `localizations create`) before `ios.sh page-metadata`, which stops on a page without the locale. Page
+  keywords are only accepted for a locale that a released app version has, so `page-metadata` skips them for
+  new locales: rerun it once the version is live, then submit the pages. The header and search-results images
+  are skipped until `creative/<header|search>_<locale>.png` exists; a large image can stall in processing
+  (`UPLOAD_COMPLETE`), so run `creatives` with `ASC_TIMEOUT=300s` (the unit is required).
 - **Release notes:** the next `/releaseversion` writes `changelogs/<versionCode>.txt` for every locale; both
   `ios.sh release` and the Play `release` lane abort if one is missing.
-- **Play Console:** add the languages to the store listing (Manage translations) before `android metadata`,
-  and run it with `dry_run:true` first (not yet verified).
+- **Play Console:** `android metadata` adds the new languages itself; run it with `dry_run:true` first. After
+  `android release` the production track holds the draft next to the live release, so pass
+  `version_code:<B>` to `android metadata` and `android screenshots`.
 
 ## Guards
 

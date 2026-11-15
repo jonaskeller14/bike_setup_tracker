@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../theme.dart';
 import '../attachment.dart';
+import '../syncable.dart';
 import 'task_association.dart';
 import 'task_threshold/task_threshold.dart';
 
@@ -11,9 +12,12 @@ part 'task_priority.dart';
 part 'task_status.dart';
 
 @immutable
-class TaskRule {
+class TaskRule implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String name;
   final String? notes;
@@ -48,6 +52,7 @@ class TaskRule {
       'Ride-based intervals require a component or a bike to measure against');
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 4,
     'id': id,

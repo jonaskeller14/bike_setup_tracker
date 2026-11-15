@@ -1,6 +1,7 @@
 // Text the flows type into the app, per store locale (-e LOCALE=de-DE, set by
 // the run scripts; en-US when a flow runs by hand). Only text typed by the
-// flow lives here; names that are record data stay the same in every locale.
+// flow lives here; the names and notes of the sample's records are translated
+// by the dictionaries in assets/data/sample_l10n.
 var notes = {
   'en-US': 'Loose over hard. Slowed rebound and firmed up for the long descents.',
   'de-DE': 'Locker auf hartem Boden. Zugstufe verlangsamt und für die langen Abfahrten fester gestellt.',

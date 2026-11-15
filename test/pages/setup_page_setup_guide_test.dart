@@ -52,6 +52,34 @@ nodes:
       - { name: LSC, type: step, max: 10 }
 ''';
 
+/// Rebound keyed by rider weight that follows the entered pressure.
+const _sprungCatalog = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    spring: pressure
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 9, 80-90: 7, 90-100: 5 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: Rebound, type: step, max: 13 }
+''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -70,15 +98,15 @@ void main() {
     bool weightRecorded = true,
     bool weightAttribute = true,
     bool enablePerson = true,
-    bool developerMode = false,
     DateTime? forkInstalledAt,
     bool preloadCatalog = true,
     DateTime? openedAt,
+    String catalog = _catalog,
   }) async {
     final harness = (await tester.runAsync(
       () => _Harness.create(
+        catalog: catalog,
         enabled: enabled,
-        developerMode: developerMode,
         forkHasValues: forkHasValues,
         weightRecorded: weightRecorded,
         weightAttribute: weightAttribute,
@@ -91,6 +119,9 @@ void main() {
     await tester.pumpWidget(harness.wrap(SetupPage.add(initialDateTimeLocal: openedAt)));
     // The catalog resolves asynchronously.
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await _settle(tester);
+    // The location lookup fails without a platform plugin and its snackbar covers the tabs.
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
     await _settle(tester);
     return harness;
   }
@@ -135,21 +166,24 @@ void main() {
     expect(find.byType(SetupGuideCard), findsNothing);
   });
 
-  testWidgets('is hidden once the guided component has recorded values', (tester) async {
+  testWidgets('collapses once the guided component has recorded values', (tester) async {
     await open(tester, forkHasValues: true);
 
-    expect(find.byType(SetupGuideCard), findsNothing);
-  });
-
-  testWidgets('shows for components with recorded values in developer mode', (tester) async {
-    await open(tester, forkHasValues: true, developerMode: true);
-
     expect(find.byType(SetupGuideCard), findsOneWidget);
+    expect(find.text('77 psi'), findsNothing);
+
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+
+    expect(find.text('77 psi'), findsOneWidget);
   });
 
   testWidgets('the adjuster tooltip shows the recommendation once values are recorded', (tester) async {
     await open(tester, forkHasValues: true);
 
+    // The collapsed guide card above pushes the field down.
+    await Scrollable.ensureVisible(tester.element(find.text('Pressure', findRichText: true)), alignment: 0.5);
+    await _settle(tester);
     await tester.tap(find.text('Pressure', findRichText: true));
     await _settle(tester);
 
@@ -169,13 +203,13 @@ void main() {
   testWidgets('follows the riding weight entered on the rider tab', (tester) async {
     await open(tester);
 
-    await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
+    await _tapTab(tester, Person.iconData);
     await _settle(tester);
     await tester.enterText(
       find.descendant(of: find.byType(SetupPersonTab), matching: find.byType(TextField)),
       '92',
     );
-    await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Bike.iconData)));
+    await _tapTab(tester, Bike.iconData);
     await _settle(tester);
 
     expect(find.text('Recommended values for 92 kg'), findsOneWidget);
@@ -193,7 +227,7 @@ void main() {
       await _settle(tester);
       expect(find.text('87 psi'), findsOneWidget);
 
-      await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
+      await _tapTab(tester, Person.iconData);
       await _settle(tester);
       final riderField = tester.widget<TextField>(
         find.descendant(of: find.byType(SetupPersonTab), matching: find.byType(TextField)),
@@ -220,7 +254,9 @@ void main() {
 
       tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
       await _settle(tester);
-      await tester.ensureVisible(find.text('Add riding weight to Rider'));
+      // Centered, so the pinned tab bar doesn't cover it.
+      await Scrollable.ensureVisible(tester.element(find.text('Add riding weight to Rider')), alignment: 0.5);
+      await tester.pump();
       await tester.tap(find.text('Add riding weight to Rider'));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
       await _settle(tester);
@@ -247,13 +283,134 @@ void main() {
     final notes = tester.widget<TextField>(find.widgetWithText(TextField, 'Notes (optional)'));
     expect(notes.controller!.text, "Started from recommended values (Acme owner's manual (2027)) · 82 kg");
     expect(find.text('Applied 2 recommended values'), findsOneWidget);
-    expect(find.text('Matches'), findsNWidgets(2));
+    expect(find.byTooltip('Matches'), findsNWidgets(2));
     expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
   });
+
+  testWidgets('Apply all can be undone, restoring the values and the notes', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    Finder notesField() => find.widgetWithText(TextField, 'Notes (optional)');
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+    expect(find.byTooltip('Not set'), findsNWidgets(2));
+    expect(tester.widget<TextField>(notesField()).controller!.text, isEmpty);
+  });
+
+  testWidgets('undoing Apply all keeps notes the rider wrote since', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    Finder notesField() => find.widgetWithText(TextField, 'Notes (optional)');
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    await tester.enterText(notesField(), 'myNotes');
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(tester.widget<TextField>(notesField()).controller!.text, 'myNotes');
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+  });
+
+  testWidgets('tapping a row applies its value and offers to undo it', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+
+    await tester.tap(find.descendant(of: find.byType(SetupGuideCard), matching: find.text('Pressure')));
+    await _settle(tester);
+
+    expect(find.text('Pressure set to 77 psi'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+    expect(find.byTooltip('Matches'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+    expect(find.byTooltip('Not set'), findsNWidgets(2));
+  });
+
+  testWidgets('undoing a row restores the value it replaced', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester, forkHasValues: true);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+
+    await tester.tap(find.descendant(of: find.byType(SetupGuideCard), matching: find.text('Pressure')));
+    await _settle(tester);
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await _undo(tester);
+    await _settle(tester);
+
+    expect(find.widgetWithText(TextField, '70.0'), findsOneWidget);
+    expect(find.widgetWithText(TextField, '77.0'), findsNothing);
+  });
+
+  testWidgets('after Apply all, the rebound follows an edited pressure', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await open(tester, catalog: _sprungCatalog);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+
+    await tester.tap(find.text('Apply all'));
+    await _settle(tester);
+    // 82 kg: 77 psi and 8 clicks, both from the weight.
+    expect(find.byTooltip('Matches'), findsNWidgets(2));
+    expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+    await tester.enterText(find.widgetWithText(TextField, '77.0'), '85');
+    await _settle(tester);
+
+    // 85 psi is what the guide gives 90 kg, whose rebound is 6.
+    expect(find.text('85 psi (≈ 90 kg) · follows your pressure · interpolated'), findsOneWidget);
+    expect(find.byTooltip('Matches'), findsNothing);
+
+    await tester.tap(find.text('SETUP GUIDE'));
+    await _settle(tester);
+    await tester.tap(find.text('Rebound', findRichText: true));
+    await _settle(tester);
+    expect(find.text('Recommended: 6'), findsOneWidget);
+  });
+}
+
+/// The snackbar sits below the page's test viewport, out of reach of a tap.
+Future<void> _undo(WidgetTester tester) async {
+  expect(find.text('UNDO'), findsOneWidget);
+  tester.widget<SnackBarAction>(find.byType(SnackBarAction)).onPressed();
+  await _settle(tester);
 }
 
 /// [SetupPage.add] fetches the location on open, leaving the location chip
 /// spinning for the whole test, so the page never settles.
+/// The page is taller than the test screen, so scroll the tab into view first.
+Future<void> _tapTab(WidgetTester tester, IconData icon) async {
+  final tab = find.descendant(of: find.byType(TabBar), matching: find.byIcon(icon));
+  await tester.ensureVisible(tab);
+  await tester.pump();
+  await tester.tap(tab);
+}
+
 Future<void> _settle(WidgetTester tester) async {
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
@@ -272,16 +429,16 @@ class _Harness {
   _Harness({required this.database, required this.repository, required this.settings, required this.catalog});
 
   static Future<_Harness> create({
+    required String catalog,
     required bool enabled,
     required bool forkHasValues,
     required bool weightRecorded,
     required bool weightAttribute,
     required bool enablePerson,
-    required bool developerMode,
     required DateTime? forkInstalledAt,
     required bool preloadCatalog,
   }) async {
-    final brand = parseCatalogFile(_catalog);
+    final brand = parseCatalogFile(catalog);
     final application = buildCatalogApplication(catalogProducts(brand).single, englishL10n);
     final fork = Component(
       name: application.name,
@@ -337,7 +494,6 @@ class _Harness {
     final settings = AppSettings()
       ..showOnboarding = false
       ..enablePerson = enablePerson
-      ..developerMode = developerMode
       ..enableComponentPresets = enabled
       ..enableSetupGuides = enabled;
     return _Harness(

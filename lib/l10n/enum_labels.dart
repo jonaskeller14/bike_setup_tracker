@@ -407,6 +407,8 @@ extension DataErrorMessage on DataError {
     DataErrorKind.driveApi => l10n.dataErrorDriveApi(detail ?? ''),
     DataErrorKind.driveUnexpected => l10n.dataErrorDriveUnexpected,
     DataErrorKind.readDriveBackup => l10n.dataErrorReadDriveBackup(detail ?? ''),
+    DataErrorKind.getCloudBackups => l10n.dataErrorGetCloudBackups(detail ?? ''),
+    DataErrorKind.readCloudBackup => l10n.dataErrorReadCloudBackup(detail ?? ''),
   };
 }
 
@@ -510,6 +512,8 @@ extension StravaFailureMessage on StravaFailure {
     StravaErrorKind.noInternet => l10n.errorNoInternetRetry,
     StravaErrorKind.authentication => l10n.stravaErrorAuthentication,
     StravaErrorKind.rateLimited => l10n.stravaErrorRateLimited,
+    StravaErrorKind.ownedByOtherAccount => l10n.stravaErrorOwnedByOtherAccount,
+    StravaErrorKind.limitReached => l10n.stravaErrorLimitReached,
   };
 }
 

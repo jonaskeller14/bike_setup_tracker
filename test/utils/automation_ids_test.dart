@@ -1,3 +1,4 @@
+import 'package:bike_setup_tracker/l10n/app_language.dart';
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
 import 'package:bike_setup_tracker/models/strava/strava_gear.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
@@ -7,6 +8,8 @@ import 'package:bike_setup_tracker/pages/forms/component_page.dart';
 import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/forms/task_entry_page.dart';
 import 'package:bike_setup_tracker/pages/home_page.dart';
+import 'package:bike_setup_tracker/pages/settings/app_settings_page.dart';
+import 'package:bike_setup_tracker/pages/settings/preferences_page.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/utils/automation_ids.dart';
 import 'package:bike_setup_tracker/widgets/items/task_rule_list_card.dart';
@@ -209,6 +212,44 @@ void main() {
       final compare = mergedNode(AutomationIds.setupActionsCompare);
       expect(compare, findsOne);
       expect(compare.evaluate().single.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      semantics.dispose();
+    });
+
+    testWidgets('The way to the language sheet exposes its identifiers', (tester) async {
+      useGoldenViewport(tester);
+      final semantics = tester.ensureSemantics();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<StravaService>(
+          create: (_) => StravaService(harness.repository, harness.settings),
+          child: harness.wrap(brightness: Brightness.light, child: const HomePage()),
+        ),
+      );
+      await settleGolden(tester);
+
+      await tester.tap(find.bySemanticsIdentifier(AutomationIds.appBarOptions));
+      await settleGolden(tester);
+      final settings = mergedNode(AutomationIds.appBarOptionsSettings);
+      expect(settings, findsOne);
+      expect(settings.evaluate().single.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+      // Unmounts the Navigator: the open menu's route would cover the next page.
+      await tester.pumpWidget(const SizedBox());
+
+      await tester.pumpWidget(
+        ChangeNotifierProvider<StravaService>(
+          create: (_) => StravaService(harness.repository, harness.settings),
+          child: harness.wrap(brightness: Brightness.light, child: const AppSettingsPage()),
+        ),
+      );
+      await settleGolden(tester);
+      expect(find.bySemanticsIdentifier(AutomationIds.settingsPreferences), findsOneWidget);
+
+      await tester.pumpWidget(harness.wrap(brightness: Brightness.light, child: const PreferencesPage()));
+      await settleGolden(tester);
+      await tester.tap(find.bySemanticsIdentifier(AutomationIds.preferencesLanguage));
+      await settleGolden(tester);
+      for (final language in AppLanguage.values) {
+        expect(find.bySemanticsIdentifier(AutomationIds.languageOption(language.name)), findsOneWidget, reason: language.name);
+      }
       semantics.dispose();
     });
 

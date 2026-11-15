@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/main.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
@@ -12,9 +14,11 @@ import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dar
 import 'package:bike_setup_tracker/pages/forms/setup_page.dart';
 import 'package:bike_setup_tracker/pages/onboarding_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/account_service.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/backup_service.dart';
 import 'package:bike_setup_tracker/services/google_drive_service.dart';
+import 'package:bike_setup_tracker/services/navigation_service.dart';
 import 'package:bike_setup_tracker/services/strava_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/widgets/items/adjustment_list_card.dart';
@@ -23,24 +27,29 @@ import 'package:bike_setup_tracker/widgets/items/garage_bike_card.dart';
 import 'package:bike_setup_tracker/widgets/items/garage_component_icon_card.dart';
 import 'package:bike_setup_tracker/widgets/items/person_list_card.dart';
 import 'package:bike_setup_tracker/widgets/lists/garage_list.dart';
-import 'package:bike_setup_tracker/widgets/lists/person_list.dart';
 import 'package:bike_setup_tracker/widgets/lists/task_list.dart';
 import 'package:bike_setup_tracker/widgets/rider_name_form.dart';
 import 'package:bike_setup_tracker/widgets/sheets/rider_sheet.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
   late AppDatabase database;
   late AppRepository appRepository;
   late AppSettings appSettings;
   late AppHintService appHintService;
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -52,6 +61,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();
@@ -76,6 +86,9 @@ void main() {
         ),
         ChangeNotifierProvider<SubscriptionService>(
           create: (_) => SubscriptionService(),
+        ),
+        ChangeNotifierProvider<AccountService>(
+          create: (_) => AccountService(clearLocalData: ({required removeData}) async {}),
         ),
       ],
       child: const BikeSetupTrackerApp(),
@@ -182,12 +195,13 @@ void main() {
       of: find.text('Boolean adjustment'),
       matching: find.byType(AdjustmentListCard),
     );
-    await tester.tap(
-      find.descendant(
-        of: adjustmentRow,
-        matching: find.bySubtype<PopupMenuButton<dynamic>>(),
-      ),
+    final adjustmentMenu = find.descendant(
+      of: adjustmentRow,
+      matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
+    await tester.ensureVisible(adjustmentMenu);
+    await tester.pump();
+    await tester.tap(adjustmentMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit').last);
     await tester.pumpAndSettle();
@@ -232,6 +246,8 @@ void main() {
       of: find.byType(AdjustmentListCard),
       matching: find.bySubtype<PopupMenuButton<dynamic>>(),
     );
+    await tester.ensureVisible(adjustmentMenu);
+    await tester.pump();
     await tester.tap(adjustmentMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Edit').last);
@@ -296,6 +312,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Help'), 200);
     await tester.tap(find.text('Help'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Show Onboarding'));
@@ -303,6 +320,49 @@ void main() {
 
     expect(appSettings.showOnboarding, isTrue);
     expect(find.byType(OnboardingPage), findsOneWidget);
+  });
+
+  group('Tasks tab request', () {
+    int selectedTab(WidgetTester tester) => tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex;
+
+    setUp(() => addTearDown(() => NavigationService.tasksTabRequested.value = false));
+
+    testWidgets('brings the Tasks tab to the front', (tester) async {
+      appSettings.enableTask = true;
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+      expect(selectedTab(tester), 0);
+
+      NavigationService.tasksTabRequested.value = true;
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 2);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
+
+    testWidgets('waits for the home page when made before it exists', (tester) async {
+      appSettings.enableTask = true;
+      NavigationService.tasksTabRequested.value = true;
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 2);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
+
+    testWidgets('is dropped while tasks are off', (tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pumpAndSettle();
+
+      NavigationService.tasksTabRequested.value = true;
+      await tester.pumpAndSettle();
+      appSettings.enableTask = true;
+      await tester.pumpAndSettle();
+
+      expect(selectedTab(tester), 0);
+      expect(NavigationService.tasksTabRequested.value, isFalse);
+    });
   });
 
   testWidgets('Tasks badge stays hidden for empty and upcoming-only scopes', (tester) async {
@@ -457,33 +517,12 @@ void main() {
       expect(_appBarTitle(tester), '1 selected');
     }
 
-    testWidgets('simple layout has no Profile tab', (tester) async {
+    testWidgets('has no Riders tab', (tester) async {
       await pumpWithTaskRule(tester);
 
       expect(_navigationDestination('Riders'), findsNothing);
-      expect(find.byType(PersonList), findsNothing);
       expect(find.byTooltip('Add Rider'), findsNothing);
       await expectTasksTabIndexed(tester);
-    });
-
-    testWidgets('advanced layout restores the Profile tab', (tester) async {
-      appSettings.enablePersonAdvanced = true;
-      await pumpWithTaskRule(tester);
-
-      await tester.tap(_navigationDestination('Riders'));
-      await tester.pumpAndSettle();
-      expect(_appBarTitle(tester), 'Riders');
-      expect(find.byType(PersonList), findsOneWidget);
-      expect(find.byTooltip('Add Rider'), findsOneWidget);
-      await expectTasksTabIndexed(tester);
-    });
-
-    testWidgets('advanced setting alone shows no Profile tab', (tester) async {
-      appSettings.enablePersonAdvanced = true;
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pumpAndSettle();
-
-      expect(_navigationDestination('Riders'), findsNothing);
     });
 
     testWidgets('no rider button without enablePerson', (tester) async {

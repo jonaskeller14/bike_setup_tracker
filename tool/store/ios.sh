@@ -257,7 +257,10 @@ page_localization_id() {
 # Name, promotional text and keywords of each page's editable version, from page.txt and
 # <page>/<locale>/*.txt. Only what differs is sent.
 cmd_page_metadata() {
-  local page_dir name locale localization_id text live wanted added removed
+  local page_dir name locale localization_id text live wanted added removed released_locales
+  # App Store Connect takes page keywords only for a locale that a released app version has.
+  find_versions
+  released_locales="$(asc localizations list --version "$LIVE_ID" | jq -r '.data[].attributes.locale')"
   for page_dir in "$PAGES_DIR"/*/; do
     [[ -f "$page_dir/page.txt" ]] || continue
     find_page_version "$page_dir"
@@ -279,6 +282,10 @@ cmd_page_metadata() {
           --promotional-text "$text" >/dev/null
       fi
 
+      if ! grep -qx "$locale" <<<"$released_locales"; then
+        echo "  $locale: keywords wait until a released version has the locale"
+        continue
+      fi
       live="$(asc product-pages custom-pages localizations search-keywords list --localization-id "$localization_id" |
         jq -r '.data[].id' | sort)"
       wanted="$(tr ',' '\n' <"$page_dir/$locale/keywords.txt" | sed '/^$/d' | sort)"

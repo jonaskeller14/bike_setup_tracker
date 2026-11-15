@@ -7,13 +7,17 @@ import 'package:uuid/uuid.dart';
 import '../adjustment/adjustment.dart';
 import '../context/context_place.dart';
 import '../setup.dart';
+import '../syncable.dart';
 import 'feedback_key.dart';
 import 'test_session_method.dart';
 
 @immutable
-class TestSession {
+class TestSession implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String bike;
   final String? name;
@@ -62,6 +66,7 @@ class TestSession {
        endedAtUTC = endedAtUTC?.toUtc(),
        proposals = proposals ?? const {};
 
+  @override
   Map<String, dynamic> toJson() => {
     'version': 1,
     'id': id,

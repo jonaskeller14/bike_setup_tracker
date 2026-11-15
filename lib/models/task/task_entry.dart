@@ -3,12 +3,16 @@ import 'package:uuid/uuid.dart';
 
 import '../attachment.dart';
 import '../component_stats.dart';
+import '../syncable.dart';
 import 'task_association.dart';
 
 @immutable
-class TaskEntry {
+class TaskEntry implements Syncable {
+  @override
   final String id;
+  @override
   final bool isDeleted;
+  @override
   final DateTime lastModified;
   final String name;
   final String? notes;
@@ -38,6 +42,7 @@ class TaskEntry {
       lastModified = lastModified?.toUtc() ?? DateTime.now().toUtc(),
       dateTimeUTC = dateTimeUTC.toUtc();
   
+  @override
   Map<String, dynamic> toJson() => {
     'version': 3,
     'id': id,

@@ -16,6 +16,7 @@ import '../services/file_save_service.dart';
 import '../services/share_service.dart';
 import '../utils/localized_number.dart';
 import 'app_snackbar.dart';
+import 'attachment_file_loader.dart';
 import 'dialogs/rename_dialog.dart';
 import 'sheets/setup_details.dart';
 import 'sheets/task_rule_sheet.dart';
@@ -162,36 +163,94 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
     return '${formatLocalizedDouble(bytes / (1024 * 1024), fractionDigits: 1, locale: context.l10n.localeName)} MB';
   }
 
-  Widget _imagePage(Attachment attachment) {
-    return InteractiveViewer(
-      minScale: 0.5,
-      maxScale: 6,
-      child: Center(
-        child: Hero(
-          tag: 'attachment-${attachment.id}',
-          child: Image.file(
-            _file(attachment),
-            fit: BoxFit.contain,
-            errorBuilder: (_, _, _) => Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.broken_image_outlined, size: 64, color: Colors.white54),
-                  const SizedBox(height: 8),
-                  Text(context.l10n.attachmentViewerImageNotFound, style: const TextStyle(color: Colors.white54)),
-                ],
-              ),
-            ),
+  /// The image page when the file is not on this device: loading, or why not.
+  Widget _missingImage(AttachmentFileState state) {
+    if (state.status == AttachmentFileStatus.loading) {
+      return const CircularProgressIndicator(color: Colors.white54);
+    }
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(state.cloudIssue ? Icons.cloud_off_outlined : Icons.broken_image_outlined, size: 64, color: Colors.white54),
+          const SizedBox(height: 8),
+          Text(
+            state.message(context) ?? context.l10n.attachmentViewerImageNotFound,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white54),
           ),
+          if (state.cloudIssue)
+            TextButton(onPressed: state.retry, child: Text(context.l10n.attachmentDownloadRetry)),
+        ],
+      ),
+    );
+  }
+
+  Widget _imagePage(Attachment attachment) {
+    return AttachmentFileLoader(
+      attachment: attachment,
+      attachmentsDir: widget.attachmentsDir,
+      onChanged: () => setState(() {}),
+      builder: (context, file, state) => InteractiveViewer(
+        minScale: 0.5,
+        maxScale: 6,
+        child: Center(
+          child: state.showsPlaceholder
+              ? _missingImage(state)
+              : Hero(
+                  tag: 'attachment-${attachment.id}',
+                  child: Image.file(
+                    file,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => _missingImage((
+                      status: AttachmentFileStatus.missing,
+                      result: null,
+                      retry: state.retry,
+                    )),
+                  ),
+                ),
         ),
       ),
     );
   }
 
   Widget _filePage(BuildContext context, Attachment attachment) {
+    return AttachmentFileLoader(
+      attachment: attachment,
+      attachmentsDir: widget.attachmentsDir,
+      onChanged: () => setState(() {}),
+      builder: (context, file, state) => _fileCard(context, attachment, file, state),
+    );
+  }
+
+  Widget _fileStatus(BuildContext context, File file, AttachmentFileState state) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final file = _file(attachment);
+    if (state.status == AttachmentFileStatus.loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+      );
+    }
+    final exists = file.existsSync();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          exists ? _formatSize(file.lengthSync()) : state.message(context) ?? context.l10n.attachmentViewerFileNotFound,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(color: exists ? colorScheme.onSurfaceVariant : colorScheme.error),
+        ),
+        if (!exists && state.cloudIssue)
+          TextButton(onPressed: state.retry, child: Text(context.l10n.attachmentDownloadRetry)),
+      ],
+    );
+  }
+
+  Widget _fileCard(BuildContext context, Attachment attachment, File file, AttachmentFileState state) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final exists = file.existsSync();
 
     return SafeArea(
@@ -217,12 +276,7 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
                       style: theme.textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      exists ? _formatSize(file.lengthSync()) : context.l10n.attachmentViewerFileNotFound,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: exists ? colorScheme.onSurfaceVariant : colorScheme.error,
-                      ),
-                    ),
+                    _fileStatus(context, file, state),
                     const SizedBox(height: 24),
                     Wrap(
                       alignment: WrapAlignment.center,

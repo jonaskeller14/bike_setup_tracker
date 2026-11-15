@@ -1,0 +1,201 @@
+<!doctype html>
+<!--
+  The "rides-per-value" Short of kit 06_v1.7.0: a Hyperframes composition (README.md), 24.8 s before the end card.
+  Words and drawings follow the voice (window.VOICE, batch-3 clip 6); the kit's voice.at sets the lines.
+
+    0.0  the hook, word by word
+    3.6  four setups on a rule, each with its rebound
+    6.2  14 rides drop between them
+    7.9  a line under each stretch: the setup each ride belongs to
+   11.4  the rides fly into three stacks, one per value
+   12.9  the counts on the words: 3, 7, 4
+   18.4  the phone: Rebound's name on the newest setup, and its histogram
+
+  Days after the first setup: setups 0, 8, 18, 26 (rebound 8, 9, 10, 9), rides per scenario rides_per_value, 3 + 4 + 4 + 3,
+  pinned in test/screenshots/demo_scenario_test.dart. Recording (demo_rides_per_value): details at 12 s, the histogram
+  from 17.6 s to about 22 s. The cut starts at Short second 18.35.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  .scene { position: absolute; left: 60px; z-index: 3; }
+  #hook { top: 300px; width: 860px; font-size: 128px; }
+
+  /* Keeps the caption readable when the camera pushes the phone up behind it. */
+  #band { position: absolute; inset: 0 0 auto 0; height: 456px; background: var(--paper); z-index: 2; }
+  .caption { top: 244px; width: 960px; height: 200px; font-size: 96px; }
+
+  #move { left: 190px; top: 470px; width: 700px; height: 1429px; }
+  #move .phone { --pw: 700; }
+  /* In recording pixels, inside the phone's screen. */
+  .box { position: absolute; border: 10px solid var(--ink); }
+
+  #rule { position: absolute; left: 60px; top: 1050px; width: 840px; border-top: 4px solid var(--ink); z-index: 3; }
+  #label { position: absolute; left: 60px; top: 560px; font-size: 32px; z-index: 3; }
+  .mark { position: absolute; top: 700px; width: 6px; height: 350px; background: var(--ink); z-index: 3; }
+  .value { position: absolute; top: 620px; font-size: 96px; z-index: 3; }
+  .ride { position: absolute; width: 22px; height: 22px; background: var(--ink); z-index: 3; transform-origin: 0 100%; }
+  .span { position: absolute; top: 1076px; height: 10px; background: var(--ink); transform-origin: left center; z-index: 3; }
+  #stack-rule { position: absolute; left: 60px; top: 1300px; width: 840px; border-top: 4px solid var(--ink); z-index: 3; }
+  .count { position: absolute; font-size: 120px; z-index: 3; }
+  .per { position: absolute; top: 1318px; font-size: 32px; z-index: 3; }
+  #c-sum { height: 300px; }
+  #bar-box { left: 530px; top: 1100px; width: 170px; height: 470px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="24.8" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+
+  <h1 id="hook" class="scene hl" data-words>How many rides have you done on <em>nine clicks</em> of rebound?</h1>
+
+  <div id="label" class="meta muted">Fork rebound, clicks</div>
+  <div id="drawing"></div>
+  <div id="rule"></div>
+  <div id="stack-rule"></div>
+
+  <div id="band"></div>
+  <h1 id="c-marks" class="caption hl" data-words>Every setup <em>marks a change</em></h1>
+  <h1 id="c-rides" class="caption hl" data-words>Your rides <em>fall in between</em></h1>
+  <h1 id="c-lands" class="caption hl" data-words>Each ride <em>lands on the setup</em> you rode</h1>
+  <h1 id="c-add" class="caption hl" data-words>Add them up <em>per value</em></h1>
+  <h1 id="c-sum" class="caption hl" data-words>Three rides on eight clicks. <em>Seven on nine.</em> Four on ten.</h1>
+  <h1 id="c-tap" class="caption hl" data-words>Tap <em>Rebound</em> on a setup</h1>
+  <h1 id="c-bar" class="caption hl" data-words>The <em>bright bar:</em> your value now</h1>
+
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="18.35" data-duration="6.45" data-track-index="1"></video>
+        <div id="bar-box" class="box"></div>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+</div>
+<script>
+  const { tl, words, leave, say, when, finish } = Motion.create();
+  const at = (line) => window.VOICE[line].at;
+
+  const drawing = document.getElementById('drawing');
+  const add = (cls, text) => {
+    const el = document.createElement('div');
+    el.className = cls;
+    if (text !== undefined) el.textContent = text;
+    drawing.appendChild(el);
+    return el;
+  };
+  const dayX = (day) => 60 + day / 36 * 816;
+  const ruleTop = 1050;
+  const setups = [[0, 8, false], [8, 9, true], [18, 10, true], [26, 9, true]];
+  const marks = setups.map(([day]) => { const el = add('mark'); el.style.left = dayX(day) + 'px'; return el; });
+  const values = setups.map(([day, value, changed]) => {
+    const el = add('value num' + (changed ? ' new' : ''), value);
+    el.style.left = dayX(day) + 14 + 'px';
+    return el;
+  });
+  // Days of the rides, the stack each belongs to (0: 8 clicks, 1: 9, 2: 10) and its place in that stack.
+  const rideDays = [[1, 0], [4, 0], [7, 0], [9, 1], [11.67, 1], [14.33, 1], [17, 1], [19, 2], [21, 2], [23, 2], [25, 2], [27, 1], [31.5, 1], [36, 1]];
+  const stackX = [170, 450, 730];
+  const filled = [0, 0, 0];
+  const rides = rideDays.map(([day, stack]) => {
+    const el = add('ride');
+    Object.assign(el.style, { left: dayX(day) + 'px', top: ruleTop - 22 + 'px' });
+    return { el, day, stack, place: filled[stack]++ };
+  });
+  const spans = [[1, 7], [9, 17], [19, 25], [27, 36]].map(([from, to]) => {
+    const el = add('span');
+    Object.assign(el.style, { left: dayX(from) + 'px', width: dayX(to) - dayX(from) + 22 + 'px' });
+    return el;
+  });
+  const counts = stackX.map((left, i) => {
+    const el = add('count num', filled[i]);
+    Object.assign(el.style, { left: left + 'px', top: 1300 - filled[i] * 62 - 130 + 'px' });
+    return el;
+  });
+  const pers = stackX.map((left, i) => {
+    const el = add('per meta', [8, 9, 10][i] + ' clicks');
+    el.style.left = left + 'px';
+    return el;
+  });
+
+  gsap.set(['#label', '#rule', '#stack-rule', '#band', '.box', ...marks, ...values, ...spans, ...counts, ...pers, ...rides.map((r) => r.el)], { autoAlpha: 0 });
+  gsap.set('#move', { y: 1500 });
+
+  say('#hook', 0, undefined, 0);
+  leave('#hook', at(1) - .2);
+
+  say('#c-marks', 1, at(2) - .1);
+  tl.set(['#label', '#rule'], { autoAlpha: 1 }, at(1));
+  setups.forEach((_, i) => {
+    const t = at(1) + .15 + i * .32;
+    tl.set(marks[i], { autoAlpha: 1 }, t);
+    tl.fromTo(marks[i], { scaleY: 0, transformOrigin: 'center bottom' }, { scaleY: 1, duration: .2, ease: 'power2.out' }, t);
+    tl.set(values[i], { autoAlpha: 1 }, t + .12);
+    tl.fromTo(values[i], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .14, ease: 'power3.out' }, t + .12);
+  });
+
+  say('#c-rides', 2, at(3) - .1);
+  rides.forEach(({ el }, i) => {
+    const t = at(2) + .05 + i * .11;
+    tl.set(el, { autoAlpha: 1 }, t);
+    tl.fromTo(el, { y: -260, opacity: 0 }, { y: 0, opacity: 1, duration: .26, ease: 'power2.in' }, t);
+  });
+
+  say('#c-lands', 3, at(4) - .1);
+  spans.forEach((el, i) => {
+    const t = when(3, 'lands') + i * .36;
+    tl.set(el, { autoAlpha: 1 }, t);
+    tl.fromTo(el, { scaleX: 0 }, { scaleX: 1, duration: .28, ease: 'power2.out' }, t);
+  });
+
+  say('#c-add', 4, at(5) - .1);
+  const gather = at(4) + .1;
+  tl.to(['#label', '#rule', ...marks, ...values, ...spans], { autoAlpha: 0, duration: .2 }, gather);
+  tl.set('#stack-rule', { autoAlpha: 1 }, gather);
+  tl.to(pers, { autoAlpha: 1, duration: .2 }, gather);
+  rides.forEach(({ el, day, stack, place }, i) => {
+    tl.to(el, {
+      x: stackX[stack] - dayX(day),
+      y: (1300 - 22 - place * 62) - (ruleTop - 22),
+      scale: 2.6,
+      duration: .55,
+      ease: 'power3.inOut',
+    }, gather + .1 + i * .03);
+  });
+
+  say('#c-sum', 5, 18.2);
+  for (const [i, spoken] of [[0, 'three'], [1, 'seven'], [2, 'four']]) {
+    tl.set(counts[i], { autoAlpha: 1 }, when(5, spoken));
+    tl.fromTo(counts[i], { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .14, ease: 'power3.out' }, when(5, spoken));
+  }
+  // Once all three are said, the value the hook asked about stays in ink.
+  const hold = when(5, 'ten') + .35;
+  rides.filter((r) => r.stack !== 1).forEach((r) => tl.to(r.el, { opacity: .25, duration: .25 }, hold));
+  tl.to([counts[0], counts[2]], { opacity: .25, duration: .25 }, hold);
+  leave([...rides.map((r) => r.el), ...counts, ...pers, '#stack-rule'], 18.15);
+
+  tl.set('#band', { autoAlpha: 1 }, 18.35);
+  tl.to('#move', { y: 0, duration: .45, ease: 'power3.out' }, 18.35);
+  say('#c-tap', 6, at(7) - .1);
+  tl.to('#move', { x: -50, y: -220, scale: 1.25, duration: .45, ease: 'power3.inOut' }, 20.35);
+  say('#c-bar', 7);
+  tl.set('#bar-box', { autoAlpha: 1 }, when(7, 'bright'));
+
+  finish();
+</script>
+</body>
+</html>

@@ -46,7 +46,7 @@ void main() {
     await tester.tap(find.text('Link rider'));
     await _settle(tester);
 
-    // Only one rider outside the advanced layout: it can be linked, not added.
+    // Only one rider: it can be linked, not added.
     expect(find.text('Create new rider'), findsNothing);
 
     await tester.tap(find.text("Link 'Rider'"));
@@ -107,23 +107,6 @@ void main() {
     await _settle(tester);
     expect(tabIndex(), 1);
   });
-
-  testWidgets('the advanced layout still offers to create another person', (tester) async {
-    final harness = (await tester.runAsync(() => _PersonLinkHarness.create(advanced: true)))!;
-    addTearDown(harness.dispose);
-
-    await tester.pumpWidget(harness.wrap(SetupPage.add()));
-    await _settle(tester);
-
-    await tester.tap(find.descendant(of: find.byType(TabBar), matching: find.byIcon(Person.iconData)));
-    await _settle(tester);
-
-    await tester.tap(find.text('Link rider'));
-    await _settle(tester);
-
-    expect(find.text("Link 'Rider'"), findsOneWidget);
-    expect(find.text('Create new rider'), findsOneWidget);
-  });
 }
 
 /// [SetupPage.add] fetches the location on open, leaving the location chip
@@ -149,7 +132,7 @@ class _PersonLinkHarness {
     required this.subscriptionService,
   });
 
-  static Future<_PersonLinkHarness> create({bool withPerson = true, bool advanced = false}) async {
+  static Future<_PersonLinkHarness> create({bool withPerson = true}) async {
     final database = AppDatabase.memory();
     final seedRepository = AppRepository(database);
     await seedRepository.addBikes([Bike(id: bikeId, name: 'Test Bike', person: null)]);
@@ -175,8 +158,7 @@ class _PersonLinkHarness {
     await _waitForData(repository, persons: withPerson ? 1 : 0);
     final settings = AppSettings()
       ..showOnboarding = false
-      ..enablePerson = true
-      ..enablePersonAdvanced = advanced;
+      ..enablePerson = true;
     return _PersonLinkHarness(
       database: database,
       repository: repository,

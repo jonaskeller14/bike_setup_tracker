@@ -31,11 +31,12 @@ def ensure_aab_matches!(version_name)
 end
 
 platform :android do
-  desc "Upload the Play listing text and graphics (dry_run:true only validates, send_for_review:true sends them for review)"
+  desc "Upload the Play listing text and graphics (dry_run:true only validates, send_for_review:true sends them for review, version_code:N picks the release while a draft sits next to the live one)"
   lane :metadata do |options|
     ensure_no_running_experiment!
     upload_to_play_store(
       metadata_path: METADATA_PATH,
+      version_code: options[:version_code],
       skip_upload_aab: true,
       skip_upload_apk: true,
       skip_upload_changelogs: true,
@@ -45,11 +46,12 @@ platform :android do
     )
   end
 
-  desc "Upload the Play phone and tablet screenshots (dry_run:true only validates, send_for_review:true sends them for review)"
+  desc "Upload the Play phone and tablet screenshots (dry_run:true only validates, send_for_review:true sends them for review, version_code:N picks the release while a draft sits next to the live one)"
   lane :screenshots do |options|
     ensure_no_running_experiment!
     upload_to_play_store(
       metadata_path: METADATA_PATH,
+      version_code: options[:version_code],
       skip_upload_aab: true,
       skip_upload_apk: true,
       skip_upload_metadata: true,

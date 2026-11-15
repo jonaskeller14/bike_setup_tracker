@@ -2,7 +2,7 @@
 
 This tooling regenerates the store raws (`docs/store/<store>/<device>/<locale>/0N_raw.png`) from seeded data, then renders the store screenshots from them: the raw screen in its device frame with the caption from `docs/store/captions/`, via `docs/store/screenshots.html` (`tool/marketing/render_images.py store-screenshots`). One run gives the raw and the edited version. Pass `--raw-only` (`-RawOnly` on Windows) to skip the rendering.
 
-Both run scripts take `--locale <store locale>` (`-Locale` on Windows, default `en-US`), e.g. `tool/screenshots/run_ios.sh --locale de-DE`. The app then runs in that language, the typed text of the flows comes from `flows/scripts/locale_texts.js`, the raws land in `<device>/<locale>/`, and only that locale's captions (`docs/store/captions/<locale>.md`) are rendered. Only the `en-US` raws and exports are tracked in git; the other locales are gitignored, so they exist only on the machine that recorded them. Record data (bike, setup and task names from the sample) stays English in every locale. The flows record Italian as `it-IT` (the tooling and Play locale); `render_images.py` and `check_output.py` write and read the App Store exports under `app-store/screenshots/it/` (`APP_STORE_LOCALES`), which is the folder `ios.sh screenshots` uploads from.
+Both run scripts take `--locale <store locale>` (`-Locale` on Windows, default `en-US`), e.g. `tool/screenshots/run_ios.sh --locale de-DE`. The app then runs in that language, the typed text of the flows comes from `flows/scripts/locale_texts.js`, the raws land in `<device>/<locale>/`, and only that locale's captions (`docs/store/captions/<locale>.md`) are rendered. Only the `en-US` raws and exports are tracked in git; the other locales are gitignored, so they exist only on the machine that recorded them. The sample's text is translated too (see [Localized sample data](#localized-sample-data)); bike and rider names stay as they are. The flows record Italian as `it-IT` (the tooling and Play locale); `render_images.py` and `check_output.py` write and read the App Store exports under `app-store/screenshots/it/` (`APP_STORE_LOCALES`), which is the folder `ios.sh screenshots` uploads from.
 
 | Folder | Device | Size (px) |
 |---|---|---|
@@ -75,7 +75,7 @@ The iPhone flows run with `DEVICE=phone` and the iPad flows with `DEVICE=tablet`
 
 ## How the flows stay deterministic
 
-- **Fresh data on every launch.** `lib/main_screenshots.dart` wipes the database and preferences on each launch, seeds `assets/data/20260925_sample_simple.json` plus the Strava sample, and shifts all dates so that the newest one is yesterday. Every flow cold-starts the app through `flows/_launch.yaml`, so no flow depends on another.
+- **Fresh data on every launch.** `lib/main_screenshots.dart` wipes the database and preferences on each launch, seeds `assets/data/20260925_sample_simple.json` plus the Strava sample, and shifts all dates so that the newest one is yesterday. The sample isn't an app asset, so it stays out of the store builds: the run scripts copy it with `sample_l10n/` into the app's documents folder (`screenshot_sample/`) after the install, and `lib/main_screenshots.dart` reads it there. Starting that entry point by hand (`flutter run -t lib/main_screenshots.dart`) stops with a message until a run script has copied the files. Every flow cold-starts the app through `flows/_launch.yaml`, so no flow depends on another.
 - **Tags are off.** Setup and task tags add noise, so the seed turns both off. Only the `tags` scenario shows them.
 - **Demo scenarios.** A flow can start from a named subset of the sample instead of all of it (see [Demo scenarios](#demo-scenarios)).
 - **One set of flows for both platforms.** The bundle ID differs (`com.jonaskeller14.bike_setup_tracker` on Android, `com.jonaskeller14.bike-setup-tracker` on iOS), so the flows use `appId: ${APP_ID}`, which the run scripts pass in. Platform differences live in `when: platform:` blocks: `flows/_dismiss_sheet.yaml` presses Back on Android and taps the barrier above the sheet on iOS, which has no Back key, and the Location Accuracy subflow runs on Android only.
@@ -116,8 +116,18 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `tags` | The whole sample with setup and task tags on |
 | `dial_style` | The whole sample with every dial of the Hightower's Lyrik in the default color and size |
 | `restore` | The Hightower with four setups that differ at a glance, the newest three fork values from *Finale Ligure - DH Men*; no rides or tasks in its history |
+| `one_click` | The Hightower without rides or tasks, its newest setup with rebound on 9 |
+| `wet_dry` | The Grizl with one loop three times: dry, wet, dry, only the tire pressures and the ground changing |
+| `part_km` | The Hightower and the Session with their parts and rides, no setups or tasks, the installation timeline on: the pedals moved across and back |
+| `rides_per_value` | The Hightower with four setups that differ in the Lyrik's rebound only, and 14 rides between them |
+| `pressure_check` | The Hightower without rides or tasks; tires hidden from Pressure Check. Its Add Setup form gets 3 °C and 320 m (`DemoScenario.weather`, through `ScreenshotWeatherService` and `ScreenshotElevationService`) against the 20 °C of the setup that last set the fork |
+| `forecast_weekly`, `forecast_more`, `forecast_often` | The Hightower with *Fork lowers service* at 36 of 50 h, ridden once a week or every three days; `forecast_more` is the weekly rider after two more rides this week, at 40 of 50 h |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
+
+**Localized sample data.** The sample JSON stays English. `assets/data/sample_l10n/<language>.json` maps each English text to its translation (`de`, `es`, `fr`, `it`, `pt`), and `same.json` lists the text that is the same in every language: product, trail and place names. `lib/screenshots/sample_localization.dart` applies the dictionary after the scenario, to the names and notes of setups, components, adjustments (with the options of a categorical one and the values selected from it), tasks and Strava rides, and to tags. Ids, numbers and dates are never touched. `lib/main_screenshots.dart` loads the dictionary for the `screenshot_locale` marker's language from the copied folder; English has none.
+
+When you edit the sample, add the new text to every language file. `test/screenshots/sample_localization_test.dart` fails for a text without a translation (in any scenario), for an entry nothing uses any more, and for a translation that drops or changes a number. Flows that select a record by its text (`demo_share`, `demo_rides_per_value`) only work in English; the numbered store flows select by identifier.
 
 **Content rules.** `test/screenshots/demo_scenario_test.dart` checks the sample against the rules from the marketing review (#77):
 
@@ -208,6 +218,15 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_dial_style` | `dial_style` | The Lyrik's rebound dial turned red and LSC small, then a new setup showing them |
 | `demo_catalog_brands` | `one_bike_no_components` | The catalog's brands, three of them opened, and a request for a fork that isn't listed |
 | `demo_setup_restore` | `restore` | The Hightower's history, an older setup restored from its tile's menu (pressure, LSC and rebound go back), and the copy saved as the newest setup |
+| `demo_one_click` | `one_click` | A new setup filled in from the last one, rebound 9 → 10 with one tap, saved: the history shows that one change |
+| `demo_wet_dry` | `wet_dry` | The history with the ground per setup, then the comparison: Wet and Dry above the two tire pressures |
+| `demo_part_km` | `part_km` | The garage with the pedals among the parts, their km and rides, and the History of the move |
+| `demo_rides_per_value` | `rides_per_value` | The rides between the setups in the history, then the newest setup's Rebound name with its histogram of rides per value |
+| `demo_forecast_weekly`, `demo_forecast_more`, `demo_forecast_often` | `forecast_*` | The calendar's month view from today to where the fork service's prediction lands at that pace of riding |
+| `demo_setup_guide` | `one_bike_no_components` | Settings → Features → Setup Guides on, the Lyrik from the catalog, then a new setup: riding weight 78 kg and Apply all |
+| `demo_pressure_check` | `pressure_check` | Settings → Features → Pressure Check on, then a new setup on a 3 °C morning at the hometrails: the fork's row marked pumped, saved as "Cold morning" |
+| `demo_downhill` | `full` | The Trek Session's history, then Leogang wet and dry compared |
+| `demo_language` | `one_bike_no_components` | Settings → Preferences → Language, the page relabelling itself through French, Italian, Spanish, Portuguese and German, then the Hightower's fork from the catalog with its adjusters in German |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.
 - **Pacing.** Each flow starts recording once the app is on its first screen and holds key moments with `_pause.yaml`, aiming for 15–30 s.

@@ -10,6 +10,10 @@ enum ElevationStatus {
   success,
 }
 
+/// Creates the [ElevationService] of the setup form. Overridable for the
+/// screenshot entry point, whose demos need the same altitude on every run.
+ElevationService Function() createElevationService = ElevationService.new;
+
 class ElevationService extends ChangeNotifier {
   final elevationAPI = const ElevationApi(userAgent: "Bike Setup Tracker App v1.0");
   // open_meteo sets no timeout, so a stalled connection would stay "searching" forever.

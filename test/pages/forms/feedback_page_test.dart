@@ -752,6 +752,23 @@ void main() {
       expect((await save(tester))!.observations, {wetRoots.toObservation()});
     });
 
+    testWidgets('the ✕ in the sheet unpicks the issue here only', (tester) async {
+      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
+      await openForm(tester, () => addOnMay(3));
+      await tapChip(tester, customChip('Wet roots'));
+
+      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
+      final sheetChip = find.descendant(of: inSheet, matching: customChip('Wet roots'));
+      await tester.tap(find.descendant(of: sheetChip, matching: find.byTooltip('Delete')));
+      await settle(tester);
+
+      expect(isSelected(tester, sheetChip), isFalse);
+      await closeSheet(tester);
+      expect(isSelected(tester, customChip('Wet roots')), isFalse);
+      expect(appRepository.feedbacks['f2b']!.customIssues, [wetRoots], reason: 'other feedbacks keep it');
+      expect((await save(tester))!.observations, isEmpty);
+    });
+
     testWidgets('an open custom issue of the reference gets a follow-up row', (tester) async {
       await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
       await openForm(tester, () => addOnMay(3));
@@ -764,68 +781,6 @@ void main() {
       expect((await save(tester))!.comparisons, {
         FeedbackComparison(referenceSetupId: 's2', aspect: wetRoots.aspect, outcome: 1),
       });
-    });
-
-    testWidgets('renaming in the sheet follows into the form and the saved feedbacks', (tester) async {
-      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
-      await openForm(tester, () => addOnMay(3));
-      await tapChip(tester, customChip('Wet roots'));
-      await tapChip(tester, followUpChip('Better'));
-
-      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
-      await tester.longPress(find.descendant(of: inSheet, matching: customChip('Wet roots')));
-      await settle(tester);
-      await tester.tap(find.text('Rename'));
-      await settle(tester);
-      await tester.enterText(
-        find.byWidgetPredicate((widget) => widget is TextField && widget.decoration?.hintText == 'Name'),
-        'Slippery',
-      );
-      await tester.tap(find.widgetWithText(TextButton, 'Rename'));
-      await tester.pump();
-      await tester.runAsync(() async {
-        for (var i = 0; i < 100 && appRepository.feedbacks['f2b']!.customIssues.single.slug == 'wet roots'; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
-      });
-      await settle(tester);
-      await closeSheet(tester);
-
-      const slippery = CustomIssue('slippery', 'Slippery');
-      expect(customChip('Wet roots'), findsNothing);
-      expect(isSelected(tester, customChip('Slippery')), isTrue);
-      expect(find.descendant(of: find.byType(FeedbackAspectRow), matching: find.text('Slippery')), findsOneWidget);
-
-      final saved = (await save(tester))!;
-      expect(saved.observations, {slippery.toObservation()});
-      expect(saved.comparisons, {FeedbackComparison(referenceSetupId: 's2', aspect: slippery.aspect, outcome: 1)});
-    });
-
-    testWidgets('removing in the sheet drops the issue and its answer from the form', (tester) async {
-      await seed(tester, extraFeedbacks: [laterOnS2([wetRoots])]);
-      await openForm(tester, () => addOnMay(3));
-      await tapChip(tester, customChip('Wet roots'));
-      await tapChip(tester, followUpChip('Better'));
-
-      await tapChip(tester, find.widgetWithText(ActionChip, 'Add issue'));
-      await tester.longPress(find.descendant(of: inSheet, matching: customChip('Wet roots')));
-      await settle(tester);
-      await tester.tap(find.text('Remove'));
-      await settle(tester);
-      await tester.tap(find.widgetWithText(TextButton, 'Remove'));
-      await tester.pump();
-      await tester.runAsync(() async {
-        for (var i = 0; i < 100 && appRepository.feedbacks['f2b']!.customIssues.isNotEmpty; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
-      });
-      await settle(tester);
-      await closeSheet(tester);
-
-      expect(customChip('Wet roots'), findsNothing);
-      final saved = (await save(tester))!;
-      expect(saved.observations, isEmpty);
-      expect(saved.comparisons, isEmpty);
     });
 
     testWidgets('edit keeps the stored custom answers and flags', (tester) async {

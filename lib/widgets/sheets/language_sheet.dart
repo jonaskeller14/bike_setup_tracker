@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../l10n/app_language.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/locale_resolution.dart';
+import '../../utils/automation_ids.dart';
 import 'sheet_header.dart';
 
 /// The name shown for a stored language code, where null follows the device.
@@ -66,11 +67,15 @@ class _LanguageSheet extends StatelessWidget {
                     subtitle: languageName(l10n, deviceLanguage),
                   ),
                   for (final language in AppLanguage.values)
-                    _LanguageTile(
-                      selected: localeCode == language.name,
-                      onTap: () => _select(context, language.name),
-                      leading: Text(language.flag, style: const TextStyle(fontSize: 22)),
-                      title: language.nativeName,
+                    Semantics(
+                      container: true,
+                      identifier: AutomationIds.languageOption(language.name),
+                      child: _LanguageTile(
+                        selected: localeCode == language.name,
+                        onTap: () => _select(context, language.name),
+                        leading: Text(language.flag, style: const TextStyle(fontSize: 22)),
+                        title: language.nativeName,
+                      ),
                     ),
                 ],
               ),

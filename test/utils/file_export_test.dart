@@ -12,7 +12,7 @@ import '../goldens/support/localized_test_app.dart';
 
 class RecordingFileSaveService extends FileSaveService {
   final FileSaveOutcome outcome;
-  final Object? error;
+  final Error? error;
   String? fileName;
   List<int>? bytes;
   String? extension;

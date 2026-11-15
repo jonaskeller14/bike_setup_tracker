@@ -1,5 +1,7 @@
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/utils/table_column.dart';
 import 'package:bike_setup_tracker/widgets/display_data/setup_histogram_chart.dart';
@@ -60,6 +62,7 @@ void main() {
     bool failed = false,
     TableColumn? selected,
     ValueChanged<TableColumn>? onSelected,
+    ComponentSlot? Function(Setup setup, TableColumn column)? slotFor,
     ThemeData? theme,
   }) {
     return localizedTestApp(
@@ -76,6 +79,7 @@ void main() {
             selectedHistogramColumn: selected,
             valueFor: (setup, column) => setup.bikeAdjustmentValues[(column as ComponentAdjustmentColumn).adjustmentId],
             adjustmentFor: (column) => column is ComponentAdjustmentColumn ? adjustments[column.adjustmentId] : null,
+            slotFor: slotFor,
             columnLabel: (column) => adjustments[(column as ComponentAdjustmentColumn).adjustmentId]!.name,
             onSelectedColumnChanged: onSelected ?? (_) {},
             onColumnRemoved: (_) {},
@@ -163,6 +167,51 @@ void main() {
     expect(picked, modeColumn);
   });
 
+  group('slot stacking', () {
+    const frontTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
+    const rearTire = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelRear);
+    ComponentSlot rotated(Setup setup, TableColumn column) => setup.id == 's1' ? frontTire : rearTire;
+    List<List<double>> stackHeights(WidgetTester tester) => tester
+        .widget<BarChart>(find.byType(BarChart))
+        .data
+        .barGroups
+        .map((group) => group.barRods.single.rodStackItems.map((item) => item.toY - item.fromY).toList())
+        .toList();
+
+    testWidgets('splits bars by slot and names the slots', (tester) async {
+      await tester.pumpWidget(harness(columns: [ComponentAdjustmentColumn('pressure', active: true)], slotFor: rotated));
+
+      expect(barValues(tester), [5, 1]);
+      expect(stackHeights(tester), [
+        [3, 2], // 60: s1 front, s3 rear
+        [1], // 70: s2 rear
+      ]);
+      expect(find.text('Tire (Front Wheel)'), findsOneWidget);
+      expect(find.text('Tire (Rear Wheel)'), findsOneWidget);
+    });
+
+    testWidgets('stays unstacked when every setup shares one slot', (tester) async {
+      await tester.pumpWidget(
+        harness(columns: [ComponentAdjustmentColumn('pressure', active: true)], slotFor: (_, _) => rearTire),
+      );
+
+      expect(stackHeights(tester), [isEmpty, isEmpty]);
+      expect(find.text('Tire (Rear Wheel)'), findsNothing);
+    });
+
+    testWidgets('lists the slot counts in the bar tooltip', (tester) async {
+      await tester.pumpWidget(harness(columns: [ComponentAdjustmentColumn('pressure', active: true)], slotFor: rotated));
+      final chart = tester.widget<BarChart>(find.byType(BarChart));
+      final group = chart.data.barGroups.first;
+      final item = chart.data.barTouchData.touchTooltipData.getTooltipItem(group, 0, group.barRods.single, 0)!;
+
+      expect(
+        item.children!.map((span) => span.toPlainText()).join(),
+        '5 activities\nTire (Front Wheel): 3 activities\nTire (Rear Wheel): 2 activities',
+      );
+    });
+  });
+
   testWidgets('renders without overflow in light and dark on narrow screens', (tester) async {
     tester.view.physicalSize = const Size(320, 800);
     tester.view.devicePixelRatio = 1;
@@ -176,6 +225,10 @@ void main() {
             ComponentAdjustmentColumn('pressure', active: true),
             ComponentAdjustmentColumn('mode', active: true),
           ],
+          slotFor: (setup, _) => ComponentSlot(
+            type: ComponentType.tire,
+            parentType: setup.id == 's1' ? ComponentType.wheelFront : ComponentType.wheelRear,
+          ),
         ),
       );
       expect(find.byType(BarChart), findsOneWidget);

@@ -139,6 +139,68 @@ nodes:
           size: ["210x55"]
 ''';
 
+/// `spring: pressure` and `spring: spring_rate`: weight-keyed clicks follow the
+/// entered spring value.
+const _sprung = '''
+brand: FOX
+component_type: fork
+guides:
+  air:
+    label: Air manual
+    source: https://example.com/air
+    spring: pressure
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 9, 80-90: 7, 90-100: 5 }
+      - target: irt_pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 50, 80-90: 60, 90-100: 70 }
+      - target: lsr
+        input: pressure
+        input_unit: psi
+        rows: { 70: 12, 90: 8 }
+      - { target: hsc, value: 4 }
+  coil:
+    label: Coil manual
+    source: https://example.com/coil
+    spring: spring_rate
+    rules:
+      - target: spring_rate
+        unit: lbs/in
+        input: rider_weight
+        input_unit: kg
+        rows: { 60-70: 400, 70-80: 450, 80-90: 500 }
+      - target: rebound
+        input: rider_weight
+        input_unit: kg
+        rows: { 60-70: 10, 70-80: 8, 80-90: 6 }
+nodes:
+  - label: Air
+    level: model
+    guide: air
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+      - { name: IRT Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+      - { name: Rebound, type: step, max: 13 }
+      - { name: LSR, type: step, max: 16 }
+      - { name: HSC, type: step, max: 8 }
+  - label: Coil
+    level: model
+    guide: coil
+    adjustments:
+      - { name: Spring Rate, type: numerical, unit: lbs/in, min: 300, max: 650 }
+      - { name: Rebound, type: step, max: 13 }
+''';
+
 /// The product at [trim] of [yaml], with [options] chosen by value id.
 ResolvedPreset _preset(String yaml, String trim, [Map<String, Object> options = const {}]) {
   var preset = catalogProducts(parseCatalogFile(yaml)).firstWhere((preset) => preset.node.id == trim);
@@ -780,6 +842,128 @@ nodes:
     });
   });
 
+  group('spring', () {
+    late ResolvedPreset air;
+
+    setUp(() => air = _preset(_sprung, 'air'));
+
+    List<GuideRecommendation> airAt({double? weight = 75, double? psi}) => _evaluate(
+      air,
+      inputs: GuideInputs(riderWeight: weight),
+      current: {'Pressure': ?(psi == null ? null : NumericalValue(psi))},
+    );
+
+    test('weight-keyed clicks follow the entered pressure', () {
+      final rebound = _of(airAt(psi: 80), 'rebound');
+      // 80 psi is the 80-90 kg row's pressure, so its 7 clicks, not 75 kg's 9.
+      expect(rebound.value, const StepValue(7));
+      expect(rebound.followsSpring, 'pressure');
+      expect(rebound.inputText, '80 psi (≈ 85 kg)');
+      expect(rebound.interpolated, isFalse);
+      expect(rebound.riderWeightRange, isNull);
+    });
+
+    test('the pressure the weight row recommends gives the weight row', () {
+      expect(_of(airAt(psi: 70), 'rebound').value, _of(airAt(), 'rebound').value);
+      expect(_of(airAt(psi: 70), 'rebound').value, const StepValue(9));
+    });
+
+    test('a pressure between two rows is placed between their weights', () {
+      final rebound = _of(airAt(psi: 75), 'rebound');
+      expect(rebound.inputText, '75 psi (≈ 80 kg)');
+      expect(rebound.value, const StepValue(8)); // halfway between 9 and 7
+      expect(rebound.interpolated, isTrue);
+    });
+
+    test('the spring rule itself keeps the rider weight', () {
+      final pressure = _of(airAt(psi: 80), 'pressure');
+      expect(pressure.value, const NumericalValue(70));
+      expect(pressure.followsSpring, isNull);
+      expect(pressure.inputText, '75 kg');
+      expect(pressure.deviation!.delta, 10);
+    });
+
+    test('a pressure in bar is read in the table unit', () {
+      final bar = (air.product!.adjustments.first.build() as NumericalAdjustment).copyWith(
+        unit: const KnownUnit(quantity: UnitQuantity.pressure, unitId: 'bar'),
+        max: 10.0,
+      );
+      final rebound = air.product!.adjustments.firstWhere((spec) => spec.id == 'rebound').build();
+      final results = _evaluate(
+        air,
+        inputs: const GuideInputs(riderWeight: 75),
+        adjustments: [bar, rebound],
+        current: {'Pressure': const NumericalValue(5.5)}, // 79.8 psi
+      );
+      expect(_of(results, 'rebound').value, const StepValue(7));
+      expect(_of(results, 'rebound').inputText, '5.5 bar (≈ 85 kg)');
+    });
+
+    test('a pressure outside the table gives no value', () {
+      for (final psi in [60.0, 95.0]) {
+        final rebound = _of(airAt(psi: psi), 'rebound');
+        expect(rebound.value, isNull, reason: '$psi');
+        expect(rebound.issue, GuideIssue.outsideRange, reason: '$psi');
+        expect(rebound.followsSpring, 'pressure', reason: '$psi');
+        expect(rebound.inputText, 'Pressure ${psi.round()} psi', reason: '$psi');
+      }
+    });
+
+    test('a pressure resolves the clicks without a rider weight', () {
+      final results = airAt(weight: null, psi: 80);
+      expect(_of(results, 'rebound').value, const StepValue(7));
+      expect(_of(results, 'pressure').issue, GuideIssue.missingInput);
+    });
+
+    test('without a pressure the rider weight is used', () {
+      final rebound = _of(airAt(), 'rebound');
+      expect(rebound.value, const StepValue(9));
+      expect(rebound.followsSpring, isNull);
+      expect(rebound.inputText, '75 kg');
+      expect(_of(airAt(weight: null), 'rebound').issue, GuideIssue.missingInput);
+    });
+
+    test('another spring keeps the rider weight', () {
+      final irt = _of(airAt(psi: 80), 'irt_pressure');
+      expect(irt.value, const NumericalValue(50));
+      expect(irt.followsSpring, isNull);
+      expect(irt.inputText, '75 kg');
+    });
+
+    test('a published pressure table and constants are left as they are', () {
+      final results = airAt(psi: 80);
+      expect(_of(results, 'lsr').value, const StepValue(10));
+      expect(_of(results, 'lsr').inputText, 'Pressure 80 psi');
+      expect(_of(results, 'lsr').followsSpring, isNull);
+      expect(_of(results, 'hsc').followsSpring, isNull);
+    });
+
+    test('a guide without spring keeps the rider weight', () {
+      final results = _evaluate(
+        factoryX2,
+        inputs: const GuideInputs(riderWeight: 75),
+        current: {'Pressure': const NumericalValue(90)},
+      );
+      expect(_of(results, 'volume_spacers').value, const StepValue(2));
+      expect(_of(results, 'volume_spacers').followsSpring, isNull);
+    });
+
+    test('a listed spring rate takes its bracket midpoint, one between two rates lies between them', () {
+      final coil = _preset(_sprung, 'coil');
+      GuideRecommendation reboundAt(double rate) => _of(
+        _evaluate(coil, inputs: const GuideInputs(riderWeight: 62), current: {'Spring Rate': NumericalValue(rate)}),
+        'rebound',
+      );
+      // 450 lbs/in is the 70-80 kg bracket: 75 kg, 8 clicks.
+      expect(reboundAt(450).inputText, '450 lbs/in (≈ 75 kg)');
+      expect(reboundAt(450).value, const StepValue(8));
+      // 475 lbs/in lies halfway between the 75 and 85 kg midpoints.
+      expect(reboundAt(475).inputText, '475 lbs/in (≈ 80 kg)');
+      expect(reboundAt(475).value, const StepValue(7));
+      expect(reboundAt(550).issue, GuideIssue.outsideRange);
+    });
+  });
+
   test('a product without a guide yields nothing', () {
     const plain = '''
 brand: FOX
@@ -873,6 +1057,42 @@ nodes:
       }
     });
 
+    test('38 (2027) clicks follow the entered pressure', () {
+      // 75 kg = 165.3 lb, next to the 160-170 lb midpoint.
+      const rider = GuideInputs(riderWeight: 75);
+      final factory = _real('fork/fox.yaml', '38/2027/factory', {'damper': 'grip_x2', 'travel_mm': 170, 'wheel_size': '29'});
+      final byWeight = _evaluate(factory, inputs: rider);
+      expect(_of(byWeight, 'pressure').value, const NumericalValue(71));
+      expect(_of(byWeight, 'lsr').value, const StepValue(7));
+      expect(_of(byWeight, 'hsr').value, const StepValue(6));
+
+      // 80 psi is the 180-190 lb row's pressure.
+      final harder = _evaluate(factory, inputs: rider, current: {'Pressure': const NumericalValue(80)});
+      expect(_of(harder, 'lsr').value, const StepValue(6));
+      expect(_of(harder, 'hsr').value, const StepValue(4));
+      expect(_of(harder, 'lsr').inputText, '80 psi (≈ 84 kg)');
+      expect(_of(harder, 'hsc').value, const StepValue(5)); // base tune, unchanged
+
+      // 71 psi is the weight row's own pressure.
+      final asTable = _evaluate(factory, inputs: rider, current: {'Pressure': const NumericalValue(71)});
+      expect(_of(asTable, 'lsr').value, const StepValue(7));
+      expect(_of(asTable, 'hsr').value, const StepValue(6));
+
+      final rhythm = _real('fork/fox.yaml', '38/2027/rhythm', {'damper': 'grip', 'travel_mm': 170, 'wheel_size': '29'});
+      expect(_of(_evaluate(rhythm, inputs: rider), 'rebound').value, const StepValue(9));
+      // 84 psi is the Rhythm 180-190 lb row's pressure.
+      final rhythmHarder = _evaluate(rhythm, inputs: rider, current: {'Pressure': const NumericalValue(84)});
+      expect(_of(rhythmHarder, 'rebound').value, const StepValue(7));
+    });
+
+    test('40 (2027) reads a pressure back through the middle of its bands', () {
+      final forty = _real('fork/fox.yaml', '40/2025/factory', {'damper': 'grip_x2', 'travel_mm': 203, 'wheel_size': '29'});
+      // 70 psi is the middle of the 150-180 lb band [64, 76]: 165 lb.
+      final results = _evaluate(forty, current: {'Pressure': const NumericalValue(70)});
+      expect(_of(results, 'lsr').inputText, '70 psi (≈ 75 kg)');
+      expect(_of(results, 'lsr').value, const StepValue(7)); // the 160-170 lb row
+    });
+
     test('FLOAT X2 (2026-2027) reads its damper settings off the recommended pressure', () {
       final results = _evaluate(
         _real('shock/fox.yaml', 'float-x2/2026/factory', {'damper': 'vvc2'}),
@@ -881,6 +1101,67 @@ nodes:
       expect(_of(results, 'pressure').value, const NumericalValue(209)); // psi = lb
       expect(_of(results, 'lsr').value, const StepValue(7)); // 200-220 psi
       expect(_of(results, 'lsc').value, const StepValue(10)); // [9, 10], midpoint rounded
+    });
+  });
+
+  group('clicks follow the pressure in other brands', () {
+    test('Pike rebound is looked up for the weight the entered pressure suits', () {
+      final pike = _real('fork/rockshox.yaml', 'pike/2025/ultimate', {
+        'damper': 'charger_3_1',
+        'travel_mm': 130,
+        'wheel_size': '29',
+      });
+      expect(_of(_evaluate(pike, inputs: const GuideInputs(riderWeight: 82)), 'rebound').value, const StepValue(8));
+
+      // 90 psi is the middle of what the table gives a 91 kg rider.
+      final harder = _evaluate(
+        pike,
+        inputs: const GuideInputs(riderWeight: 82),
+        current: {'Pressure': const NumericalValue(90)},
+      );
+      expect(_of(harder, 'rebound').value, const StepValue(9));
+      expect(_of(harder, 'rebound').inputText, '90 psi (≈ 91 kg)');
+      expect(_of(harder, 'pressure').value, const NumericalValue(80));
+    });
+
+    test('Mezzer clicks follow the pressure, the IRT chamber keeps the rider weight', () {
+      final mezzer = _real('fork/manitou.yaml', 'mezzer/2026/pro', {
+        'damper': 'mc2_pro_x_2026',
+        'travel_mm': 160,
+        'wheel_size': '29',
+      });
+      final results = _evaluate(
+        mezzer,
+        inputs: const GuideInputs(riderWeight: 82, ridingStyle: GuideRidingStyle.race),
+        current: {'Pressure': const NumericalValue(70)},
+      );
+      expect(_of(results, 'lsr').followsSpring, 'pressure');
+      expect(_of(results, 'lsr').inputText, '70 psi (≈ 92 kg)');
+      expect(_of(results, 'lsr').value, const StepValue(5));
+      expect(_of(results, 'irt_pressure').followsSpring, isNull);
+      expect(_of(results, 'irt_pressure').value, const NumericalValue(90));
+    });
+
+    test('Jade follows the spring rate, and its bladder keeps the rider weight', () {
+      final jade = _real('shock/dvo.yaml', 'jade/2019/standard', {'damper': 'jade_coil', 'size': '215.9x63.5'});
+      final results = _evaluate(
+        jade,
+        inputs: const GuideInputs(riderWeight: 82),
+        current: {'Spring Rate': const NumericalValue(600)},
+      );
+      expect(_of(results, 'rebound').inputText, '600 lbs/in (≈ 95 kg)');
+      expect(_of(results, 'rebound').value, const StepValue(28));
+      expect(_of(results, 'hsc').value, const StepValue(8));
+      expect(_of(results, 'bladder_pressure').value, const NumericalValue(185));
+      expect(_of(results, 'spring_rate').value, const NumericalValue(550));
+    });
+
+    test('a coil next to an air guide has no pressure to follow', () {
+      final results = _evaluate(
+        _real('fork/marzocchi.yaml', 'z1-coil/2025/coil', {'damper': 'rail', 'travel_mm': 160, 'wheel_size': '29'}),
+        inputs: const GuideInputs(riderWeight: 82),
+      );
+      expect(results.every((result) => result.followsSpring == null), isTrue);
     });
   });
 

@@ -38,3 +38,21 @@ ComponentSlot? slotAt(ComponentHierarchyResolver hierarchy, Component component,
     BikeAncestor() || MissingParentAncestor() || null => ComponentSlot(type: component.componentType),
   };
 }
+
+/// The slot of [component] on [bikeId] at [atUTC], or `null` when it was not
+/// on that bike then (e.g. a setup value it no longer belongs to).
+ComponentSlot? slotOnBikeAt(
+  ComponentHierarchyResolver hierarchy,
+  Component component, {
+  required String bikeId,
+  required DateTime atUTC,
+}) {
+  if (hierarchy.bikeAt(component.id, atUTC) != bikeId) return null;
+  return slotAt(hierarchy, component, atUTC);
+}
+
+int compareSlots(ComponentSlot a, ComponentSlot b) {
+  final byType = a.type.index.compareTo(b.type.index);
+  if (byType != 0) return byType;
+  return (a.parentType?.index ?? -1).compareTo(b.parentType?.index ?? -1);
+}

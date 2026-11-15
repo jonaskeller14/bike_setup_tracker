@@ -11,6 +11,7 @@ import '../models/component/component_ancestor.dart';
 import '../models/component/installation.dart';
 import '../models/task/task_entry.dart';
 import '../services/component_hierarchy_resolver.dart';
+import '../theme.dart';
 import 'component_ancestor_display.dart';
 import 'component_ancestors_column.dart';
 import 'sheets/task_rule_sheet.dart';
@@ -35,6 +36,7 @@ class DisplayInstallationTimeline extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final entityColors = EntityColors.of(theme);
 
     final appSettings = context.watch<AppSettings>();
 
@@ -116,13 +118,13 @@ class DisplayInstallationTimeline extends StatelessWidget {
           return switch (item) {
             _InstallationItem() => OutlinedDotIndicator(
                 borderWidth: 2.5,
-                color: colorScheme.secondary,
+                color: entityColors.installation,
                 backgroundColor: colorScheme.surface,
                 child: switch (item.installation) {
                   BikeInstallation() => null,
                   ComponentInstallation() => null,
-                  Uninstallation() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
-                  Archival() => Icon(Icons.close, size: 10, color: colorScheme.secondary),
+                  Uninstallation() => Icon(Icons.close, size: 10, color: entityColors.installation),
+                  Archival() => Icon(Icons.close, size: 10, color: entityColors.installation),
                 },
               ),
             _DerivedPlacementItem() => OutlinedDotIndicator(
@@ -135,10 +137,10 @@ class DisplayInstallationTimeline extends StatelessWidget {
                 height: 15,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: colorScheme.tertiary,
+                    color: entityColors.task,
                     borderRadius: BorderRadius.circular(3),
                   ),
-                  child: Icon(Icons.check, size: 11, color: colorScheme.onTertiary),
+                  child: Icon(Icons.check, size: 11, color: entityColors.onTask),
                 ),
               ),
           };

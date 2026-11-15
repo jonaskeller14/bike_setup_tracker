@@ -1,0 +1,133 @@
+<!doctype html>
+<!--
+  The "wet-dry" Short of kit 06_v1.7.0: a Hyperframes composition (README.md), 27.2 s before the end card.
+  Words and drawings follow the voice (window.VOICE, batch-4 clip 10); the kit's voice.at sets the lines.
+
+    0.0  the hook, word by word
+    4.1  the same loop on two days: one trail line, two columns
+   10.7  what each setup saved, a row per word: rain, temperature, ground
+   14.4  the phone: the history, then the comparison
+   17.0  a box on Wet and Dry, then a push onto the front tire's two pressures
+
+  Recording (demo_wet_dry, scenario wet_dry): the menu at 5 s, Compare at 7.5 s, the sheet from 8.0 s, the Home press
+  after 18 s. Values from the scenario: wet 6.5 mm, 11 °C, front 2.4 bar; dry 0 mm, 14 °C, front 2.6 bar. The cut starts
+  at Short second 14.4.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080, height=1920">
+<link rel="stylesheet" href="assets/marketing.css">
+<link rel="stylesheet" href="assets/motion.css">
+<script src="assets/gsap.min.js"></script>
+<script>window.VOICE = {{VOICE}};</script>
+<script src="assets/motion.js"></script>
+<style>
+  .scene { position: absolute; left: 60px; z-index: 3; }
+  #hook { top: 300px; width: 860px; font-size: 128px; }
+
+  /* Keeps the caption readable when the camera pushes the phone up behind it. */
+  #band { position: absolute; inset: 0 0 auto 0; height: 456px; background: var(--paper); z-index: 2; }
+  .caption { top: 244px; width: 960px; height: 200px; font-size: 96px; }
+
+  #move { left: 190px; top: 470px; width: 700px; height: 1429px; }
+  #move .phone { --pw: 700; }
+  /* In recording pixels, inside the phone's screen. */
+  .box { position: absolute; border: 10px solid var(--ink); }
+
+  #loop { top: 470px; width: 860px; height: 150px; overflow: visible; }
+  #loop path { fill: none; stroke: var(--ink); stroke-width: 7; stroke-linejoin: miter; }
+  #table { top: 650px; width: 840px; }
+  .tr { display: grid; grid-template-columns: 420px 420px; border-top: 2px solid var(--ink); padding: 16px 0 14px; }
+  .tr .meta { font-size: 30px; grid-column: 1 / 3; margin-bottom: 10px; }
+  .tr .num { font-size: 104px; line-height: 1; white-space: nowrap; }
+  #heads .num { font-size: 56px; }
+  #condition { left: 36px; top: 1182px; width: 1248px; height: 150px; }
+  #front { left: 36px; top: 1732px; width: 1248px; height: 470px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="27.2" data-width="1080" data-height="1920">
+  <div id="top">
+    <div class="brand" data-decor>
+      <img src="assets/logo_1024.png" alt="">
+      <span>Bike Setup Tracker</span>
+    </div>
+    <div class="rule"></div>
+  </div>
+
+  <h1 id="hook" class="scene hl" data-words>What <em>tire pressure</em> did you ride when it was wet?</h1>
+
+  <svg id="loop" class="scene" viewBox="0 0 860 150"><path d="M0 110 C70 92 120 124 190 96 S300 40 370 72 S480 128 560 88 S690 30 760 70 S830 102 860 86"/></svg>
+  <div id="table" class="scene">
+    <div class="tr" id="heads"><div class="num">Day 1</div><div class="num">Day 2</div></div>
+    <div class="tr" id="rain"><div class="meta muted">Rain</div><div class="num">6.5 mm</div><div class="num">0 mm</div></div>
+    <div class="tr" id="temp"><div class="meta muted">Temperature</div><div class="num">11 °C</div><div class="num">14 °C</div></div>
+    <div class="tr" id="ground"><div class="meta muted">Ground</div><div class="num">Wet</div><div class="num">Dry</div></div>
+  </div>
+
+  <div id="band"></div>
+  <h1 id="c-loop" class="caption hl" data-words>Same gravel loop, <em>two different days</em></h1>
+  <h1 id="c-saves" class="caption hl" data-words>Every setup <em>saves the weather</em></h1>
+  <h1 id="c-what" class="caption hl" data-words>The rain, the temperature, the <em>ground</em></h1>
+  <h1 id="c-compare" class="caption hl" data-words>Later, you <em>compare both rides</em></h1>
+  <h1 id="c-front" class="caption hl" data-words><span class="new">2.4</span> bar in the wet, <span class="new">2.6</span> in the dry</h1>
+  <h1 id="c-yours" class="caption hl" data-words>Next time it rains, <em>you know</em></h1>
+
+  <div id="move">
+    <div class="phone">
+      <div class="screen">
+        <video id="recording" class="clip" src="assets/recording.mp4" muted playsinline data-start="14.4" data-duration="12.8" data-track-index="1"></video>
+        <div id="condition" class="box"></div>
+        <div id="front" class="box"></div>
+      </div>
+      <img class="frame" src="assets/frame.png" alt="">
+    </div>
+  </div>
+</div>
+<script>
+  const { tl, words, leave, say, when, finish } = Motion.create();
+  const at = (line) => window.VOICE[line].at;
+
+  gsap.set(['#loop', '#table', '#band', '.box', '#rain', '#temp', '#ground'], { autoAlpha: 0 });
+  gsap.set('#move', { y: 1500 });
+
+  say('#hook', 0, undefined, 0);
+  leave('#hook', at(1) - .2);
+
+  say('#c-loop', 1, when(1, 'every') - .1);
+  tl.set('#loop', { autoAlpha: 1 }, at(1));
+  tl.fromTo('#loop', { clipPath: 'inset(-40px 100% -40px 0px)' }, { clipPath: 'inset(-40px 0% -40px 0px)', duration: 1.5, ease: 'none' }, at(1));
+  tl.set('#table', { autoAlpha: 1 }, when(1, 'two'));
+  tl.fromTo('#heads', { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .2, ease: 'power3.out' }, when(1, 'two'));
+
+  say('#c-saves', 1, when(1, 'so') - .1, when(1, 'every'));
+  say('#c-what', 1, 14.2, when(1, 'so'));
+  for (const [row, spoken] of [['#rain', 'rain'], ['#temp', 'temperature'], ['#ground', 'ground']]) {
+    tl.set(row, { autoAlpha: 1 }, when(1, spoken));
+    tl.fromTo(row, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .2, ease: 'power3.out' }, when(1, spoken));
+  }
+  leave('#loop', 14.2);
+  leave('#table', 14.2);
+
+  tl.set('#band', { autoAlpha: 1 }, 14.4);
+  tl.to('#move', { y: 0, duration: .5, ease: 'power3.out' }, 14.4);
+  say('#c-compare', 2, 18.35);
+  tl.set('#condition', { autoAlpha: 1 }, when(2, 'two'));
+  tl.set('#condition', { autoAlpha: 0 }, when(2, 'and'));
+
+  // Whisper hears "two point four bar up" as one token, so its first number comes from the measured pause before it.
+  const firstNumber = at(2) + 3.22;
+  tl.set('#c-front', { autoAlpha: 1 }, 18.4);
+  tl.set('#c-front', { autoAlpha: 0 }, at(3) - .1);
+  words('#c-front', [firstNumber, firstNumber + .87, when(2, 'in'), when(2, 'the', 2), when(2, 'wet'), when(2, 'two', 3), when(2, 'in', 2), when(2, 'the', 3), when(2, 'dry')]);
+  tl.to('#move', { x: -87, y: -580, scale: 1.25, duration: .45, ease: 'power3.inOut' }, when(2, 'and'));
+  tl.set('#front', { autoAlpha: 1 }, firstNumber);
+  tl.set('#front', { autoAlpha: 0 }, at(3) - .1);
+  tl.to('#move', { x: 0, y: 0, scale: 1, duration: .3, ease: 'power3.inOut' }, at(3) - .1);
+  say('#c-yours', 3);
+
+  finish();
+</script>
+</body>
+</html>

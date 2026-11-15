@@ -11,6 +11,12 @@ class SetupGuide {
   final String sourceLabel;
   final String source;
 
+  /// The adjuster id of the guide's spring (`pressure`, `spring_rate`). Once
+  /// the rider has entered it, the other rider-weight-keyed rules are looked up
+  /// at the weight the guide recommends that spring value for, so the clicks
+  /// follow the spring the rider actually runs.
+  final String? spring;
+
   /// In dependency order: a rule reading another adjuster as its input comes
   /// after every rule that targets that adjuster.
   final List<GuideRule> rules;
@@ -20,6 +26,7 @@ class SetupGuide {
     required this.label,
     String? sourceLabel,
     required this.source,
+    this.spring,
     required this.rules,
   }) : sourceLabel = sourceLabel ?? label;
 }
@@ -44,6 +51,10 @@ class GuideRule {
   final GuideOutput output;
   final String? note;
 
+  /// The URL of the table, where it comes from another document than the
+  /// guide's [SetupGuide.source].
+  final String? source;
+
   const GuideRule({
     required this.target,
     this.unit,
@@ -52,6 +63,7 @@ class GuideRule {
     this.when = const {},
     required this.output,
     this.note,
+    this.source,
   });
 
   /// Of two rules for one target that both match, the more specific wins.
@@ -317,6 +329,10 @@ class GuideRecommendation {
   /// The value lies between two published rows.
   final bool interpolated;
 
+  /// The [SetupGuide.spring] adjuster id where a rider-weight-keyed rule was
+  /// looked up at the weight equivalent to the entered spring value.
+  final String? followsSpring;
+
   /// For a rule keyed by rider weight: the weights, in
   /// [GuideInputs.riderWeightUnit], whose recommendation [current] is on guide
   /// for. An open-ended row makes an end infinite.
@@ -334,6 +350,7 @@ class GuideRecommendation {
     this.current,
     this.inputText,
     this.interpolated = false,
+    this.followsSpring,
     this.riderWeightRange,
   });
 

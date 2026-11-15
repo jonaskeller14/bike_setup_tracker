@@ -252,7 +252,7 @@ Map<String, String> _templateNames(String language) {
   };
 }
 
-/// [_researchNote] of `component_catalog_test.dart` per language.
+/// `_researchNote` of `component_catalog_test.dart` per language.
 final Map<String, RegExp> _researchNotes = {
   'de': RegExp(
     r'https?://|\bquelle[nd]?\b|\bgeprüft|\bbestätigt|\bverifizier|follow-?up|nicht (noch )?(veröffentlicht|publiziert)|'

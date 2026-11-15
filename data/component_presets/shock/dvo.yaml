@@ -408,6 +408,7 @@ guides:
     label_es: Página de setup DVO Jade
     label_pt: Página de setup DVO Jade
     source: https://tech.dvosuspension.com/setup/jade/
+    spring: spring_rate
     # The base tunes cover three catalog sizes. Table 3 (10.5x3.5in) and the
     # 9.5x3in size of table 2 are not catalog sizes; every other size gets
     # the bladder chart and SAG only. The table 2 HSC cell of 140-160 lb is

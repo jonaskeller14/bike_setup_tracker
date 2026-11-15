@@ -1,0 +1,8 @@
+• Guias de setup: os valores iniciais do manual para o seu peso
+• Verificação de pressão: perceba quando garfo ou amortecedor precisa de mais ar após uma queda de temperatura
+• Ative em Configurações > Recursos
+• Os cliques do catálogo seguem a sua pressão em mais garfos e amortecedores
+• Os gráficos mostram onde uma peça estava montada e o seu valor atual
+• Setups iguais compartilham uma linha no gráfico radar
+• As notificações do Strava chegam no seu idioma
+• Os anexos estão sempre ativos

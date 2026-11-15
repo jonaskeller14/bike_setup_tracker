@@ -6,6 +6,11 @@
 
   URL parameters (and the shared ones in template.js: device, shots, bg, zoom, lift, safe, video):
     caption=…   the headline above the phone; *key phrase* in teal, {9} a changed value
+    tall        a caption shown while the phone waits below the frame (motion/format.html): up to
+                640 px high and 860 px wide, so it stays clear of the platforms' buttons
+    note        a Before / After caption over the note or table (motion/format.html): up to 470 px high and
+                860 px wide, so it ends above the note at y 760
+    step        a How-to step caption beside the step number (motion/format.html): 730 × 192 px
 -->
 <html lang="en">
 <head>
@@ -22,6 +27,9 @@
      of the screen stay visible. */
   .caption { position: absolute; left: 60px; top: 262px; width: 960px; height: 350px; font-size: 124px; }
   .phone { left: 230px; top: 640px; --pw: 620; }
+  .tall .caption { width: 860px; height: 640px; }
+  .note .caption { width: 860px; height: 470px; }
+  .step .caption { left: 290px; top: 240px; width: 730px; height: 192px; }
 </style>
 </head>
 <body>
@@ -33,6 +41,7 @@
   <div class="rule" style="left:60px; right:60px; top:218px"></div>
   <h1 class="hl caption" data-param="caption" data-fit="96"></h1>
   <div class="phone" data-video data-callout></div>
+<script>['tall', 'note', 'step'].forEach((layout) => { if (new URLSearchParams(location.search).has(layout)) document.body.classList.add(layout); });</script>
 <script src="template.js"></script>
 </body>
 </html>

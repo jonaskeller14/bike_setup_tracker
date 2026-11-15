@@ -7,6 +7,7 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/adjustment_activity_histogram.dart';
 import '../../services/setup_activity_analysis_service.dart';
+import '../../services/subscription_service.dart';
 import '../../theme.dart';
 import '../display_data/adjustment_activity_histogram_chart.dart';
 import '../items/adjustment_properties.dart';
@@ -28,18 +29,28 @@ class AdjustmentIconNameNotes extends StatefulWidget {
 
 class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
   SetupActivityAnalysisService? _analysisService;
+  SubscriptionService? _subscription;
   Future<AdjustmentActivityHistogram>? _histogramFuture;
   AdjustmentActivityHistogram? _histogram;
   bool _isLoading = false;
+  bool _loadFailed = false;
+
+  bool get _canAnalyse =>
+      widget.adjustment is! TextAdjustment &&
+      _analysisService?.hasAnyActivity == true &&
+      _subscription?.hasStravaEntitlement == true;
+
+  void _resetHistogram() {
+    _histogramFuture = null;
+    _histogram = null;
+    _isLoading = false;
+    _loadFailed = false;
+  }
 
   @override
   void didUpdateWidget(covariant AdjustmentIconNameNotes oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.adjustment.id != widget.adjustment.id) {
-      _histogramFuture = null;
-      _histogram = null;
-      _isLoading = false;
-    }
+    if (oldWidget.adjustment.id != widget.adjustment.id) _resetHistogram();
   }
 
   @override
@@ -51,25 +62,44 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
     } on ProviderNotFoundException {
       service = null;
     }
-    if (!identical(service, _analysisService) || service?.hasAnyActivity != true) {
-      _histogramFuture = null;
-      _histogram = null;
-      _isLoading = false;
+    SubscriptionService? subscription;
+    try {
+      subscription = Provider.of<SubscriptionService>(context);
+    } on ProviderNotFoundException {
+      subscription = null;
     }
+    final serviceChanged = !identical(service, _analysisService);
     _analysisService = service;
+    _subscription = subscription;
+    if (serviceChanged || !_canAnalyse) _resetHistogram();
   }
 
   void _loadHistogram() {
     final service = _analysisService;
-    if (service == null || !service.hasAnyActivity) return;
+    if (service == null || !_canAnalyse) return;
 
     final future = service.getAdjustmentHistogram(widget.adjustment.id);
     setState(() {
       _histogramFuture = future;
       _histogram = null;
       _isLoading = true;
+      _loadFailed = false;
     });
     unawaited(_resolveHistogram(future));
+  }
+
+  /// Why there is no histogram, or null while it loads, is shown, or does not apply.
+  String? _histogramHint() {
+    final service = _analysisService;
+    final subscription = _subscription;
+    if (widget.adjustment is TextAdjustment || service == null || subscription == null) return null;
+
+    final l10n = context.l10n;
+    if (!subscription.hasStravaEntitlement) return l10n.chartHistogramHintSubscribe;
+    if (!service.hasAnyActivity) return l10n.chartHistogramHintNoActivities;
+    if (_loadFailed) return l10n.chartHistogramHintLoadFailed;
+    if (_histogram?.isEmpty == true) return l10n.chartHistogramHintNoLinked;
+    return null;
   }
 
   Future<void> _resolveHistogram(Future<AdjustmentActivityHistogram> future) async {
@@ -86,6 +116,7 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
       setState(() {
         _histogram = null;
         _isLoading = false;
+        _loadFailed = true;
       });
     }
   }
@@ -197,9 +228,14 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                         padding: const EdgeInsets.only(left: 15),
                         child: Text(detail, style: TextStyle(color: colorScheme.onSecondary, fontSize: 12)),
                       ),
-                    if (_analysisService?.hasAnyActivity == true && _isLoading)
+                    if (_histogramHint() case final hint?)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 16),
+                        child: _HistogramHint(hint, color: colorScheme.onSecondary),
+                      ),
+                    if (_canAnalyse && _isLoading)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
                         child: Center(
                           child: SizedBox.square(
                             dimension: 18,
@@ -207,9 +243,9 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
                           ),
                         ),
                       ),
-                    if (_analysisService?.hasAnyActivity == true && _histogram?.isEmpty == false)
+                    if (_canAnalyse && _histogram?.isEmpty == false)
                       Padding(
-                        padding: const EdgeInsets.only(top: 8),
+                        padding: const EdgeInsets.only(top: 16),
                         child: AdjustmentActivityHistogramChart(
                           histogram: _histogram!,
                           currentValue: widget.value,
@@ -247,6 +283,34 @@ class _AdjustmentIconNameNotesState extends State<AdjustmentIconNameNotes> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _HistogramHint extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _HistogramHint(this.text, {required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 280),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 3),
+            child: Icon(Icons.bar_chart_rounded, size: 13, color: color),
+          ),
+          const SizedBox(width: 2),
+          Flexible(
+            child: Text(text, style: TextStyle(color: color, fontSize: 13)),
+          ),
+        ],
+      ),
     );
   }
 }

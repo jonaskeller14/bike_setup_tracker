@@ -943,12 +943,6 @@ abstract class AppLocalizations {
   /// **'Setup History'**
   String get homeTitleSetupHistory;
 
-  /// App bar title of the Riders tab.
-  ///
-  /// In en, this message translates to:
-  /// **'Riders'**
-  String get homeTitleRiders;
-
   /// App bar title of the Tasks tab.
   ///
   /// In en, this message translates to:
@@ -966,12 +960,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Setups'**
   String get homeNavSetups;
-
-  /// Label of the Riders destination in the bottom navigation bar.
-  ///
-  /// In en, this message translates to:
-  /// **'Riders'**
-  String get homeNavRiders;
 
   /// Label of the Tasks destination in the bottom navigation bar.
   ///
@@ -1050,12 +1038,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add Bike'**
   String get homeTooltipAddBike;
-
-  /// Tooltip of the floating button that adds a rider.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Rider'**
-  String get homeTooltipAddRider;
 
   /// Tooltip of the floating button that adds a task.
   ///
@@ -1429,17 +1411,71 @@ abstract class AppLocalizations {
   /// **'Revoke access and delete synced activities'**
   String get settingsDisconnectStravaSubtitle;
 
-  /// Title of the settings entry and sheet for Strava push notifications.
+  /// Switch in the notifications sheet for push notifications when Strava rides are imported.
   ///
   /// In en, this message translates to:
-  /// **'Strava Notifications'**
+  /// **'Imported rides'**
   String get settingsStravaNotifications;
 
-  /// Explanation in the Strava notifications sheet.
+  /// Subtitle of the imported-rides switch in the notifications sheet.
   ///
   /// In en, this message translates to:
   /// **'Receive push notifications when Strava activities are imported.'**
   String get settingsStravaNotificationsInfo;
+
+  /// Switch in the notifications sheet for push notifications when a Strava ride makes a task due.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tasks'**
+  String get settingsTaskNotifications;
+
+  /// Subtitle of the due-tasks switch in the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a push notification when a Strava ride makes a task due. Needs cloud sync.'**
+  String get settingsTaskNotificationsInfo;
+
+  /// Title of the settings entry and sheet that turns the push notifications on and off.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
+
+  /// Introduction at the top of the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications after your Strava rides. Choose which ones you get.'**
+  String get settingsNotificationsIntro;
+
+  /// Label above an example notification in the notifications sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get settingsNotificationsExample;
+
+  /// Title of the example ride-import notification. Mirrors the backend text with an example ride name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride imported: Evening Ride'**
+  String get settingsStravaNotificationsExampleTitle;
+
+  /// Body of the example ride-import notification. Mirrors one of the backend prompts.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed anything on the bike? Record the setup.'**
+  String get settingsStravaNotificationsExampleBody;
+
+  /// Title of the example task-due notification. Mirrors the backend text with an example task name.
+  ///
+  /// In en, this message translates to:
+  /// **'Task due: Chain wax'**
+  String get settingsTaskNotificationsExampleTitle;
+
+  /// Body of the example task-due notification. Mirrors the backend text with an example bike name.
+  ///
+  /// In en, this message translates to:
+  /// **'Due after your ride on Enduro.'**
+  String get settingsTaskNotificationsExampleBody;
 
   /// Title of the settings entry that opens the preferences page.
   ///
@@ -1867,11 +1903,35 @@ abstract class AppLocalizations {
   /// **'Setup Guides'**
   String get featuresSetupGuides;
 
-  /// Explanation of the setup guides feature.
+  /// Intro of the setup guides settings sheet. <b>…</b> marks the bold part: when the guide is shown.
   ///
   /// In en, this message translates to:
-  /// **'Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.'**
-  String get featuresSetupGuidesInfo;
+  /// **'See the manufacturer’s recommended values <b>every time you create or edit a setup</b>, like air pressure or rebound and compression clicks, matched to your riding weight and riding style.'**
+  String get setupGuidesIntro;
+
+  /// First step of the setup guides settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Link a fork or shock to its catalog model. Models with a manufacturer setup guide get recommended values.'**
+  String get setupGuidesStepLink;
+
+  /// Second step of the setup guides settings sheet; "Setup guide" is guideCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Setup guide card compares what your setup has now with the guide. It opens by itself while a component has no values yet, and starts collapsed after that.'**
+  String get setupGuidesStepCard;
+
+  /// Third step of the setup guides settings sheet; "Apply all" is guideCardApplyAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a row to use its value, or Apply all. A status icon next to each adjustment shows whether it follows the guide.'**
+  String get setupGuidesStepApply;
+
+  /// Footnote of the setup guides settings sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'If your weight falls between two weight steps of the manual, the value is worked out in between, and clicks are converted to your dial. These are starting points, so check your manual. Turning this off hides the card; your setups keep their values.'**
+  String get setupGuidesCaption;
 
   /// Title of the group of categorical adjustment features.
   ///
@@ -1992,18 +2052,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Adds a rider profile, opened with the rider button in the app bar. Link the rider to your bikes to record riding weight and other rider attributes with each setup. A new rider starts with a \"Riding weight\" attribute. Turning this off hides the rider but keeps its data.'**
   String get featuresRiderInfo;
-
-  /// Title of the advanced rider layout feature (developer builds).
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced Rider Layout'**
-  String get featuresRiderAdvanced;
-
-  /// Explanation of the advanced rider layout feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.'**
-  String get featuresRiderAdvancedInfo;
 
   /// Title of the test session goal feature (developer builds).
   ///
@@ -2190,18 +2238,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shows a colored status dot on component icons in the Garage when they have open tasks.'**
   String get featuresGarageTaskIndicatorInfo;
-
-  /// Title of the attachments feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Attachments'**
-  String get featuresAttachments;
-
-  /// Explanation of the attachments feature, including the warning that they are not backed up.
-  ///
-  /// In en, this message translates to:
-  /// **'Attach images and files to bikes, components, setups and tasks. WARNING: attachments are stored only on this device. They are NOT included in cloud/Drive backups and will be lost on reinstall or when restoring from a backup. Use \"Export Attachment Bundle\" to move them to a new device.'**
-  String get featuresAttachmentsInfo;
 
   /// Title of the Google Drive sync feature.
   ///
@@ -3150,12 +3186,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subcomponents enabled — edit a part and pick its parent under \"Installed on\"'**
   String get hintSubcomponentsEnabled;
-
-  /// Snackbar after attachments were turned on from a hint.
-  ///
-  /// In en, this message translates to:
-  /// **'Attachments enabled — add photos and files to bikes, components, setups and tasks'**
-  String get hintAttachmentsEnabled;
 
   /// Snackbar after tasks were turned on from the what's new hint.
   ///
@@ -4672,7 +4702,7 @@ abstract class AppLocalizations {
   /// Info text of the activity histogram section on the component details.
   ///
   /// In en, this message translates to:
-  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
+  /// **'• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Bars are split by where the component was mounted, e.g. front or rear wheel. Touch a bar to see the activities per mount.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.'**
   String get componentDetailsHistogramInfo;
 
   /// Snackbar action that starts adding the missing item.
@@ -6841,12 +6871,6 @@ abstract class AppLocalizations {
   /// **'Link \'{name}\''**
   String setupTabLinkRider(String name);
 
-  /// Menu entry that creates a rider for the bike.
-  ///
-  /// In en, this message translates to:
-  /// **'Create new rider'**
-  String get setupTabCreateRider;
-
   /// Button that opens the rider link menu.
   ///
   /// In en, this message translates to:
@@ -7045,17 +7069,11 @@ abstract class AppLocalizations {
   /// **'Edit Setup'**
   String get setupFormEditTitle;
 
-  /// App bar title of the setup form for the first run of a test session.
+  /// App bar title of the setup form for a run of a test session. {number} counts the runs, starting at 1.
   ///
   /// In en, this message translates to:
-  /// **'First Run'**
-  String get setupFormFirstRun;
-
-  /// App bar title of the setup form for a later run of a test session.
-  ///
-  /// In en, this message translates to:
-  /// **'Next Run'**
-  String get setupFormNextRun;
+  /// **'Setup for run {number}'**
+  String setupFormRunTitle(int number);
 
   /// Label of the setup name field.
   ///
@@ -7303,18 +7321,6 @@ abstract class AppLocalizations {
   /// **'Only the adjustments of the session can change; locked ones stay as they are. Everything else is copied from the previous run.'**
   String get setupFormSessionNextBase;
 
-  /// Title of the test session notice on the first run. {name} is the session name.
-  ///
-  /// In en, this message translates to:
-  /// **'First run of \'{name}\''**
-  String setupFormSessionFirstRunTitle(String name);
-
-  /// Title of the test session notice on a later run. {name} is the session name.
-  ///
-  /// In en, this message translates to:
-  /// **'Run of \'{name}\''**
-  String setupFormSessionRunTitle(String name);
-
   /// Hint under the weight field of the setup guide card. {name} is the rider.
   ///
   /// In en, this message translates to:
@@ -7344,6 +7350,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Applied 1 recommended value} other{Applied {count} recommended values}}'**
   String setupFormGuideApplied(int count);
+
+  /// Snackbar after applying one recommended value. {name} is the adjuster, {value} the formatted value.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} set to {value}'**
+  String setupFormGuideAppliedOne(String name, String value);
 
   /// Line added to the setup notes after applying all recommended values. {guides} lists the guide names.
   ///
@@ -8767,54 +8779,6 @@ abstract class AppLocalizations {
   /// **'Flexible field for any other attribute'**
   String get riderAttributeTypeTextHint;
 
-  /// Title shown when the rider of the details page no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'Rider not found'**
-  String get riderDetailsNotFoundTitle;
-
-  /// Subtitle shown when the rider of the details page no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'This rider was deleted or is no longer available.'**
-  String get riderDetailsNotFoundSubtitle;
-
-  /// Shown on the rider details when no Strava athlete is linked.
-  ///
-  /// In en, this message translates to:
-  /// **'No Strava Athlete linked to this rider.'**
-  String get riderDetailsNoStrava;
-
-  /// Shown in red when the linked Strava athlete no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'STRAVA ATHLETE NOT FOUND'**
-  String get riderDetailsStravaNotFound;
-
-  /// Shown on the rider details when no bike is linked.
-  ///
-  /// In en, this message translates to:
-  /// **'No bikes linked to this rider.'**
-  String get riderDetailsNoBikes;
-
-  /// Title of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'No rider yet'**
-  String get riderListEmptyTitle;
-
-  /// Subtitle of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a rider to link to your bikes and setups.'**
-  String get riderListEmptySubtitle;
-
-  /// Button of the empty state of the rider list.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a rider'**
-  String get riderListEmptyAction;
-
   /// Menu item of a rider card that opens the bike link sheet.
   ///
   /// In en, this message translates to:
@@ -9222,6 +9186,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get mapEmptyRetry;
+
+  /// Screen reader label of a map cluster bubble. {count} is the number of pins it groups.
+  ///
+  /// In en, this message translates to:
+  /// **'Cluster of {count} pins'**
+  String mapClusterSemantics(int count);
 
   /// Title of the map card shown when filters hide every pin.
   ///
@@ -10009,42 +9979,6 @@ abstract class AppLocalizations {
   /// **'Feedback restored from trash.'**
   String get feedbackRestoredFromTrash;
 
-  /// Title of the dialog that renames a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Rename issue'**
-  String get customIssueRenameTitle;
-
-  /// Snackbar after renaming a problem to the name of another one.
-  ///
-  /// In en, this message translates to:
-  /// **'Merged into \"{label}\".'**
-  String customIssueMerged(String label);
-
-  /// Snackbar after renaming a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue renamed.'**
-  String get customIssueRenamed;
-
-  /// Title of the dialog that confirms removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Remove \"{label}\"?'**
-  String customIssueRemoveTitle(String label);
-
-  /// Body of the dialog that confirms removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'It is removed from every feedback and test session goal, including the trash. This cannot be undone.'**
-  String get customIssueRemoveBody;
-
-  /// Snackbar after removing a rider-defined problem.
-  ///
-  /// In en, this message translates to:
-  /// **'Issue removed.'**
-  String get customIssueRemoved;
-
   /// Title of the sheet with the rider-defined problems.
   ///
   /// In en, this message translates to:
@@ -10054,7 +9988,7 @@ abstract class AppLocalizations {
   /// Info line of the sheet with the rider-defined problems.
   ///
   /// In en, this message translates to:
-  /// **'Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.'**
+  /// **'Your own problems, beside the built-in ones. An issue disappears once no feedback uses it.'**
   String get customIssuesInfo;
 
   /// Validation error when adding a problem without a name.
@@ -10668,6 +10602,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reading Google Drive backup failed: {detail}'**
   String dataErrorReadDriveBackup(String detail);
+
+  /// Error under the backup list when the cloud backups could not be listed. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting cloud backups failed: {detail}'**
+  String dataErrorGetCloudBackups(String detail);
+
+  /// Error when a cloud backup could not be downloaded or read. {detail} is the technical reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading cloud backup failed: {detail}'**
+  String dataErrorReadCloudBackup(String detail);
 
   /// Snackbar after the error report file was written. {path} is the file path.
   ///
@@ -11767,6 +11713,24 @@ abstract class AppLocalizations {
   /// **'Start location not available'**
   String get stravaActivityNoStartLocation;
 
+  /// Title of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity not found'**
+  String get stravaActivityNotFoundTitle;
+
+  /// Subtitle of the Strava activity page when the activity no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This activity was deleted or is no longer available.'**
+  String get stravaActivityNotFoundSubtitle;
+
+  /// Title of the Strava activity page when reading the activity failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load activity'**
+  String get stravaActivityLoadErrorTitle;
+
   /// Snackbar after an exported file was saved.
   ///
   /// In en, this message translates to:
@@ -11872,7 +11836,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a JSON file.
   ///
   /// In en, this message translates to:
-  /// **'Choose where to save the JSON file'**
+  /// **'Choose where to save the JSON file. Attachments not included.'**
   String get exportSaveFileSubtitle;
 
   /// Entry of the export sheet that saves a local backup.
@@ -11884,7 +11848,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a local backup.
   ///
   /// In en, this message translates to:
-  /// **'Save current state as a local backup'**
+  /// **'Save current state as a local backup. Attachments not included.'**
   String get exportSaveBackupSubtitle;
 
   /// Entry of the export sheet that saves a backup to Google Drive.
@@ -11896,7 +11860,7 @@ abstract class AppLocalizations {
   /// Subtitle of the entry that saves a backup to Google Drive.
   ///
   /// In en, this message translates to:
-  /// **'Save current state as Backup in Google Drive'**
+  /// **'Save current state as Backup in Google Drive. Attachments not included.'**
   String get exportSaveDriveBackupSubtitle;
 
   /// Entry of the export sheet that saves data and attachments as a ZIP file.
@@ -12100,7 +12064,7 @@ abstract class AppLocalizations {
   /// Explanation of the replace import method.
   ///
   /// In en, this message translates to:
-  /// **'Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.'**
+  /// **'Replace your local data with the imported data. Your current data moves to the trash and is deleted after 30 days.'**
   String get importMethodReplaceSubtitle;
 
   /// Progress text while data is merged.
@@ -12186,6 +12150,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Google Drive Backup'**
   String get backupGoogleDrive;
+
+  /// Name of a daily backup stored in the cloud account (cloud sync).
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Backup'**
+  String get backupCloud;
 
   /// Subtitle of a local backup while it is read.
   ///
@@ -12727,6 +12697,12 @@ abstract class AppLocalizations {
   /// **'{label}\n{count, plural, =1{1 activity} other{{count} activities}}{current, select, true{\nCurrent value} other{}}{recommended, select, true{\nRecommended value} other{}}'**
   String chartHistogramBarTooltip(String label, int count, String current, String recommended);
 
+  /// One stacked part of a histogram bar, in its tooltip and screen reader text. {slot} is where the component was mounted, e.g. 'Tire (Rear wheel)'.
+  ///
+  /// In en, this message translates to:
+  /// **'{slot}: {count, plural, =1{1 activity} other{{count} activities}}'**
+  String chartHistogramSegment(String slot, int count);
+
   /// Label of the vertical axis of the activity histogram.
   ///
   /// In en, this message translates to:
@@ -12774,6 +12750,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'None of the setups with a \'{column}\' value were used on an activity'**
   String chartHistogramNoLinkedSubtitle(String column);
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when the user has no Strava Sync subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe to Strava Sync to see which values you rode most. Tap the Strava icon on the home screen to get started.'**
+  String get chartHistogramHintSubscribe;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when no Strava activity is synced.
+  ///
+  /// In en, this message translates to:
+  /// **'No Strava activities synced yet. Sync your activities to see which values you rode most.'**
+  String get chartHistogramHintNoActivities;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when no activity used a setup with this adjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity has used a setup with this adjustment yet.'**
+  String get chartHistogramHintNoLinked;
+
+  /// Hint in the adjustment tooltip, instead of the activity histogram, when loading it failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the activity distribution.'**
+  String get chartHistogramHintLoadFailed;
 
   /// Empty state title of a chart when no adjustment column is shown.
   ///
@@ -13066,7 +13066,7 @@ abstract class AppLocalizations {
   /// Footer of the pressure check card when at least one pressure is off.
   ///
   /// In en, this message translates to:
-  /// **'On the right is what your pump would read now. Pump back to the value you last set for the same feel.'**
+  /// **'“Now” is what your pump would read today. Pump back to the “Set” value for the same feel.'**
   String get pressureCheckFooterDrifted;
 
   /// Footer of the pressure check card when every pressure is fine. {threshold} is the threshold, such as 3 %.
@@ -13075,17 +13075,89 @@ abstract class AppLocalizations {
   /// **'Every pressure stays within {threshold} of the value you last set.'**
   String pressureCheckFooterOk(String threshold);
 
-  /// Tooltip of the info button on the pressure check card.
+  /// Body of the collapsed pressure check card while the current location or weather is still being fetched.
   ///
   /// In en, this message translates to:
-  /// **'How this is calculated'**
-  String get pressureCheckInfoTooltip;
+  /// **'Getting the current temperature and altitude…'**
+  String get pressureCheckLoading;
 
-  /// Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.
+  /// Body of the pressure check card when no earlier setup recorded a pressure of the bike.
   ///
   /// In en, this message translates to:
-  /// **'Set {value} {unit} on {date} · {conditions}'**
-  String pressureCheckSetOn(String value, String unit, String date, String conditions);
+  /// **'No pressure recorded for this bike yet, so there is nothing to compare.'**
+  String get pressureCheckNoRecordedPressure;
+
+  /// Footer of the pressure check card when the setups that last set the pressures all have no temperature or altitude, so no pressure can be compared.
+  ///
+  /// In en, this message translates to:
+  /// **'The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.'**
+  String get pressureCheckNoRecordedConditions;
+
+  /// Body of the pressure check card when the current temperature or altitude is missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs the current temperature and altitude. Set the location and weather above.'**
+  String get pressureCheckNoCurrentConditions;
+
+  /// Row of the pressure check card, under the pressure name: when the value was last set. {date} is the setup date, {conditions} the temperature and altitude then.
+  ///
+  /// In en, this message translates to:
+  /// **'Set on {date} · {conditions}'**
+  String pressureCheckSetOn(String date, String conditions);
+
+  /// Chip on a drifted pressure row of the pressure check card: tapping the row marks that the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also quoted in the info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumped'**
+  String get pressureCheckSetNow;
+
+  /// Screen reader hint of a pressure row that can be marked as pumped. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {name} as pumped'**
+  String pressureCheckSetNowSemantics(String name);
+
+  /// Snackbar after a pressure row is marked as pumped, with an undo action. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as pumped'**
+  String pressureCheckSetNowMarked(String name);
+
+  /// Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} no longer marked as pumped'**
+  String pressureCheckSetNowUnmarked(String name);
+
+  /// Replaces the set-on line under a pressure name once the row is marked as pumped.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumped just now'**
+  String get pressureCheckSetNowDone;
+
+  /// Appended to the footer of the pressure check card while a row can be marked: tapping a row marks it as pumped. “Set” is the column caption.
+  ///
+  /// In en, this message translates to:
+  /// **'Pumped back to “Set”? Tap the pressure.'**
+  String get pressureCheckSetNowHint;
+
+  /// Row of the pressure check card, under the pressure name, when the setup that last set it has no temperature or altitude. {date} is the setup date.
+  ///
+  /// In en, this message translates to:
+  /// **'No conditions recorded on {date}'**
+  String pressureCheckNoConditionsOn(String date);
+
+  /// Caption of the pressure check card column with what the pump would read now.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get pressureCheckColumnNow;
+
+  /// Caption of the pressure check card column with the value last set in an earlier setup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set'**
+  String get pressureCheckColumnSet;
 
   /// A pressure in psi in the pressure check explanation. {value} is the formatted number.
   ///
@@ -13122,6 +13194,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The two often partly cancel each other out.'**
   String get pressureCheckInfoCancel;
+
+  /// Note in the pressure check info sheet about slow air loss. {percent} is the assumed weekly tire loss, such as 3 %.
+  ///
+  /// In en, this message translates to:
+  /// **'Tires also lose a little air every day. The check assumes a cautious {percent} per week for tires and none for forks and shocks. Real loss is usually bigger.'**
+  String pressureCheckInfoLeak(String percent);
 
   /// Heading of the example card in the pressure check info sheet.
   ///
@@ -13168,25 +13246,43 @@ abstract class AppLocalizations {
   /// Heading in the pressure check info sheet.
   ///
   /// In en, this message translates to:
+  /// **'Which setup is compared'**
+  String get pressureCheckInfoReferenceHeading;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Each pressure is compared with the setup that last changed it, or where you marked it \"Pumped\". That is not always your previous setup.'**
+  String get pressureCheckInfoCompared;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A value carried over unchanged doesn\'t count: the air in the chamber has been there since the setup that set it.'**
+  String get pressureCheckInfoCarriedOver;
+
+  /// Note in the pressure check info sheet. "Pumped" must match the chip on the pressure check card.
+  ///
+  /// In en, this message translates to:
+  /// **'After pumping back or checking on a gauge, tap the pressure to mark it \"Pumped\". This setup then becomes the reference. You can also do it later by editing the setup.'**
+  String get pressureCheckInfoSetNow;
+
+  /// Note in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'A setup saved without temperature or altitude can\'t be compared. Its pressures still show up: mark one \"Pumped\" to start a new reference here, which needs today\'s conditions.'**
+  String get pressureCheckInfoNeedsConditions;
+
+  /// Heading in the pressure check info sheet.
+  ///
+  /// In en, this message translates to:
   /// **'Good to know'**
   String get pressureCheckInfoGoodToKnowHeading;
 
   /// Note in the pressure check info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Each value is compared with the setup that last changed it, which is not always your previous setup.'**
-  String get pressureCheckInfoCompared;
-
-  /// Note in the pressure check info sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Both setups need a temperature and an altitude; pressures without them are left out.'**
-  String get pressureCheckInfoNeedsConditions;
-
-  /// Note in the pressure check info sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.'**
+  /// **'Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it. The air loss over time is a cautious estimate.'**
   String get pressureCheckInfoNotIncluded;
 
   /// Example card of the pressure check info sheet: the first place.
@@ -13225,11 +13321,11 @@ abstract class AppLocalizations {
   /// **'Higher up'**
   String get pressureCheckExampleHigherUp;
 
-  /// Example card: the total drift. {value} is the signed pressure.
+  /// Example card: label of the total drift, shown next to the signed pressure.
   ///
   /// In en, this message translates to:
-  /// **'Total {value} psi'**
-  String pressureCheckExampleTotal(String value);
+  /// **'Total'**
+  String get pressureCheckExampleTotal;
 
   /// Summary of the component types the pressure check covers, when none is skipped.
   ///
@@ -13252,7 +13348,7 @@ abstract class AppLocalizations {
   /// Introduction of the pressure check settings sheet.
   ///
   /// In en, this message translates to:
-  /// **'When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.'**
+  /// **'When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently. Only shown for bikes with a pressure adjustment.'**
   String get pressureCheckSettingIntro;
 
   /// Switch in the pressure check settings sheet.
@@ -13291,12 +13387,6 @@ abstract class AppLocalizations {
   /// **'Setup guide'**
   String get guideCardTitle;
 
-  /// Tooltip of the info button on the setup guide card.
-  ///
-  /// In en, this message translates to:
-  /// **'About recommended values'**
-  String get guideCardInfoTooltip;
-
   /// Headline of the setup guide card.
   ///
   /// In en, this message translates to:
@@ -13315,6 +13405,18 @@ abstract class AppLocalizations {
   /// **'Apply all'**
   String get guideCardApplyAll;
 
+  /// Caption of the column with the value currently set, in the setup guide card.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get guideCardColumnNow;
+
+  /// Caption of the column with the value the setup guide recommends.
+  ///
+  /// In en, this message translates to:
+  /// **'Guide'**
+  String get guideCardColumnGuide;
+
   /// Label of the riding weight field of the setup guide card.
   ///
   /// In en, this message translates to:
@@ -13332,18 +13434,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Based on: {guide}'**
   String guideCardBasedOn(String guide);
-
-  /// Current value of an adjustment in the setup guide card. {value} is the formatted value.
-  ///
-  /// In en, this message translates to:
-  /// **'Now {value}'**
-  String guideCardNow(String value);
-
-  /// Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.
-  ///
-  /// In en, this message translates to:
-  /// **'in range {band}'**
-  String guideCardInRange(String band);
 
   /// Hint of the setup guide card when no riding weight is known. The tab name must match the app's own label.
   ///
@@ -13368,6 +13458,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'converted to your dial'**
   String get guideDetailConverted;
+
+  /// Part of the detail line of a setup guide row: clicks the manual lists by rider weight were looked up for the weight that matches the entered pressure or spring rate.
+  ///
+  /// In en, this message translates to:
+  /// **'{spring, select, pressure{follows your pressure} spring_rate{follows your spring rate} other{follows your spring}}'**
+  String guideDetailFollowsSpring(String spring);
 
   /// Detail line of a setup guide row whose value does not depend on any input.
   ///
@@ -13410,6 +13506,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outside the published range'**
   String get guideIssueOutsideRange;
+
+  /// Reason a setup guide row has no value. {input} is the input the guide looks up with its value, such as "Riding weight 140 kg" or "Pressure 120 psi".
+  ///
+  /// In en, this message translates to:
+  /// **'{input} is outside the published range'**
+  String guideIssueOutsideRangeFor(String input);
 
   /// Reason a setup guide row can't be applied.
   ///
@@ -13525,10 +13627,28 @@ abstract class AppLocalizations {
   /// **'Clicks are counted from the end the manual counts from. If your adjuster counts the other way, the value is converted to your dial.'**
   String get guideInfoClicks;
 
+  /// Explanation in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Damping, rebound in particular, has to match your spring, not your weight. Once you enter your pressure or spring rate, clicks the manual lists by weight follow it: they are taken for the weight the manual recommends that value for. So set the spring and check SAG first, then the clicks.'**
+  String get guideInfoFollowsSpring;
+
+  /// Heading in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the card'**
+  String get guideInfoReadHeading;
+
+  /// Explanation of the columns and of tapping a row in the setup guide info sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Now is what your setup has, Guide what the manual recommends, with its range below. Tap a row to use its recommendation, or Apply all for every row. You can undo it right afterwards.'**
+  String get guideInfoReadColumns;
+
   /// Heading of the status legend in the setup guide info sheet.
   ///
   /// In en, this message translates to:
-  /// **'Status'**
+  /// **'Status legend'**
   String get guideInfoStatusHeading;
 
   /// Legend entry for the Matches status.
@@ -13546,7 +13666,7 @@ abstract class AppLocalizations {
   /// Legend entry for a status that shows a distance.
   ///
   /// In en, this message translates to:
-  /// **'Further off. Shows how far your value is from the recommendation.'**
+  /// **'Further off. The arrow shows which way to move your value: one arrow for a small step, two for a large one. Press and hold it for the exact distance.'**
   String get guideLegendOff;
 
   /// Legend entry for the Not set status.
@@ -15522,6 +15642,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Race'**
   String get adjustmentTemplateOptionRace;
+
+  /// Title of the developer toggle for cloud sync on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud Sync'**
+  String get featuresCloudSync;
+
+  /// Info text of the cloud sync toggle on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncs your data between the devices of your account and keeps it backed up in the cloud. Needs a subscription and an account on this device. Still in development.'**
+  String get featuresCloudSyncInfo;
+
+  /// Title of the developer toggle for accounts on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get featuresAccounts;
+
+  /// Info text of the accounts toggle on the features page.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting Strava signs this device in to your account, so all your devices share one subscription and, with Cloud Sync, the same data. Still in development.'**
+  String get featuresAccountsInfo;
+
+  /// Settings tile that opens the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get settingsAccount;
+
+  /// Subtitle of the account tile in the settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices, sign out or delete the account'**
+  String get settingsAccountSubtitle;
+
+  /// Title of the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// Account name on the account page when no Strava athlete name is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get accountFallbackName;
+
+  /// Line under the account name: the account is reached by connecting Strava.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in through Strava'**
+  String get accountSignedInThroughStrava;
+
+  /// Subscription status on the account page. {date} is the expiry date.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription active until {date}'**
+  String accountPremiumActive(String date);
+
+  /// Subscription status on the account page while the store subscription renews automatically. {date} is the next renewal date.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription renews on {date}'**
+  String accountPremiumRenews(String date);
+
+  /// Subscription status on the account page without an active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription'**
+  String get accountPremiumInactive;
+
+  /// Section title of the cloud sync status on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync'**
+  String get accountSectionCloudSync;
+
+  /// Cloud sync status after a successful sync. {date} is the date and time of the last sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {date}'**
+  String accountSyncLastSynced(String date);
+
+  /// Cloud sync status before the first sync on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get accountSyncNever;
+
+  /// Cloud sync status while a sync runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing…'**
+  String get accountSyncSyncing;
+
+  /// Cloud sync status while the device is offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a connection'**
+  String get accountSyncOffline;
+
+  /// Cloud sync status after a failed sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync failed. It will try again later.'**
+  String get accountSyncError;
+
+  /// Number of local changes not uploaded to the cloud yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change not uploaded yet} other{{count} changes not uploaded yet}}'**
+  String accountSyncPending(int count);
+
+  /// Cloud sync status when cloud sync is on but there is no active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync needs an active subscription.'**
+  String get accountSyncNeedsPremium;
+
+  /// Button that starts a cloud sync right away.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get accountSyncNow;
+
+  /// SnackBar after a manual cloud sync succeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get accountSyncDone;
+
+  /// SnackBar after a manual cloud sync failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sync. Try again later.'**
+  String get accountSyncFailed;
+
+  /// SnackBar after a manual cloud sync found no connection.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Your changes will sync once you\'re online.'**
+  String get accountSyncOfflineDone;
+
+  /// Section title of the signed-in devices on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices'**
+  String get accountSectionDevices;
+
+  /// Shown when the device list of the account could not be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices could not be loaded.'**
+  String get accountDevicesLoadFailed;
+
+  /// Shown when the account has no signed-in devices.
+  ///
+  /// In en, this message translates to:
+  /// **'No signed-in devices'**
+  String get accountDevicesEmpty;
+
+  /// Marks the current device in the device list of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get accountThisDevice;
+
+  /// When a device of the account last opened the app. {date} is a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {date}'**
+  String accountDeviceLastSeen(String date);
+
+  /// Tooltip of the button that signs another device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out device'**
+  String get accountSignOutDeviceTooltip;
+
+  /// Title of the dialog that confirms signing another device out. {device} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out {device}?'**
+  String accountSignOutDeviceTitle(String device);
+
+  /// Body of the dialog that confirms signing another device out.
+  ///
+  /// In en, this message translates to:
+  /// **'It is signed out the next time the app runs on it, and its Strava activities are removed. With cloud sync on there, its other data is removed too, because the cloud keeps a copy; otherwise it stays on the device. Your other devices stay signed in.'**
+  String get accountSignOutDeviceBody;
+
+  /// Destructive button that signs a device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get accountSignOutDeviceConfirm;
+
+  /// Snackbar after another device was signed out. {device} is its name.
+  ///
+  /// In en, this message translates to:
+  /// **'{device} was signed out'**
+  String accountSignOutDeviceDone(String device);
+
+  /// Snackbar when signing another device out failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The device could not be signed out. Check your connection and try again.'**
+  String get accountSignOutDeviceFailed;
+
+  /// Account page tile that signs this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device'**
+  String get accountSignOut;
+
+  /// Subtitle of the sign-out tile on the account page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your other devices stay signed in'**
+  String get accountSignOutSubtitle;
+
+  /// Title of the dialog that confirms signing this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of this device?'**
+  String get accountSignOutTitle;
+
+  /// Body of the dialog that confirms signing this device out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account, your subscription and your other devices are not affected. Connect Strava again to sign back in.'**
+  String get accountSignOutBody;
+
+  /// Checkbox in the sign-out and delete-account dialogs, on by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove data from this device'**
+  String get accountRemoveDataFromDevice;
+
+  /// Title of the dialog that warns about changes not uploaded to the cloud yet before signing out.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes not uploaded'**
+  String get accountUnsyncedChangesTitle;
+
+  /// Body of the dialog that warns about changes not uploaded yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change on this device hasn\'t been uploaded yet and will be lost.} other{{count} changes on this device haven\'t been uploaded yet and will be lost.}}'**
+  String accountUnsyncedChangesBody(int count);
+
+  /// Destructive button of the dialog that warns about changes not uploaded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out anyway'**
+  String get accountUnsyncedChangesConfirm;
+
+  /// Snackbar after this device was signed out of the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed out of this device'**
+  String get accountSignOutDone;
+
+  /// Snackbar when signing this device out failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing out failed. Check your connection and try again.'**
+  String get accountSignOutFailed;
+
+  /// Account page tile that deletes the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDelete;
+
+  /// Subtitle of the delete-account tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes the account and its data in the cloud'**
+  String get accountDeleteSubtitle;
+
+  /// Title of the dialog that confirms deleting the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get accountDeleteTitle;
+
+  /// Body of the dialog that confirms deleting the account.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, its data in the cloud and your synced Strava activities, and signs out all your devices. The data on your other devices stays on them. It can\'t be undone.'**
+  String get accountDeleteBody;
+
+  /// Destructive button of the delete-account dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get accountDeleteConfirm;
+
+  /// Snackbar after the account was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted'**
+  String get accountDeleteDone;
+
+  /// Snackbar when deleting the account failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The account could not be deleted. Check your connection and try again.'**
+  String get accountDeleteFailed;
+
+  /// Title of the dialog after deleting the account while a store subscription still renews.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription still renews'**
+  String get accountDeleteSubscriptionTitle;
+
+  /// Body of the dialog after deleting the account while a store subscription still renews. {store} is "Apple App Store" or "Google Play Store".
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting the account doesn\'t cancel the subscription. Cancel it in the {store} to stop the payments.'**
+  String accountDeleteSubscriptionBody(String store);
+
+  /// Snackbar when this device was signed out of the account from another device.
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out of your account from another device, and its data was removed.'**
+  String get accountNoticeSessionRevoked;
+
+  /// Snackbar when this device was signed out of the account from another device and kept its data (cloud sync off).
+  ///
+  /// In en, this message translates to:
+  /// **'This device was signed out of your account from another device. Its Strava activities were removed; your other data stays on it.'**
+  String get accountNoticeSessionRevokedDataKept;
+
+  /// Snackbar when the account was deleted (for example on another device).
+  ///
+  /// In en, this message translates to:
+  /// **'Your account was deleted and this device was signed out. Its Strava activities were removed; your other data stays on it.'**
+  String get accountNoticeAccountDeleted;
+
+  /// Body of the Strava disconnect dialog on a device that is signed in to an account.
+  ///
+  /// In en, this message translates to:
+  /// **'This revokes the app\'s access and deletes your synced activities from our secure storage. Strava is disconnected on all devices of your account; none of them is signed out. Your Strava account itself is not affected.'**
+  String get stravaDisconnectBodyAccount;
+
+  /// Error when the Strava athlete belongs to another account of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This Strava account belongs to another account. Sign out of this device first, then connect Strava again.'**
+  String get stravaErrorOwnedByOtherAccount;
+
+  /// Error when no new Strava connections are accepted right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava Sync isn\'t accepting new connections right now. Please try again later.'**
+  String get stravaErrorLimitReached;
+
+  /// Shown for an attachment this device doesn't have, when the cloud doesn't have it either yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in the cloud yet. Another device may still be uploading it.'**
+  String get attachmentDownloadNotInCloud;
+
+  /// Shown for an attachment this device doesn't have, when there is no connection to download it.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Go online to download this file.'**
+  String get attachmentDownloadOffline;
+
+  /// Shown for an attachment this device doesn't have, when downloading it from the cloud failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download this file.'**
+  String get attachmentDownloadFailed;
+
+  /// Button that tries to download a missing attachment again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get attachmentDownloadRetry;
+
+  /// Number of attachment files not uploaded to the cloud yet. {count} is their number.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file not uploaded yet} other{{count} files not uploaded yet}}'**
+  String accountSyncPendingFiles(int count);
+
+  /// Shown when attachments can't be uploaded because the 500 MB cloud storage is full.
+  ///
+  /// In en, this message translates to:
+  /// **'Your 500 MB of cloud storage is full. New files stay on this device only.'**
+  String get accountSyncStorageFull;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

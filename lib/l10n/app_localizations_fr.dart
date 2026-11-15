@@ -433,9 +433,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get homeTitleSetupHistory => 'Historique des setups';
 
   @override
-  String get homeTitleRiders => 'Pilotes';
-
-  @override
   String get homeTitleTasks => 'Tâches';
 
   @override
@@ -443,9 +440,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeNavSetups => 'Setups';
-
-  @override
-  String get homeNavRiders => 'Pilotes';
 
   @override
   String get homeNavTasks => 'Tâches';
@@ -485,9 +479,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get homeTooltipAddBike => 'Ajouter un vélo';
-
-  @override
-  String get homeTooltipAddRider => 'Ajouter un pilote';
 
   @override
   String get homeTooltipAddTask => 'Ajouter une tâche';
@@ -689,10 +680,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsDisconnectStravaSubtitle => 'Révoquer l’accès et supprimer les activités synchronisées';
 
   @override
-  String get settingsStravaNotifications => 'Notifications Strava';
+  String get settingsStravaNotifications => 'Sorties importées';
 
   @override
   String get settingsStravaNotificationsInfo => 'Recevez une notification push à chaque import d’activités Strava.';
+
+  @override
+  String get settingsTaskNotifications => 'Tâches à faire';
+
+  @override
+  String get settingsTaskNotificationsInfo =>
+      'Recevez une notification push lorsqu’une sortie Strava rend une tâche à faire. Nécessite la synchronisation cloud.';
+
+  @override
+  String get settingsNotifications => 'Notifications';
+
+  @override
+  String get settingsNotificationsIntro =>
+      'Notifications push après vos sorties Strava. Choisissez celles que vous recevez.';
+
+  @override
+  String get settingsNotificationsExample => 'Exemple';
+
+  @override
+  String get settingsStravaNotificationsExampleTitle => 'Sortie importée : Sortie du soir';
+
+  @override
+  String get settingsStravaNotificationsExampleBody =>
+      'Vous avez modifié quelque chose sur le vélo ? Enregistrez le setup.';
+
+  @override
+  String get settingsTaskNotificationsExampleTitle => 'Tâche à faire : Cirer la chaîne';
+
+  @override
+  String get settingsTaskNotificationsExampleBody => 'À faire après votre sortie avec Enduro.';
 
   @override
   String get settingsPreferences => 'Préférences';
@@ -920,8 +941,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get featuresSetupGuides => 'Guides de setup';
 
   @override
-  String get featuresSetupGuidesInfo =>
-      'Suggère des valeurs recommandées pour le premier setup d’un composant, comme la pression d’air ou les clics de détente, selon votre poids et le modèle du composant. Ce sont des points de départ : vérifiez le manuel du fabricant. Nécessite les modèles de composants.';
+  String get setupGuidesIntro =>
+      'Consultez les valeurs recommandées par le fabricant <b>chaque fois que vous créez ou modifiez un setup</b>, comme la pression d’air ou les clics de détente et de compression, selon votre poids et votre style de pilotage.';
+
+  @override
+  String get setupGuidesStepLink =>
+      'Associez une fourche ou un amortisseur à son modèle du catalogue. Les modèles dotés d’un guide de setup du fabricant reçoivent des valeurs recommandées.';
+
+  @override
+  String get setupGuidesStepCard =>
+      'La carte « Guide de setup » compare ce que votre setup a actuellement avec le guide. Elle s’ouvre d’elle-même tant qu’un composant n’a pas encore de valeurs, puis reste repliée.';
+
+  @override
+  String get setupGuidesStepApply =>
+      'Touchez une ligne pour utiliser sa valeur, ou « Tout appliquer ». Une icône d’état à côté de chaque réglage indique s’il suit le guide.';
+
+  @override
+  String get setupGuidesCaption =>
+      'Si votre poids se situe entre deux paliers de poids du manuel, la valeur est calculée entre les deux, et les clics sont convertis pour votre molette. Ce sont des points de départ : vérifiez votre manuel. Si vous désactivez cette option, la carte est masquée ; vos setups conservent leurs valeurs.';
 
   @override
   String get featuresCategoricalAdjustment => 'Réglage catégoriel';
@@ -988,13 +1025,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get featuresRiderInfo =>
       'Ajoute un profil de pilote, ouvert avec le bouton pilote de la barre d’application. Associez le pilote à vos vélos pour enregistrer le poids et d’autres attributs avec chaque setup. Un nouveau pilote démarre avec l’attribut « Poids du pilote ». Si vous désactivez cette fonction, le pilote est masqué mais ses données sont conservées.';
-
-  @override
-  String get featuresRiderAdvanced => 'Affichage pilote avancé';
-
-  @override
-  String get featuresRiderAdvancedInfo =>
-      'Rétablit l’interface multi-pilotes : un onglet Pilotes avec réorganisation et filtre par vélo, la duplication, la page de détails du pilote et le lien avec l’athlète Strava.';
 
   @override
   String get featuresTestSessionGoal => 'Objectif de la session de test';
@@ -1102,13 +1132,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get featuresGarageTaskIndicatorInfo =>
       'Affiche dans le garage un point d’état coloré sur les icônes des composants qui ont des tâches ouvertes.';
-
-  @override
-  String get featuresAttachments => 'Pièces jointes';
-
-  @override
-  String get featuresAttachmentsInfo =>
-      'Joignez des images et des fichiers à vos vélos, composants, setups et tâches. ATTENTION : les pièces jointes sont stockées uniquement sur cet appareil. Elles ne sont PAS incluses dans les sauvegardes cloud/Drive et seront perdues en cas de réinstallation ou de restauration d’une sauvegarde. Utilisez « Exporter le paquet de pièces jointes » pour les transférer vers un nouvel appareil.';
 
   @override
   String get featuresGoogleDrive => 'Synchronisation Google Drive';
@@ -1642,10 +1665,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get hintSubcomponentsEnabled =>
       'Sous-composants activés : modifiez une pièce et choisissez sa pièce parente sous « Monté sur »';
-
-  @override
-  String get hintAttachmentsEnabled =>
-      'Pièces jointes activées : ajoutez des photos et des fichiers aux vélos, composants, setups et tâches';
 
   @override
   String get hintTaskPresetsEnabled =>
@@ -4060,9 +4079,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get setupTabCreateRider => 'Créer un nouveau pilote';
-
-  @override
   String get setupTabLinkRiderButton => 'Associer un pilote';
 
   @override
@@ -4162,10 +4178,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get setupFormEditTitle => 'Modifier le setup';
 
   @override
-  String get setupFormFirstRun => 'Premier run';
-
-  @override
-  String get setupFormNextRun => 'Run suivant';
+  String setupFormRunTitle(int number) {
+    return 'Setup du run $number';
+  }
 
   @override
   String get setupFormNameLabel => 'Nom du setup';
@@ -4303,16 +4318,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Seuls les réglages de la session peuvent changer ; les réglages verrouillés restent tels quels. Tout le reste est repris du run précédent.';
 
   @override
-  String setupFormSessionFirstRunTitle(String name) {
-    return 'Premier run de « $name »';
-  }
-
-  @override
-  String setupFormSessionRunTitle(String name) {
-    return 'Run de « $name »';
-  }
-
-  @override
   String setupFormGuideWeightSaved(String name) {
     return 'Enregistré avec ce setup comme poids du pilote : $name';
   }
@@ -4339,6 +4344,11 @@ class AppLocalizationsFr extends AppLocalizations {
       one: '1 valeur recommandée appliquée',
     );
     return '$_temp0';
+  }
+
+  @override
+  String setupFormGuideAppliedOne(String name, String value) {
+    return '$name réglé sur $value';
   }
 
   @override
@@ -5349,30 +5359,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get riderAttributeTypeTextHint => 'Champ libre pour tout autre attribut';
 
   @override
-  String get riderDetailsNotFoundTitle => 'Pilote introuvable';
-
-  @override
-  String get riderDetailsNotFoundSubtitle => 'Ce pilote a été supprimé ou n’est plus disponible.';
-
-  @override
-  String get riderDetailsNoStrava => 'Aucun athlète Strava associé à ce pilote.';
-
-  @override
-  String get riderDetailsStravaNotFound => 'ATHLÈTE STRAVA INTROUVABLE';
-
-  @override
-  String get riderDetailsNoBikes => 'Aucun vélo associé à ce pilote.';
-
-  @override
-  String get riderListEmptyTitle => 'Pas encore de pilote';
-
-  @override
-  String get riderListEmptySubtitle => 'Ajoutez un pilote à associer à vos vélos et setups.';
-
-  @override
-  String get riderListEmptyAction => 'Ajouter un pilote';
-
-  @override
   String get riderOptionLinkBikes => 'Associer des vélos';
 
   @override
@@ -5640,6 +5626,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mapEmptyRetry => 'Réessayer';
+
+  @override
+  String mapClusterSemantics(int count) {
+    return 'Groupe de $count repères';
+  }
 
   @override
   String get mapEmptyFilteredTitle => 'Rien sur la carte dans cette vue';
@@ -6094,34 +6085,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get feedbackRestoredFromTrash => 'Feedback restauré depuis la corbeille.';
 
   @override
-  String get customIssueRenameTitle => 'Renommer le problème';
-
-  @override
-  String customIssueMerged(String label) {
-    return 'Fusionné avec « $label ».';
-  }
-
-  @override
-  String get customIssueRenamed => 'Problème renommé.';
-
-  @override
-  String customIssueRemoveTitle(String label) {
-    return 'Supprimer « $label » ?';
-  }
-
-  @override
-  String get customIssueRemoveBody =>
-      'Il est retiré de tous les feedbacks et objectifs de session de test, y compris de la corbeille. Cette action est irréversible.';
-
-  @override
-  String get customIssueRemoved => 'Problème supprimé.';
-
-  @override
   String get customIssuesTitle => 'Problèmes';
 
   @override
   String get customIssuesInfo =>
-      'Vos propres problèmes, en plus de ceux qui sont intégrés. Appuyez longuement sur un problème pour le renommer ou le supprimer.';
+      'Vos propres problèmes, en plus de ceux qui sont intégrés. Un problème disparaît dès qu\'aucun feedback ne l\'utilise.';
 
   @override
   String get customIssueEnterName => 'Saisissez un nom';
@@ -6503,6 +6471,16 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String dataErrorReadDriveBackup(String detail) {
     return 'Échec de la lecture de la sauvegarde Google Drive : $detail';
+  }
+
+  @override
+  String dataErrorGetCloudBackups(String detail) {
+    return 'Échec de la récupération des sauvegardes cloud : $detail';
+  }
+
+  @override
+  String dataErrorReadCloudBackup(String detail) {
+    return 'Échec de la lecture de la sauvegarde cloud : $detail';
   }
 
   @override
@@ -7183,6 +7161,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get stravaActivityNoStartLocation => 'Lieu de départ indisponible';
 
   @override
+  String get stravaActivityNotFoundTitle => 'Activité introuvable';
+
+  @override
+  String get stravaActivityNotFoundSubtitle => 'Cette activité a été supprimée ou n’est plus disponible.';
+
+  @override
+  String get stravaActivityLoadErrorTitle => 'Impossible de charger l’activité';
+
+  @override
   String get exportFileSaved => 'Fichier enregistré';
 
   @override
@@ -7246,19 +7233,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get exportSaveFile => 'Enregistrer le fichier';
 
   @override
-  String get exportSaveFileSubtitle => 'Choisissez où enregistrer le fichier JSON';
+  String get exportSaveFileSubtitle => 'Choisissez où enregistrer le fichier JSON. Pièces jointes non incluses.';
 
   @override
   String get exportSaveBackup => 'Enregistrer une sauvegarde';
 
   @override
-  String get exportSaveBackupSubtitle => 'Enregistrer l’état actuel comme sauvegarde locale';
+  String get exportSaveBackupSubtitle =>
+      'Enregistrer l’état actuel comme sauvegarde locale. Pièces jointes non incluses.';
 
   @override
   String get exportSaveDriveBackup => 'Enregistrer une sauvegarde Google Drive';
 
   @override
-  String get exportSaveDriveBackupSubtitle => 'Enregistrer l’état actuel comme sauvegarde dans Google Drive';
+  String get exportSaveDriveBackupSubtitle =>
+      'Enregistrer l’état actuel comme sauvegarde dans Google Drive. Pièces jointes non incluses.';
 
   @override
   String get exportAttachmentBundle => 'Exporter le paquet de pièces jointes';
@@ -7364,7 +7353,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get importMethodReplaceSubtitle =>
-      'Remplace vos données locales par les données importées. Toutes les données existantes sont définitivement supprimées, sans retour possible.';
+      'Remplace vos données locales par les données importées. Vos données actuelles vont dans la corbeille et sont supprimées après 30 jours.';
 
   @override
   String get importProgressMerge => 'Fusion des données…';
@@ -7415,6 +7404,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get backupGoogleDrive => 'Sauvegarde Google Drive';
+
+  @override
+  String get backupCloud => 'Sauvegarde cloud';
 
   @override
   String get backupReading => 'Lecture de la sauvegarde…';
@@ -7788,6 +7780,17 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String chartHistogramSegment(String slot, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count activités',
+      one: '1 activité',
+    );
+    return '$slot : $_temp0';
+  }
+
+  @override
   String get chartHistogramCountAxis => 'Nombre d’activités';
 
   @override
@@ -7815,6 +7818,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String chartHistogramNoLinkedSubtitle(String column) {
     return 'Aucun des setups ayant une valeur pour « $column » n’a été utilisé lors d’une activité';
   }
+
+  @override
+  String get chartHistogramHintSubscribe =>
+      'Abonnez-vous à Strava Sync pour voir quelles valeurs vous avez le plus roulées. Touchez l’icône Strava sur l’écran d’accueil pour commencer.';
+
+  @override
+  String get chartHistogramHintNoActivities =>
+      'Aucune activité Strava synchronisée pour l’instant. Synchronisez vos activités pour voir quelles valeurs vous avez le plus roulées.';
+
+  @override
+  String get chartHistogramHintNoLinked => 'Aucune activité n’a encore utilisé un setup avec ce réglage.';
+
+  @override
+  String get chartHistogramHintLoadFailed => 'Impossible de charger la répartition des activités.';
 
   @override
   String get chartNoAdjustmentsTitle => 'Aucun réglage sélectionné';
@@ -7985,7 +8002,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressureCheckFooterDrifted =>
-      'À droite, ce que votre pompe indiquerait maintenant. Regonflez jusqu’à la dernière valeur réglée pour retrouver les mêmes sensations.';
+      '« Actuel » : ce que votre pompe indiquerait maintenant. Regonflez jusqu’à la valeur « Réglé » pour retrouver les mêmes sensations.';
 
   @override
   String pressureCheckFooterOk(String threshold) {
@@ -7993,12 +8010,59 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get pressureCheckInfoTooltip => 'Comment c’est calculé';
+  String get pressureCheckLoading => 'Récupération de la température et de l’altitude actuelles…';
 
   @override
-  String pressureCheckSetOn(String value, String unit, String date, String conditions) {
-    return 'Réglé : $value $unit le $date · $conditions';
+  String get pressureCheckNoRecordedPressure =>
+      'Aucune pression enregistrée pour ce vélo pour l’instant, il n’y a donc rien à comparer.';
+
+  @override
+  String get pressureCheckNoRecordedConditions =>
+      'Les dernières pressions réglées ont été enregistrées sans température ni altitude, il n’y a donc rien à comparer.';
+
+  @override
+  String get pressureCheckNoCurrentConditions =>
+      'Nécessite la température et l’altitude actuelles. Indiquez la position et la météo ci-dessus.';
+
+  @override
+  String pressureCheckSetOn(String date, String conditions) {
+    return 'Réglé le $date · $conditions';
   }
+
+  @override
+  String get pressureCheckSetNow => 'Regonflé';
+
+  @override
+  String pressureCheckSetNowSemantics(String name) {
+    return 'Marquer $name comme regonflé';
+  }
+
+  @override
+  String pressureCheckSetNowMarked(String name) {
+    return '$name marqué comme regonflé';
+  }
+
+  @override
+  String pressureCheckSetNowUnmarked(String name) {
+    return '$name n’est plus marqué comme regonflé';
+  }
+
+  @override
+  String get pressureCheckSetNowDone => 'Regonflé à l’instant';
+
+  @override
+  String get pressureCheckSetNowHint => 'Regonflé à la valeur « Réglé » ? Touchez la pression.';
+
+  @override
+  String pressureCheckNoConditionsOn(String date) {
+    return 'Aucune condition enregistrée le $date';
+  }
+
+  @override
+  String get pressureCheckColumnNow => 'Actuel';
+
+  @override
+  String get pressureCheckColumnSet => 'Réglé';
 
   @override
   String pressureCheckPsi(String value) {
@@ -8021,6 +8085,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressureCheckInfoCancel => 'Les deux effets se compensent souvent en partie.';
+
+  @override
+  String pressureCheckInfoLeak(String percent) {
+    return 'Les pneus perdent aussi un peu d’air chaque jour. Le contrôle suppose prudemment $percent par semaine pour les pneus et aucune perte pour les fourches et amortisseurs. La perte réelle est généralement plus élevée.';
+  }
 
   @override
   String get pressureCheckInfoExampleHeading => 'Exemple';
@@ -8051,19 +8120,30 @@ class AppLocalizationsFr extends AppLocalizations {
       'Modifiez le seuil ou ignorez des types de composants dans Paramètres › Fonctionnalités › Contrôle de pression.';
 
   @override
-  String get pressureCheckInfoGoodToKnowHeading => 'Bon à savoir';
+  String get pressureCheckInfoReferenceHeading => 'Quel setup est comparé';
 
   @override
   String get pressureCheckInfoCompared =>
-      'Chaque valeur est comparée au setup qui l’a modifiée en dernier, et ce n’est pas toujours votre setup précédent.';
+      'Chaque pression est comparée au setup qui l’a modifiée en dernier, ou dans lequel vous l’avez marquée « Regonflé ». Ce n’est pas toujours votre setup précédent.';
+
+  @override
+  String get pressureCheckInfoCarriedOver =>
+      'Une valeur reprise sans changement ne compte pas : l’air de la chambre y est depuis le setup qui l’a réglée.';
+
+  @override
+  String get pressureCheckInfoSetNow =>
+      'Après avoir regonflé ou vérifié au manomètre, touchez la pression pour la marquer « Regonflé ». Ce setup devient alors la référence. Vous pouvez aussi le faire plus tard en modifiant le setup.';
 
   @override
   String get pressureCheckInfoNeedsConditions =>
-      'Les deux setups ont besoin d’une température et d’une altitude ; les pressions sans ces données sont ignorées.';
+      'Un setup enregistré sans température ni altitude ne peut pas être comparé. Ses pressions apparaissent quand même : marquez-en une « Regonflé » pour démarrer ici une nouvelle référence, ce qui exige les conditions du jour.';
+
+  @override
+  String get pressureCheckInfoGoodToKnowHeading => 'Bon à savoir';
 
   @override
   String get pressureCheckInfoNotIncluded =>
-      'Non pris en compte : l’évolution de la courbe du ressort à une autre pression, la viscosité de l’huile et l’air que prend le flexible de la pompe au branchement.';
+      'Non pris en compte : l’évolution de la courbe du ressort à une autre pression, la viscosité de l’huile et l’air que prend le flexible de la pompe au branchement. La perte d’air au fil du temps est une estimation prudente.';
 
   @override
   String get pressureCheckExampleHome => 'À la maison';
@@ -8084,9 +8164,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pressureCheckExampleHigherUp => 'Plus haut';
 
   @override
-  String pressureCheckExampleTotal(String value) {
-    return 'Total $value psi';
-  }
+  String get pressureCheckExampleTotal => 'Total';
 
   @override
   String get pressureCheckTypesAll => 'Tous';
@@ -8103,7 +8181,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pressureCheckSettingIntro =>
-      'Lors de l’ajout d’un setup, vérifie si votre pompe indiquerait encore les pressions réglées en dernier. Un air plus froid ou plus raréfié fait indiquer une autre valeur à la même chambre fermée.';
+      'Lors de l’ajout d’un setup, vérifie si votre pompe indiquerait encore les pressions réglées en dernier. Un air plus froid ou plus raréfié fait indiquer une autre valeur à la même chambre fermée. Affiché uniquement pour les vélos avec un réglage de pression.';
 
   @override
   String get pressureCheckEnabled => 'Activé';
@@ -8126,9 +8204,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get guideCardTitle => 'Guide de setup';
 
   @override
-  String get guideCardInfoTooltip => 'À propos des valeurs recommandées';
-
-  @override
   String get guideCardHeadline => 'Valeurs de départ recommandées';
 
   @override
@@ -8136,6 +8211,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideCardApplyAll => 'Tout appliquer';
+
+  @override
+  String get guideCardColumnNow => 'Actuel';
+
+  @override
+  String get guideCardColumnGuide => 'Guide';
 
   @override
   String get guideCardRidingWeight => 'Poids du pilote';
@@ -8146,16 +8227,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String guideCardBasedOn(String guide) {
     return 'Basé sur : $guide';
-  }
-
-  @override
-  String guideCardNow(String value) {
-    return 'Actuel : $value';
-  }
-
-  @override
-  String guideCardInRange(String band) {
-    return 'dans la plage $band';
   }
 
   @override
@@ -8171,6 +8242,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideDetailConverted => 'converti pour votre cadran';
+
+  @override
+  String guideDetailFollowsSpring(String spring) {
+    String _temp0 = intl.Intl.selectLogic(
+      spring,
+      {
+        'pressure': 'suit votre pression d’air',
+        'spring_rate': 'suit votre raideur de ressort',
+        'other': 'suit votre ressort',
+      },
+    );
+    return '$_temp0';
+  }
 
   @override
   String get guideDetailFixed => 'Valeur fixe';
@@ -8196,6 +8280,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get guideIssueOutsideRange => 'Hors de la plage publiée';
+
+  @override
+  String guideIssueOutsideRangeFor(String input) {
+    return '$input est hors de la plage publiée';
+  }
 
   @override
   String get guideIssuePlaceholderMax => 'Saisissez d’abord le nombre de clics (max) de votre cadran';
@@ -8267,7 +8356,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les clics sont comptés à partir de l’extrémité utilisée par le manuel. Si votre réglage compte dans l’autre sens, la valeur est convertie pour votre cadran.';
 
   @override
-  String get guideInfoStatusHeading => 'Statut';
+  String get guideInfoFollowsSpring =>
+      'L’amortissement, surtout la détente, doit correspondre à votre ressort, pas à votre poids. Dès que vous saisissez votre pression ou votre raideur de ressort, les clics que le manuel donne par poids la suivent : ils sont pris pour le poids auquel le manuel recommande cette valeur. Réglez donc d’abord le ressort et vérifiez le SAG, puis les clics.';
+
+  @override
+  String get guideInfoReadHeading => 'Lire la carte';
+
+  @override
+  String get guideInfoReadColumns =>
+      'Actuel est la valeur de votre setup, Guide celle que recommande le manuel, avec sa plage en dessous. Touchez une ligne pour utiliser sa recommandation, ou Tout appliquer pour toutes les lignes. Vous pouvez ensuite l’annuler.';
+
+  @override
+  String get guideInfoStatusHeading => 'Légende des statuts';
 
   @override
   String get guideLegendMatches => 'Votre valeur est la valeur recommandée.';
@@ -8277,7 +8377,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Proche de la recommandation : dans la plage donnée par le manuel, ou à moins de la moitié du chemin vers la tranche de poids suivante.';
 
   @override
-  String get guideLegendOff => 'Plus éloigné. Indique de combien votre valeur s’écarte de la recommandation.';
+  String get guideLegendOff =>
+      'Plus éloigné. La flèche indique dans quel sens déplacer votre valeur : une flèche pour un petit pas, deux pour un grand. Maintenez-la appuyée pour voir l’écart exact.';
 
   @override
   String get guideLegendNotSet => 'Aucune valeur saisie. Touchez la ligne pour utiliser la recommandation.';
@@ -9568,4 +9669,255 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adjustmentTemplateOptionRace => 'Race';
+
+  @override
+  String get featuresCloudSync => 'Synchronisation cloud';
+
+  @override
+  String get featuresCloudSyncInfo =>
+      'Synchronise vos données entre les appareils de votre compte et les sauvegarde dans le cloud. Nécessite un abonnement et un compte sur cet appareil. Encore en développement.';
+
+  @override
+  String get featuresAccounts => 'Comptes';
+
+  @override
+  String get featuresAccountsInfo =>
+      'En connectant Strava, cet appareil se connecte à votre compte : tous vos appareils partagent ainsi un abonnement et, avec la synchronisation cloud, les mêmes données. Encore en développement.';
+
+  @override
+  String get settingsAccount => 'Compte';
+
+  @override
+  String get settingsAccountSubtitle => 'Vos appareils, se déconnecter ou supprimer le compte';
+
+  @override
+  String get accountTitle => 'Compte';
+
+  @override
+  String get accountFallbackName => 'Votre compte';
+
+  @override
+  String get accountSignedInThroughStrava => 'Connecté via Strava';
+
+  @override
+  String accountPremiumActive(String date) {
+    return 'Abonnement actif jusqu’au $date';
+  }
+
+  @override
+  String accountPremiumRenews(String date) {
+    return 'Abonnement renouvelé le $date';
+  }
+
+  @override
+  String get accountPremiumInactive => 'Aucun abonnement actif';
+
+  @override
+  String get accountSectionCloudSync => 'Synchronisation cloud';
+
+  @override
+  String accountSyncLastSynced(String date) {
+    return 'Dernière synchronisation : $date';
+  }
+
+  @override
+  String get accountSyncNever => 'Pas encore synchronisé';
+
+  @override
+  String get accountSyncSyncing => 'Synchronisation…';
+
+  @override
+  String get accountSyncOffline => 'En attente de connexion';
+
+  @override
+  String get accountSyncError => 'La synchronisation a échoué. Nouvel essai plus tard.';
+
+  @override
+  String accountSyncPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count modifications pas encore envoyées',
+      one: '1 modification pas encore envoyée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountSyncNeedsPremium => 'La synchronisation cloud nécessite un abonnement actif.';
+
+  @override
+  String get accountSyncNow => 'Synchroniser';
+
+  @override
+  String get accountSyncDone => 'Synchronisé';
+
+  @override
+  String get accountSyncFailed => 'Synchronisation impossible. Réessaie plus tard.';
+
+  @override
+  String get accountSyncOfflineDone =>
+      'Pas de connexion. Tes modifications seront synchronisées dès que tu seras en ligne.';
+
+  @override
+  String get accountSectionDevices => 'Vos appareils';
+
+  @override
+  String get accountDevicesLoadFailed => 'Impossible de charger vos appareils.';
+
+  @override
+  String get accountDevicesEmpty => 'Aucun appareil connecté';
+
+  @override
+  String get accountThisDevice => 'Cet appareil';
+
+  @override
+  String accountDeviceLastSeen(String date) {
+    return 'Dernière activité : $date';
+  }
+
+  @override
+  String get accountSignOutDeviceTooltip => 'Déconnecter l’appareil';
+
+  @override
+  String accountSignOutDeviceTitle(String device) {
+    return 'Déconnecter $device ?';
+  }
+
+  @override
+  String get accountSignOutDeviceBody =>
+      'Il sera déconnecté la prochaine fois que l’application s’y lancera, et ses activités Strava seront supprimées. Si la synchronisation cloud y est activée, ses autres données seront aussi supprimées, car le cloud en garde une copie ; sinon, elles restent sur l’appareil. Vos autres appareils restent connectés.';
+
+  @override
+  String get accountSignOutDeviceConfirm => 'Se déconnecter';
+
+  @override
+  String accountSignOutDeviceDone(String device) {
+    return '$device a été déconnecté';
+  }
+
+  @override
+  String get accountSignOutDeviceFailed =>
+      'Impossible de déconnecter l’appareil. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get accountSignOut => 'Se déconnecter sur cet appareil';
+
+  @override
+  String get accountSignOutSubtitle => 'Vos autres appareils restent connectés';
+
+  @override
+  String get accountSignOutTitle => 'Se déconnecter sur cet appareil ?';
+
+  @override
+  String get accountSignOutBody =>
+      'Votre compte, votre abonnement et vos autres appareils ne sont pas affectés. Reconnectez Strava pour vous reconnecter.';
+
+  @override
+  String get accountRemoveDataFromDevice => 'Supprimer les données de cet appareil';
+
+  @override
+  String get accountUnsyncedChangesTitle => 'Modifications non envoyées';
+
+  @override
+  String accountUnsyncedChangesBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count modifications de cet appareil n’ont pas encore été envoyées et seront perdues.',
+      one: '1 modification de cet appareil n’a pas encore été envoyée et sera perdue.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountUnsyncedChangesConfirm => 'Se déconnecter quand même';
+
+  @override
+  String get accountSignOutDone => 'Déconnecté sur cet appareil';
+
+  @override
+  String get accountSignOutFailed => 'La déconnexion a échoué. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get accountDelete => 'Supprimer le compte';
+
+  @override
+  String get accountDeleteSubtitle => 'Supprime le compte et ses données dans le cloud';
+
+  @override
+  String get accountDeleteTitle => 'Supprimer votre compte ?';
+
+  @override
+  String get accountDeleteBody =>
+      'Votre compte, ses données dans le cloud et vos activités Strava synchronisées seront définitivement supprimés, et tous vos appareils seront déconnectés. Les données de vos autres appareils y restent. Cette action est irréversible.';
+
+  @override
+  String get accountDeleteConfirm => 'Supprimer le compte';
+
+  @override
+  String get accountDeleteDone => 'Votre compte a été supprimé';
+
+  @override
+  String get accountDeleteFailed => 'Impossible de supprimer le compte. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get accountDeleteSubscriptionTitle => 'Votre abonnement se renouvelle toujours';
+
+  @override
+  String accountDeleteSubscriptionBody(String store) {
+    return 'Supprimer le compte ne résilie pas l’abonnement. Résiliez-le dans le $store pour arrêter les paiements.';
+  }
+
+  @override
+  String get accountNoticeSessionRevoked =>
+      'Cet appareil a été déconnecté de votre compte depuis un autre appareil, et ses données ont été supprimées.';
+
+  @override
+  String get accountNoticeSessionRevokedDataKept =>
+      'Cet appareil a été déconnecté de votre compte depuis un autre appareil. Ses activités Strava ont été supprimées ; vos autres données restent sur l’appareil.';
+
+  @override
+  String get accountNoticeAccountDeleted =>
+      'Votre compte a été supprimé et cet appareil déconnecté. Ses activités Strava ont été supprimées ; vos autres données restent sur l’appareil.';
+
+  @override
+  String get stravaDisconnectBodyAccount =>
+      'Cela révoque l’accès de l’application et supprime vos activités synchronisées de notre stockage sécurisé. Strava est déconnecté sur tous les appareils de votre compte ; aucun n’est déconnecté du compte. Votre compte Strava lui-même n’est pas affecté.';
+
+  @override
+  String get stravaErrorOwnedByOtherAccount =>
+      'Ce compte Strava appartient à un autre compte. Déconnectez-vous d’abord sur cet appareil, puis reconnectez Strava.';
+
+  @override
+  String get stravaErrorLimitReached =>
+      'Strava Sync n’accepte pas de nouvelles connexions pour le moment. Réessayez plus tard.';
+
+  @override
+  String get attachmentDownloadNotInCloud =>
+      'Pas encore dans le cloud. Un autre appareil est peut-être encore en train de l’envoyer.';
+
+  @override
+  String get attachmentDownloadOffline => 'Pas de connexion. Connecte-toi pour télécharger ce fichier.';
+
+  @override
+  String get attachmentDownloadFailed => 'Impossible de télécharger ce fichier.';
+
+  @override
+  String get attachmentDownloadRetry => 'Réessayer';
+
+  @override
+  String accountSyncPendingFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers pas encore envoyés',
+      one: '1 fichier pas encore envoyé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountSyncStorageFull =>
+      'Ton espace cloud de 500 Mo est plein. Les nouveaux fichiers restent uniquement sur cet appareil.';
 }

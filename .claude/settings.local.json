@@ -22,7 +22,8 @@
       "PowerShell(git commit *)"
     ],
     "additionalDirectories": [
-      "D:\\20220821_Website_jonaskeller14\\bike_setup_tracker"
+      "D:\\20220821_Website_jonaskeller14\\bike_setup_tracker",
+      "../bike_setup_tracker_backend"
     ]
   }
 }

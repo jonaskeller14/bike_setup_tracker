@@ -4,6 +4,8 @@ import '../models/app_settings.dart';
 import '../models/context/context_weather.dart';
 import '../models/strava/strava_plan.dart';
 import '../repositories/app_repository.dart';
+import '../services/account_service.dart';
+import '../services/elevation_service.dart';
 import '../services/strava_service.dart';
 import '../services/subscription_service.dart';
 import '../services/weather_service.dart';
@@ -30,7 +32,7 @@ class ScreenshotSubscriptionService extends SubscriptionService {
   StravaPlan? get activePlan => _screenshotEntitlement.plan;
 
   @override
-  Future<void> initialize({required bool enableStrava}) async {}
+  Future<void> initialize({required bool enableStrava, required AccountService accountService}) async {}
 
   @override
   Future<void> buy(StravaPlan plan) async {}
@@ -56,7 +58,11 @@ class ScreenshotStravaService extends StravaService {
   DateTime? get lastFullSync => _syncedAt;
 
   @override
-  Future<void> update({required AppRepository appRepository, required AppSettings appSettings}) async {}
+  Future<void> update({
+    required AppRepository appRepository,
+    required AppSettings appSettings,
+    required AccountService accountService,
+  }) async {}
 
   @override
   Future<StravaAvailability> checkAvailability({bool force = false}) async => StravaAvailability.available;
@@ -80,6 +86,10 @@ class ScreenshotStravaService extends StravaService {
 /// Returns fixed clear, dry weather for any place and time, so the Add
 /// Setup form shows weather and trail condition without calling Open-Meteo.
 class ScreenshotWeatherService extends WeatherService {
+  final double temperature;
+
+  ScreenshotWeatherService({this.temperature = 21.4});
+
   @override
   Future<ContextWeather?> fetchWeather({
     required double lat,
@@ -90,7 +100,7 @@ class ScreenshotWeatherService extends WeatherService {
     setStatus(const WeatherSuccess());
     return ContextWeather(
       currentDateTime: datetime.copyWith(minute: 0, second: 0, millisecond: 0, microsecond: 0),
-      currentTemperature: 21.4,
+      currentTemperature: temperature,
       currentWeatherCode: 0,
       currentHumidity: 48,
       currentWindSpeed: 9.5,
@@ -99,5 +109,19 @@ class ScreenshotWeatherService extends WeatherService {
       dayAccumulatedPrecipitation: 0,
       currentIsDay: true,
     );
+  }
+}
+
+/// Returns a fixed altitude for any place, so a demo's pressure check compares
+/// the same conditions on every run.
+class ScreenshotElevationService extends ElevationService {
+  final double altitude;
+
+  ScreenshotElevationService(this.altitude);
+
+  @override
+  Future<double?> fetchElevation({required double lat, required double lon}) async {
+    setStatus(ElevationStatus.success);
+    return altitude;
   }
 }

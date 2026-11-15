@@ -23,6 +23,7 @@ import '../models/timeline_row.dart';
 import '../repositories/app_repository.dart';
 import '../services/component_hierarchy_resolver.dart';
 import '../services/subscription_service.dart';
+import '../theme.dart';
 import '../utils/automation_ids.dart';
 import '../utils/installation_timeline_validation.dart';
 import '../utils/setup_actions.dart';
@@ -41,7 +42,6 @@ import '../widgets/sheets/test_session_sheet.dart';
 
 const Duration kCalendarZeroDuration = Duration(minutes: 30);
 const double kCalendarTimeSlotHeight = 30;
-const Color kCalendarStravaColor = Color(0xFFFC4C02); // Strava brand orange
 const Duration kCalendarScrollLeadIn = Duration(minutes: 30);
 const int kCalendarFallbackHour = 6;
 const Duration kCalendarFutureWindow = Duration(days: 365);
@@ -133,22 +133,22 @@ IconData calendarIconFor(
       TestSessionTimelineEntry() => TestSession.iconData,
     };
 
-Color calendarColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
-      SetupEntry() => cs.primary,
-      StravaEntry() => kCalendarStravaColor,
-      TaskTimeLineEntry() => cs.tertiary,
-      InstallationEntry() => cs.secondary,
-      FeedbackTimelineEntry() => cs.primaryContainer,
-      TestSessionTimelineEntry() => cs.primary,
+Color calendarColorFor(TimelineEntry entry, EntityColors colors) => switch (entry) {
+      SetupEntry() => colors.setup,
+      StravaEntry() => EntityColors.strava,
+      TaskTimeLineEntry() => colors.task,
+      InstallationEntry() => colors.installation,
+      FeedbackTimelineEntry() => colors.feedback,
+      TestSessionTimelineEntry() => colors.setup,
     };
 
-Color calendarOnColorFor(TimelineEntry entry, ColorScheme cs) => switch (entry) {
-      SetupEntry() => cs.onPrimary,
-      StravaEntry() => Colors.white,
-      TaskTimeLineEntry() => cs.onTertiary,
-      InstallationEntry() => cs.onSecondary,
-      FeedbackTimelineEntry() => cs.onPrimaryContainer,
-      TestSessionTimelineEntry() => cs.onPrimary,
+Color calendarOnColorFor(TimelineEntry entry, EntityColors colors) => switch (entry) {
+      SetupEntry() => colors.onSetup,
+      StravaEntry() => EntityColors.onStrava,
+      TaskTimeLineEntry() => colors.onTask,
+      InstallationEntry() => colors.onInstallation,
+      FeedbackTimelineEntry() => colors.onFeedback,
+      TestSessionTimelineEntry() => colors.onSetup,
     };
 
 String calendarSubjectFor(TimelineEntry entry, AppLocalizations l10n) => switch (entry) {
@@ -174,16 +174,16 @@ IconData calendarIconForRow(
       SetupGroupRow() => Setup.iconData,
     };
 
-Color calendarColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
-      SingleEntryRow(:final entry) => calendarColorFor(entry, cs),
-      ReplacementRow() => cs.secondary,
-      SetupGroupRow() => cs.primary,
+Color calendarColorForRow(EntryRow row, EntityColors colors) => switch (row) {
+      SingleEntryRow(:final entry) => calendarColorFor(entry, colors),
+      ReplacementRow() => colors.installation,
+      SetupGroupRow() => colors.setup,
     };
 
-Color calendarOnColorForRow(EntryRow row, ColorScheme cs) => switch (row) {
-      SingleEntryRow(:final entry) => calendarOnColorFor(entry, cs),
-      ReplacementRow() => cs.onSecondary,
-      SetupGroupRow() => cs.onPrimary,
+Color calendarOnColorForRow(EntryRow row, EntityColors colors) => switch (row) {
+      SingleEntryRow(:final entry) => calendarOnColorFor(entry, colors),
+      ReplacementRow() => colors.onInstallation,
+      SetupGroupRow() => colors.onSetup,
     };
 
 String calendarSubjectForRow(EntryRow row, AppLocalizations l10n) => switch (row) {
@@ -809,7 +809,12 @@ class _CalendarPageState extends State<CalendarPage> {
                     firstDayOfWeek: calendarFirstWeekday(MaterialLocalizations.of(context).firstDayOfWeekIndex),
                     maxDate: DateTime.now().add(kCalendarFutureWindow),
                     cellEndPadding: 0,
-                    dataSource: CalendarTimelineDataSource(calendarItems, cs, context.l10n),
+                    dataSource: CalendarTimelineDataSource(
+                      calendarItems,
+                      cs,
+                      EntityColors.of(Theme.of(context)),
+                      context.l10n,
+                    ),
                     allowDragAndDrop: true,
                     dragAndDropSettings: DragAndDropSettings(
                       indicatorTimeFormat: appSettings.timeFormat,
@@ -922,14 +927,14 @@ class _CalendarPageState extends State<CalendarPage> {
     if (row is CalendarAddSetupSlot) {
       return CalendarAddSetupAppointment(details: details, slot: row, addSetupAtDate: _addSetupAtDate);
     }
-    final cs = Theme.of(context).colorScheme;
+    final colors = EntityColors.of(Theme.of(context));
     if (row is CalendarPredictedTask) {
       return CalendarEntryAppointment(
         details: details,
         icon: kCalendarPredictedTaskIcon,
         subject: row.name,
-        color: cs.tertiary,
-        contentColor: cs.tertiary,
+        color: colors.task,
+        contentColor: colors.task,
         ghost: true,
       );
     }
@@ -940,8 +945,8 @@ class _CalendarPageState extends State<CalendarPage> {
       details: details,
       icon: calendarIconForRow(row, currentSetupIds: currentSetupIds, showSetupBookmark: showSetupBookmark),
       subject: calendarSubjectForRow(row, context.l10n),
-      color: calendarColorForRow(row, cs),
-      contentColor: calendarOnColorForRow(row, cs),
+      color: calendarColorForRow(row, colors),
+      contentColor: calendarOnColorForRow(row, colors),
     );
     if (row is! SingleEntryRow) return appointment;
     return Semantics(container: true, identifier: AutomationIds.calendarEntry(row.entry.id), child: appointment);
@@ -949,11 +954,12 @@ class _CalendarPageState extends State<CalendarPage> {
 }
 
 class CalendarTimelineDataSource extends CalendarDataSource<Object> {
-  CalendarTimelineDataSource(List<Object> source, this._cs, this._l10n) {
+  CalendarTimelineDataSource(List<Object> source, this._cs, this._entityColors, this._l10n) {
     appointments = source;
   }
 
   final ColorScheme _cs;
+  final EntityColors _entityColors;
   final AppLocalizations _l10n;
 
   Object _item(int index) => appointments![index] as Object;
@@ -1019,11 +1025,11 @@ class CalendarTimelineDataSource extends CalendarDataSource<Object> {
 
   @override
   Color getColor(int index) => switch (_item(index)) {
-        final EntryRow row => calendarColorForRow(row, _cs),
+        final EntryRow row => calendarColorForRow(row, _entityColors),
         CalendarAddSetupSlot() => _cs.primaryContainer,
         // Faded here too: month cells fall back to indicator dots painted from
         // this colour, which never reach [_appointmentBuilder]'s outline.
-        CalendarPredictedTask() => _cs.tertiary.withValues(alpha: kCalendarGhostAlpha),
+        CalendarPredictedTask() => _entityColors.task.withValues(alpha: kCalendarGhostAlpha),
         _ => Colors.transparent,
       };
 

@@ -6,12 +6,11 @@ import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
 import '../../services/pressure_drift_service.dart';
-import '../../utils/unit_conversion.dart';
 import '../pressure_drift_card.dart';
 import '../setup_guide_status.dart';
 import 'sheet_header.dart';
 
-/// Why pump readings drift, a worked example, and what the card's pills mean.
+/// Why pump readings drift, a worked example, and what the card's icons mean.
 Future<void> showPressureCheckInfoSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     useSafeArea: true,
@@ -24,35 +23,20 @@ Future<void> showPressureCheckInfoSheet(BuildContext context) {
 /// The example runs through the real calculation, so its numbers never go stale.
 class _Example {
   static const double setPsi = 80;
-  static const double homeTemperatureC = 20;
-  static const double homeAltitudeM = 500;
-  static const double trailTemperatureC = 5;
-  static const double trailAltitudeM = 1800;
+  static const home = PressureConditions(temperatureC: 20, altitudeM: 500);
+  static const trailhead = PressureConditions(temperatureC: 5, altitudeM: 1800);
 
-  static final KnownUnit _psi = KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.psi.name);
-  static final KnownUnit _pascal = KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.pascal.name);
-
-  static final double readingPsi = convertUnit(
-    PressureDriftService.readingAtPa(
-      gaugePa: convertUnit(setPsi, _psi, _pascal),
-      fromTemperatureC: homeTemperatureC,
-      fromAltitudeM: homeAltitudeM,
-      toTemperatureC: trailTemperatureC,
-      toAltitudeM: trailAltitudeM,
-    ),
-    _pascal,
-    _psi,
+  static final PressurePrediction _prediction = PressureDriftService.predict(
+    value: setPsi,
+    unit: KnownUnit(quantity: UnitQuantity.pressure, unitId: PRESSURE.psi.name),
+    from: home,
+    to: trailhead,
   );
 
-  static final double altitudeSharePsi = convertUnit(
-    PressureDriftService.atmosphericPressurePa(homeAltitudeM) -
-        PressureDriftService.atmosphericPressurePa(trailAltitudeM),
-    _pascal,
-    _psi,
-  );
-
+  static double get readingPsi => _prediction.reading;
+  static double get temperatureSharePsi => _prediction.temperatureShare;
+  static double get altitudeSharePsi => _prediction.altitudeShare;
   static double get deltaPsi => readingPsi - setPsi;
-  static double get temperatureSharePsi => deltaPsi - altitudeSharePsi;
   static double get relativeDelta => deltaPsi / setPsi;
 }
 
@@ -73,7 +57,7 @@ class _PressureCheckInfoSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.compress)),
+          SheetHeader(title: context.l10n.featuresPressureCheck, leadingIcon: const Icon(Icons.tire_repair)),
           const SizedBox(height: 16),
           Flexible(
             child: SingleChildScrollView(
@@ -94,6 +78,13 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                     context.l10n.pressureCheckInfoThin,
                   ),
                   Text(context.l10n.pressureCheckInfoCancel, style: muted),
+                  _bullet(
+                    context,
+                    Icons.schedule,
+                    context.l10n.pressureCheckInfoLeak(
+                      "${(PressureDriftService.tireWeeklyLoss * 100).round()} %",
+                    ),
+                  ),
                   _heading(context, context.l10n.pressureCheckInfoExampleHeading),
                   _ExampleCard(appSettings: appSettings, significant: exampleSignificant),
                   _heading(context, context.l10n.pressureCheckInfoWhatToDoHeading),
@@ -104,19 +95,22 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                   _heading(context, context.l10n.pressureCheckInfoStatusHeading),
                   _legendRow(
                     context,
-                    pressureDriftStatus(0.012, context.l10n, significant: false),
+                    [PressureDriftIcon(relativeDelta: 0, threshold: threshold)],
                     context.l10n.pressureCheckInfoStatusOk(thresholdText),
                   ),
                   _legendRow(
                     context,
-                    pressureDriftStatus(-0.035, context.l10n, significant: true),
+                    [
+                      PressureDriftIcon(relativeDelta: -threshold, threshold: threshold),
+                      PressureDriftIcon(relativeDelta: threshold, threshold: threshold),
+                    ],
                     context.l10n.pressureCheckInfoStatusDrift(thresholdText),
                   ),
                   Text(
                     context.l10n.pressureCheckInfoSettingsHint,
                     style: muted,
                   ),
-                  _heading(context, context.l10n.pressureCheckInfoGoodToKnowHeading),
+                  _heading(context, context.l10n.pressureCheckInfoReferenceHeading),
                   _bullet(
                     context,
                     Icons.history,
@@ -124,9 +118,20 @@ class _PressureCheckInfoSheet extends StatelessWidget {
                   ),
                   _bullet(
                     context,
+                    Icons.content_copy_outlined,
+                    context.l10n.pressureCheckInfoCarriedOver,
+                  ),
+                  _bullet(
+                    context,
+                    Icons.check_circle_outline,
+                    context.l10n.pressureCheckInfoSetNow,
+                  ),
+                  _bullet(
+                    context,
                     Icons.location_off_outlined,
                     context.l10n.pressureCheckInfoNeedsConditions,
                   ),
+                  _heading(context, context.l10n.pressureCheckInfoGoodToKnowHeading),
                   _bullet(
                     context,
                     Icons.science_outlined,
@@ -163,16 +168,13 @@ class _PressureCheckInfoSheet extends StatelessWidget {
     );
   }
 
-  Widget _legendRow(BuildContext context, GuideStatus status, String meaning) {
+  Widget _legendRow(BuildContext context, List<Widget> icons, String meaning) {
     final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
       children: [
-        SizedBox(
-          width: 88,
-          child: Align(alignment: Alignment.centerLeft, child: GuideStatusPill(status)),
-        ),
+        SizedBox(width: 40, child: Row(children: icons)),
         Expanded(
           child: Text(
             meaning,
@@ -214,7 +216,7 @@ class _ExampleCard extends StatelessWidget {
                 ],
               ),
               Text(conditions, style: muted, maxLines: 2, overflow: TextOverflow.ellipsis),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(label, style: muted),
               Text(
                 context.l10n.pressureCheckPsi(formatPressure(psi, context.l10n)),
@@ -250,7 +252,7 @@ class _ExampleCard extends StatelessWidget {
               place(
                 Icons.home_outlined,
                 context.l10n.pressureCheckExampleHome,
-                pressureConditionsText(appSettings, _Example.homeTemperatureC, _Example.homeAltitudeM),
+                pressureConditionsText(appSettings, _Example.home),
                 context.l10n.pressureCheckExampleYouSet,
                 _Example.setPsi,
               ),
@@ -258,7 +260,7 @@ class _ExampleCard extends StatelessWidget {
               place(
                 Icons.terrain_outlined,
                 context.l10n.pressureCheckExampleTrailhead,
-                pressureConditionsText(appSettings, _Example.trailTemperatureC, _Example.trailAltitudeM),
+                pressureConditionsText(appSettings, _Example.trailhead),
                 context.l10n.pressureCheckExamplePumpReads,
                 _Example.readingPsi,
                 end: true,
@@ -271,15 +273,25 @@ class _ExampleCard extends StatelessWidget {
           Row(
             spacing: 8,
             children: [
+              Icon(Icons.functions, size: 18, color: scheme.onSurfaceVariant),
               Expanded(
                 child: Text(
-                  context.l10n.pressureCheckExampleTotal(signedPressure(_Example.deltaPsi, context.l10n)),
+                  context.l10n.pressureCheckExampleTotal,
                   style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              GuideStatusPill(pressureDriftStatus(_Example.relativeDelta, context.l10n, significant: significant)),
+              Text(
+                context.l10n.pressureCheckPsi(signedPressure(_Example.deltaPsi, context.l10n)),
+                style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GuideStatusPill(
+              pressureDriftStatus(_Example.relativeDelta, context.l10n, significant: significant),
+            ),
           ),
         ],
       ),

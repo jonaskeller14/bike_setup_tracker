@@ -483,7 +483,7 @@ class GoogleDriveService extends ChangeNotifier {
     return createdFolder.id!;
   }
 
-  Future<GetGoogleDriveBackupsResult> getBackups() async {
+  Future<DataResult<List<GoogleDriveBackup>>> getBackups() async {
     final List<GoogleDriveBackup> backups = [];
     try {
       if (_driveApi == null) await _initializeDriveApi();
@@ -496,7 +496,7 @@ class GoogleDriveService extends ChangeNotifier {
         $fields: 'files(id, name, modifiedTime)',
       );
 
-      if (fileList.files == null || fileList.files!.isEmpty) return GetGoogleDriveBackupsResult.success(backups);
+      if (fileList.files == null || fileList.files!.isEmpty) return DataSuccess(backups);
 
       for (final file in fileList.files!) {
         final modified = file.modifiedTime;
@@ -504,17 +504,17 @@ class GoogleDriveService extends ChangeNotifier {
           backups.add(GoogleDriveBackup(createdAt: modified, fileId: file.id!));
         }
       }
-      return GetGoogleDriveBackupsResult.success(backups);
+      return DataSuccess(backups);
     } on SocketException {
-      return GetGoogleDriveBackupsResult.failure(const DataError(DataErrorKind.driveNoInternet));
+      return const DataFailure(DataError(DataErrorKind.driveNoInternet));
     } on DetailedApiRequestError catch (e) {
-      return GetGoogleDriveBackupsResult.failure(DataError(DataErrorKind.driveApi, e.message));
+      return DataFailure(DataError(DataErrorKind.driveApi, e.message));
     } catch (e) {
-      return GetGoogleDriveBackupsResult.failure(const DataError(DataErrorKind.driveUnexpected));
+      return const DataFailure(DataError(DataErrorKind.driveUnexpected));
     }
   }
 
-  Future<ReadGoogleDriveBackupResult> readBackup({required String fileId, required AppDatabase appDatabase}) async {
+  Future<DataResult<SelectedData>> readBackup({required String fileId, required AppDatabase appDatabase}) async {
     try {
       if (_driveApi == null) await _initializeDriveApi();
       if (_driveApi == null) throw Exception("Drive API not initialized");
@@ -531,10 +531,10 @@ class GoogleDriveService extends ChangeNotifier {
 
       final jsonString = utf8.decode(dataStore);
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return ReadGoogleDriveBackupResult.success(SelectedData.fromJson(jsonData));
+      return DataSuccess(SelectedData.fromJson(jsonData));
     } catch (e) {
       debugPrint('Reading Google Drive backup failed: $fileId: $e');
-      return ReadGoogleDriveBackupResult.failure(DataError(DataErrorKind.readDriveBackup, e.toString()));
+      return DataFailure(DataError(DataErrorKind.readDriveBackup, e.toString()));
     }
   }
 
@@ -587,22 +587,4 @@ class AuthenticatedClient extends http.BaseClient {
     request.headers.addAll(_headers);
     return _baseClient.send(request);
   }
-}
-
-class GetGoogleDriveBackupsResult {
-  final List<GoogleDriveBackup> backups;
-  final DataError? error;
-  final bool isError;
-
-  GetGoogleDriveBackupsResult.success(this.backups) : error = null, isError = false;
-  GetGoogleDriveBackupsResult.failure(this.error) : backups = [], isError = true;
-}
-
-class ReadGoogleDriveBackupResult {
-  final SelectedData? appData;
-  final DataError? error;
-  final bool isError;
-
-  ReadGoogleDriveBackupResult.success(this.appData) : error = null, isError = false;
-  ReadGoogleDriveBackupResult.failure(this.error) : appData = null, isError = true;
 }

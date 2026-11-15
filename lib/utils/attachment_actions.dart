@@ -50,10 +50,20 @@ class AttachmentActions {
     try {
       switch (source) {
         case AttachmentSource.camera:
-          final picked = await ImagePicker().pickImage(source: ImageSource.camera, preferredCameraDevice: CameraDevice.rear);
+          final picked = await ImagePicker().pickImage(
+            source: ImageSource.camera,
+            preferredCameraDevice: CameraDevice.rear,
+            maxWidth: AttachmentStorageService.photoMaxDimension,
+            maxHeight: AttachmentStorageService.photoMaxDimension,
+            imageQuality: AttachmentStorageService.photoQuality,
+          );
           imports = [if (picked != null) (name: picked.name, run: () => service.importPicked(picked))];
         case AttachmentSource.gallery:
-          final picked = await ImagePicker().pickMultiImage();
+          final picked = await ImagePicker().pickMultiImage(
+            maxWidth: AttachmentStorageService.photoMaxDimension,
+            maxHeight: AttachmentStorageService.photoMaxDimension,
+            imageQuality: AttachmentStorageService.photoQuality,
+          );
           imports = [for (final x in picked) (name: x.name, run: () => service.importPicked(x))];
         case AttachmentSource.file:
           final picked = await FilePicker.pickFiles();

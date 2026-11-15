@@ -18,6 +18,12 @@ String shortenUrlForDisplay(String url, {int maxLength = 30}) {
   return display;
 }
 
+String storeSubscriptionsUrl(String platform) => platform == 'ios'
+    ? 'https://apps.apple.com/account/subscriptions'
+    : 'https://play.google.com/store/account/subscriptions'
+        '?sku=strava_sync'
+        '&package=com.jonaskeller14.bike_setup_tracker';
+
 Future<void> launchAppUrl(BuildContext context, {
   required String url, 
   LaunchMode launchMode = LaunchMode.platformDefault,

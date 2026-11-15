@@ -8,13 +8,13 @@ import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
-import '../../models/attachment.dart';
 import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/component/installation.dart';
 import '../../models/feedback/test_session.dart';
 import '../../models/setup.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/component_slot.dart';
 import '../../services/dangling_adjustment_service.dart';
 import '../../services/setup_activity_analysis_service.dart';
 import '../../services/subscription_service.dart';
@@ -156,7 +156,7 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
     final componentAdjustments = component.adjustments;
     final descendants = appRepository.affectedDescendants(component.id);
     final initialStats = initialStatsSummary(component.initialStats, appSettings, l10n);
-    final attachments = appSettings.enableAttachments ? component.attachments : const <Attachment>[];
+    final attachments = component.attachments;
 
     final bikes = appRepository.bikes;
     final bike = bikes[appRepository.componentHierarchy.currentBike(component.id)];
@@ -588,11 +588,28 @@ class _ComponentDetailsPageState extends State<ComponentDetailsPage> {
                     activityCountsFailed: setupActivityCountsFailed,
                     selectedHistogramColumn: _selectedHistogramColumn,
                     valueFor: _rawValue,
+                    currentValueFor: (column) => switch (column) {
+                      // Not mounted (uninstalled, archived, deleted): no current value to show.
+                      ComponentAdjustmentColumn(:final adjustmentId) =>
+                        appRepository.componentHierarchy.currentBike(component.id) == null
+                            ? null
+                            : appRepository.currentAdjustmentValues[adjustmentId],
+                      PersonAttributeColumn(:final adjustmentId) => appRepository.currentAdjustmentValues[adjustmentId],
+                      _ => null,
+                    },
                     adjustmentFor: (column) => adjustmentForColumn(
                       column,
                       componentAdjustments,
                       personAdjustments,
                     ),
+                    slotFor: (setup, column) => column is ComponentAdjustmentColumn
+                        ? slotOnBikeAt(
+                            appRepository.componentHierarchy,
+                            component,
+                            bikeId: setup.bike,
+                            atUTC: setup.datetimeLocal.toUtc(),
+                          )
+                        : null,
                     columnLabel: (column) => _columnLabel(
                       column,
                       componentAdjustments,

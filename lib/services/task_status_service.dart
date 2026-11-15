@@ -60,6 +60,30 @@ class TaskStatusService {
     return interval.dueNowDelay(context);
   }
 
+  /// What is still to gather before [rule] becomes due, in its interval's
+  /// unit ([AccumulatingThreshold.target]). Null unless the rule is open,
+  /// measured by an accumulating interval and not due yet.
+  static double? remaining({
+    required TaskRule rule,
+    required ComponentStats currentStats,
+    required DateTime now,
+    TaskEntry? lastEntry,
+    DateTime? componentInstallationDate,
+  }) {
+    final interval = rule.interval;
+    if (interval is! AccumulatingThreshold) return null;
+    if (!rule.repeat && lastEntry != null) return null;
+
+    final context = _progressContext(
+      currentStats: currentStats,
+      now: now,
+      lastEntry: lastEntry,
+      componentInstallationDate: componentInstallationDate,
+    );
+    final remaining = interval.totalTarget(rule.delay) - interval.accumulated(context);
+    return remaining > 0 ? remaining : null;
+  }
+
   static TaskProgressContext _progressContext({
     required ComponentStats currentStats,
     required DateTime now,

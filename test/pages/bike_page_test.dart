@@ -133,16 +133,7 @@ void main() {
 
     Finder attachChip() => find.widgetWithIcon(ActionChip, Icons.attach_file);
 
-    testWidgets('hides the Attach chip when attachments are disabled', (tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(BikePage.edit(bike: bikeWithAttachments())));
-      await tester.pumpAndSettle();
-
-      expect(attachChip(), findsNothing);
-      expect(find.byType(AttachmentStrip), findsNothing);
-    });
-
     testWidgets('shows the Attach chip next to Initial Stats and the strip below', (tester) async {
-      appSettings.enableAttachments = true;
       await tester.pumpWidget(
         createWidgetUnderTest(
           BikePage.edit(bike: bikeWithAttachments()),
@@ -159,7 +150,6 @@ void main() {
     });
 
     testWidgets('shows the Attach chip alone without Strava', (tester) async {
-      appSettings.enableAttachments = true;
       await tester.pumpWidget(createWidgetUnderTest(BikePage.add()));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Show Additional Fields'));
@@ -171,7 +161,6 @@ void main() {
     });
 
     testWidgets('removing an attachment marks the form changed and saving returns the rest', (tester) async {
-      appSettings.enableAttachments = true;
       Bike? result;
       await tester.pumpWidget(
         createWidgetUnderTest(

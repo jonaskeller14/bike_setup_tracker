@@ -1,0 +1,24 @@
+# scenario: wet_dry
+# Demo: the same gravel loop on a wet and a dry day. The history shows the ground
+# with each setup, then the comparison puts Wet and Dry above the two tire
+# pressures. Timed to the voiceover (06_v1.7.0, clip 4).
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_wet_dry
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 4000
+- tapOn:
+    id: setup.actions.3f806d92-5e77-4c50-9f43-8b2c9d0e1f23
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setup.compare
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 8000

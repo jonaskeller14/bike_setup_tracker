@@ -77,6 +77,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   bool _cameraTouchedByUser = false;
   List<LatLng> _pinPoints = const [];
   List<LatLng> _focusPoints = const [];
+  List<Marker> _clusterMarkers = const [];
 
   /// Camera sources the page drives itself; anything else comes from the user.
   static const Set<MapEventSource> _programmaticCameraSources = {
@@ -266,8 +267,17 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
   Future<void> _zoomBy(double delta) =>
       _camera.move(_mapController.camera.center, (_mapController.camera.zoom + delta).clamp(3.0, 18.0));
 
-  Marker _pinMarker({required LatLng point, required VoidCallback onTap, required Widget pin, String? identifier}) {
-    return Marker(
+  Marker _pinMarker({
+    required MapPinKind kind,
+    required LatLng point,
+    required Object look,
+    required VoidCallback onTap,
+    required Widget pin,
+    String? identifier,
+  }) {
+    return MapPinMarker(
+      kind: kind,
+      look: look,
       point: point,
       width: 40,
       height: 40,
@@ -295,17 +305,18 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
     return appRepository.view.setups.values
         .where((s) => (s.position?.latitude?.isFinite ?? false) && (s.position?.longitude?.isFinite ?? false))
         .where((s) => !focusSetupIds.contains(s.id))
-        .map(
-          (setup) => _pinMarker(
+        .map((setup) {
+          final isCurrent = appRepository.setupHistory.isCurrent(setup.id);
+          final isBookmarked = appSettings.enableSetupBookmark && setup.isBookmarked;
+          return _pinMarker(
+            kind: MapPinKind.setup,
             point: LatLng(setup.position!.latitude!, setup.position!.longitude!),
+            look: (setup.id, isCurrent, isBookmarked),
             onTap: () => showSetupDetailsSheet(context: context, setupId: setup.id, showViewOnMap: false),
-            pin: SetupMapPin.icon(
-              isCurrent: appRepository.setupHistory.isCurrent(setup.id),
-              isBookmarked: appSettings.enableSetupBookmark && setup.isBookmarked,
-            ),
+            pin: SetupMapPin.icon(isCurrent: isCurrent, isBookmarked: isBookmarked),
             identifier: AutomationIds.mapSetup(setup.id),
-          ),
-        );
+          );
+        });
   }
 
   Iterable<Marker> _activityMarkers() {
@@ -313,8 +324,14 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         .where((a) => a.hasStartPosition && a.id != widget.focusActivity?.id)
         .map(
           (activity) => _pinMarker(
+            kind: MapPinKind.activity,
             point: LatLng(activity.startLat!, activity.startLon!),
-            onTap: () => showStravaActivitySheet(context: context, stravaActivity: activity, showViewOnMap: false),
+            look: (activity.id, activity.workout),
+            onTap: () => showStravaActivitySheet(
+              context: context,
+              stravaActivity: _latestActivity(activity),
+              showViewOnMap: false,
+            ),
             pin: StravaActivityMapPin(workoutType: activity.workout),
           ),
         );
@@ -327,12 +344,32 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
         .where((entry) => entry.point != null)
         .map(
           (entry) => _pinMarker(
+            kind: MapPinKind.feedback,
             point: entry.point!,
+            look: entry.feedback.id,
             onTap: () => showFeedbackDetailsSheet(context: context, feedbackId: entry.feedback.id, showViewOnMap: false),
             pin: const FeedbackMapPin(),
           ),
         );
   }
+
+  /// The cluster layer rebuilds its whole cluster tree, and closes an open
+  /// spiderfy, whenever it is handed a different list. So the previous list is
+  /// kept while every pin still shows the same thing.
+  List<Marker> _clusterMarkersFor(AppRepository appRepository, AppSettings appSettings, bool stravaActive) {
+    final layers = appRepository.filters.layers;
+    final markers = [
+      if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
+      if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
+      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback)) ..._feedbackMarkers(appRepository),
+    ];
+    if (!MapPinMarker.showSame(markers, _clusterMarkers)) _clusterMarkers = markers;
+    return _clusterMarkers;
+  }
+
+  /// A kept marker outlives its activity object, so a tap reads the latest one.
+  StravaActivity _latestActivity(StravaActivity activity) =>
+      _stravaActivities.firstWhere((a) => a.id == activity.id, orElse: () => activity);
 
   static LatLng? _pointOf(ContextPosition? position) =>
       (position?.latitude?.isFinite ?? false) && (position?.longitude?.isFinite ?? false)
@@ -411,12 +448,7 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
 
     final colorScheme = Theme.of(context).colorScheme;
 
-    final layers = appRepository.filters.layers;
-    final List<Marker> clusterMarkers = [
-      if (layers.shows(TimelineLayer.setups)) ..._setupMarkers(appRepository, appSettings),
-      if (stravaActive && layers.shows(TimelineLayer.activities)) ..._activityMarkers(),
-      if (appSettings.enableRating && layers.shows(TimelineLayer.feedback)) ..._feedbackMarkers(appRepository),
-    ];
+    final clusterMarkers = _clusterMarkersFor(appRepository, appSettings, stravaActive);
 
     final focusMarkers = _focusMarkers(appRepository, appSettings);
     final focusPoints = _focusPoints = [for (final marker in focusMarkers) marker.point];
@@ -477,10 +509,10 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(50),
                   maxZoom: 18,
                   markers: clusterMarkers,
-                  builder: (context, markers) => MapClusterBubble(count: markers.length),
+                  builder: (context, markers) => MapClusterBubble(counts: MapPinMarker.countByKind(markers)),
                 ),
               ),
-              if (focusMarkers.isNotEmpty) MarkerLayer(markers: focusMarkers),
+              if (focusMarkers.isNotEmpty) MarkerLayer(rotate: true, markers: focusMarkers),
               CurrentLocationLayer(
                 positionStream: _markerPositions,
                 headingStream: _headings,

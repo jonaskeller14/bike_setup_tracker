@@ -79,20 +79,6 @@ void main() {
       expect(prefs.getBool('${_kPrefix}enableCalendar'), isNull);
     });
 
-    test('enableAttachments persists under its own key, ignoring the old image flag', () async {
-      SharedPreferences.setMockInitialValues({'${_kPrefix}enableSetupImages': true});
-      final settings = AppSettings();
-      await settings.loadAppSettings();
-
-      expect(settings.enableAttachments, isFalse);
-
-      settings.enableAttachments = true;
-      await flushWrites();
-
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('${_kPrefix}enableAttachments'), isTrue);
-    });
-
     test('string setter persists under its namespaced key', () async {
       SharedPreferences.setMockInitialValues({});
       final settings = AppSettings();
@@ -323,41 +309,6 @@ void main() {
       expect(settings.distanceUnit, 'km');
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.containsKey('${_kPrefix}distanceUnit'), isFalse);
-    });
-  });
-
-  group('AppSettings — enablePersonAdvanced', () {
-    test('persists, loads and resets', () async {
-      SharedPreferences.setMockInitialValues({});
-      final settings = AppSettings();
-      await settings.loadAppSettings();
-      expect(settings.enablePersonAdvanced, isFalse);
-
-      settings.enablePersonAdvanced = true;
-      await flushWrites();
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('${_kPrefix}enablePersonAdvanced'), isTrue);
-      expect(settings.hasDefaultValues, isFalse);
-
-      final reloaded = AppSettings();
-      await reloaded.loadAppSettings();
-      expect(reloaded.enablePersonAdvanced, isTrue);
-
-      await reloaded.resetToDefaults();
-      expect(reloaded.enablePersonAdvanced, isFalse);
-      expect(prefs.getBool('${_kPrefix}enablePersonAdvanced'), isNull);
-    });
-
-    test('showAdvancedPersonUi needs enablePerson as well', () {
-      SharedPreferences.setMockInitialValues({});
-      final settings = AppSettings()..enablePersonAdvanced = true;
-      expect(settings.showAdvancedPersonUi, isFalse);
-
-      settings.enablePerson = true;
-      expect(settings.showAdvancedPersonUi, isTrue);
-
-      settings.enablePersonAdvanced = false;
-      expect(settings.showAdvancedPersonUi, isFalse);
     });
   });
 

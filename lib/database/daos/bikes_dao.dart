@@ -47,11 +47,13 @@ class BikesDao extends DatabaseAccessor<AppDatabase>
   Future<bool> updateBike(BikesCompanion entry) => update(bikes).replace(entry);
   Future<int> deleteBike(String id) => softDelete(id);
 
+  /// Bumps `lastModified` of the rows that moved, so the new order syncs.
   Future<void> reorder(List<String> ids) async {
+    final now = DateTime.now().toUtc();
     await transaction(() async {
       for (int i = 0; i < ids.length; i++) {
-        await (update(bikes)..where((t) => t.id.equals(ids[i]))).write(
-          BikesCompanion(orderIndex: Value(i)),
+        await (update(bikes)..where((t) => t.id.equals(ids[i]) & t.orderIndex.isNotValue(i))).write(
+          BikesCompanion(orderIndex: Value(i), lastModified: Value(now)),
         );
       }
     });

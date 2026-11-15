@@ -7,16 +7,18 @@ import '../../icons/simple_icons.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../models/app_settings.dart';
+import '../../models/feedback/ride_feedback.dart';
 import '../../models/filters/activity_filter.dart';
 import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/sheets/checkbox_group.dart';
+import '../../widgets/sheets/feature_setting_sheet.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
 import '../../widgets/sheets/presets_setting_sheets.dart';
 import '../../widgets/sheets/pressure_check_setting_sheet.dart';
-import '../../widgets/sheets/radio_group.dart';
 import '../../widgets/sheets/subcomponents_hint_sheet.dart';
 import '../../widgets/text/section_title.dart';
 
@@ -35,13 +37,6 @@ class FeaturesPage extends StatelessWidget {
     final subscriptionService = context.watch<SubscriptionService>();
 
     final otherTiles = [
-      _FeatureToggleTile(
-        icon: Icons.attach_file,
-        title: l10n.featuresAttachments,
-        value: appSettings.enableAttachments,
-        onChanged: (v) => appSettings.enableAttachments = v,
-        infoText: l10n.featuresAttachmentsInfo,
-      ),
       if (Platform.isAndroid)
         _FeatureToggleTile(
           icon: SimpleIcons.googledrive,
@@ -50,6 +45,22 @@ class FeaturesPage extends StatelessWidget {
           onChanged: (v) => appSettings.enableGoogleDrive = v,
           infoText: l10n.featuresGoogleDriveInfo,
         ),
+      if (appSettings.developerMode) ...[
+        _FeatureToggleTile(
+          icon: Icons.cloud_sync_outlined,
+          title: l10n.featuresCloudSync,
+          value: appSettings.enableCloudSync,
+          onChanged: (v) => appSettings.enableCloudSync = v,
+          infoText: l10n.featuresCloudSyncInfo,
+        ),
+        _FeatureToggleTile(
+          icon: Icons.account_circle_outlined,
+          title: l10n.featuresAccounts,
+          value: appSettings.enableAccounts,
+          onChanged: (v) => appSettings.enableAccounts = v,
+          infoText: l10n.featuresAccountsInfo,
+        ),
+      ],
       if (appSettings.developerMode)
         _FeatureToggleTile(
           icon: Icons.map,
@@ -96,16 +107,6 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableComponentPresets = v,
                 sheet: (context, value) => showComponentPresetsSettingSheet(context, value: value),
               ),
-              if (appSettings.developerMode)
-                _FeatureToggleTile(
-                  enabled: appSettings.enableComponentPresets,
-                  disabledSubtitle: l10n.featuresRequiresComponentPresets,
-                  icon: Icons.auto_awesome_outlined,
-                  title: l10n.featuresSetupGuides,
-                  value: appSettings.enableSetupGuides,
-                  onChanged: (v) => appSettings.enableSetupGuides = v,
-                  infoText: l10n.featuresSetupGuidesInfo,
-                ),
               const Divider(),
               SectionTitle(title: l10n.featuresSectionAdjustments),
               _FeatureGroupTile(
@@ -166,9 +167,24 @@ class FeaturesPage extends StatelessWidget {
                     ),
                 ],
               ),
-              if (appSettings.developerMode)
-                ListTile(
-                  leading: const Icon(Icons.compress),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.featuresSetupGuides,
+                child: _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: l10n.featuresRequiresComponentPresets,
+                  icon: Icons.tips_and_updates_outlined,
+                  title: l10n.featuresSetupGuides,
+                  value: appSettings.enableSetupGuides,
+                  onChanged: (v) => appSettings.enableSetupGuides = v,
+                  sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
+                ),
+              ),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.featuresPressureCheck,
+                child: ListTile(
+                  leading: const Icon(Icons.tire_repair),
                   title: Text(l10n.featuresPressureCheck),
                   subtitle: Text(
                     appSettings.enablePressureAssistant
@@ -181,9 +197,10 @@ class FeaturesPage extends StatelessWidget {
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
                   onTap: () => showPressureCheckSettingSheet(context),
                 ),
+              ),
               if (appSettings.developerMode)
                 _FeatureToggleTile(
-                  icon: Icons.star,
+                  icon: RideFeedback.iconData,
                   title: l10n.featuresFeedback,
                   value: appSettings.enableRating,
                   onChanged: (v) {
@@ -209,14 +226,6 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enablePerson = v,
                 infoText: l10n.featuresRiderInfo,
               ),
-              if (appSettings.developerMode && appSettings.enablePerson)
-                _FeatureToggleTile(
-                  icon: Icons.groups_outlined,
-                  title: l10n.featuresRiderAdvanced,
-                  value: appSettings.enablePersonAdvanced,
-                  onChanged: (v) => appSettings.enablePersonAdvanced = v,
-                  infoText: l10n.featuresRiderAdvancedInfo,
-                ),
               const Divider(),
               SectionTitle(title: l10n.featuresSectionSetupHistory),
               _FeatureGroupTile(
@@ -400,17 +409,9 @@ class _FeatureToggleTile extends StatelessWidget {
       title: Text(title),
       subtitle: !enabled && disabledSubtitle != null ? Text(disabledSubtitle!) : offOnOptionWidgets[value],
       trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-      onTap: () => sheet != null ? _openSheet(context, sheet!) : radioGroupSheet<bool>(
-        context: context,
-        title: title,
-        value: value,
-        optionWidgets: offOnOptionWidgets,
-        onChanged: (bool? newValue) {
-          if (newValue == null) return;
-          onChanged(newValue);
-          Navigator.pop(context);
-        },
-        infoText: infoText,
+      onTap: () => _openSheet(
+        context,
+        sheet ?? (context, value) => showFeatureSettingSheet(context, title: title, value: value, infoText: infoText),
       ),
     );
   }

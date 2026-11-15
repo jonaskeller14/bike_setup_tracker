@@ -565,10 +565,6 @@
   "@homeTitleSetupHistory": {
     "description": "App bar title of the Setups tab."
   },
-  "homeTitleRiders": "Riders",
-  "@homeTitleRiders": {
-    "description": "App bar title of the Riders tab."
-  },
   "homeTitleTasks": "Tasks",
   "@homeTitleTasks": {
     "description": "App bar title of the Tasks tab."
@@ -580,10 +576,6 @@
   "homeNavSetups": "Setups",
   "@homeNavSetups": {
     "description": "Label of the Setups destination in the bottom navigation bar."
-  },
-  "homeNavRiders": "Riders",
-  "@homeNavRiders": {
-    "description": "Label of the Riders destination in the bottom navigation bar."
   },
   "homeNavTasks": "Tasks",
   "@homeNavTasks": {
@@ -636,10 +628,6 @@
   "homeTooltipAddBike": "Add Bike",
   "@homeTooltipAddBike": {
     "description": "Tooltip of the floating button that adds a bike."
-  },
-  "homeTooltipAddRider": "Add Rider",
-  "@homeTooltipAddRider": {
-    "description": "Tooltip of the floating button that adds a rider."
   },
   "homeTooltipAddTask": "Add Task",
   "@homeTooltipAddTask": {
@@ -912,13 +900,49 @@
   "@settingsDisconnectStravaSubtitle": {
     "description": "Subtitle of the settings entry that disconnects Strava."
   },
-  "settingsStravaNotifications": "Strava Notifications",
+  "settingsStravaNotifications": "Imported rides",
   "@settingsStravaNotifications": {
-    "description": "Title of the settings entry and sheet for Strava push notifications."
+    "description": "Switch in the notifications sheet for push notifications when Strava rides are imported."
   },
   "settingsStravaNotificationsInfo": "Receive push notifications when Strava activities are imported.",
   "@settingsStravaNotificationsInfo": {
-    "description": "Explanation in the Strava notifications sheet."
+    "description": "Subtitle of the imported-rides switch in the notifications sheet."
+  },
+  "settingsTaskNotifications": "Due tasks",
+  "@settingsTaskNotifications": {
+    "description": "Switch in the notifications sheet for push notifications when a Strava ride makes a task due."
+  },
+  "settingsTaskNotificationsInfo": "Get a push notification when a Strava ride makes a task due. Needs cloud sync.",
+  "@settingsTaskNotificationsInfo": {
+    "description": "Subtitle of the due-tasks switch in the notifications sheet."
+  },
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {
+    "description": "Title of the settings entry and sheet that turns the push notifications on and off."
+  },
+  "settingsNotificationsIntro": "Push notifications after your Strava rides. Choose which ones you get.",
+  "@settingsNotificationsIntro": {
+    "description": "Introduction at the top of the notifications sheet."
+  },
+  "settingsNotificationsExample": "Example",
+  "@settingsNotificationsExample": {
+    "description": "Label above an example notification in the notifications sheet."
+  },
+  "settingsStravaNotificationsExampleTitle": "Ride imported: Evening Ride",
+  "@settingsStravaNotificationsExampleTitle": {
+    "description": "Title of the example ride-import notification. Mirrors the backend text with an example ride name."
+  },
+  "settingsStravaNotificationsExampleBody": "Changed anything on the bike? Record the setup.",
+  "@settingsStravaNotificationsExampleBody": {
+    "description": "Body of the example ride-import notification. Mirrors one of the backend prompts."
+  },
+  "settingsTaskNotificationsExampleTitle": "Task due: Chain wax",
+  "@settingsTaskNotificationsExampleTitle": {
+    "description": "Title of the example task-due notification. Mirrors the backend text with an example task name."
+  },
+  "settingsTaskNotificationsExampleBody": "Due after your ride on Enduro.",
+  "@settingsTaskNotificationsExampleBody": {
+    "description": "Body of the example task-due notification. Mirrors the backend text with an example bike name."
   },
   "settingsPreferences": "Preferences",
   "@settingsPreferences": {
@@ -1204,9 +1228,25 @@
   "@featuresSetupGuides": {
     "description": "Title of the setup guides feature (developer builds)."
   },
-  "featuresSetupGuidesInfo": "Suggests recommended values for the first setup of a component, like air pressure or rebound clicks, based on your riding weight and the component model. These are starting points, so check the manufacturer manual. Requires Component Presets.",
-  "@featuresSetupGuidesInfo": {
-    "description": "Explanation of the setup guides feature."
+  "setupGuidesIntro": "See the manufacturer’s recommended values <b>every time you create or edit a setup</b>, like air pressure or rebound and compression clicks, matched to your riding weight and riding style.",
+  "@setupGuidesIntro": {
+    "description": "Intro of the setup guides settings sheet. <b>…</b> marks the bold part: when the guide is shown."
+  },
+  "setupGuidesStepLink": "Link a fork or shock to its catalog model. Models with a manufacturer setup guide get recommended values.",
+  "@setupGuidesStepLink": {
+    "description": "First step of the setup guides settings sheet."
+  },
+  "setupGuidesStepCard": "The Setup guide card compares what your setup has now with the guide. It opens by itself while a component has no values yet, and starts collapsed after that.",
+  "@setupGuidesStepCard": {
+    "description": "Second step of the setup guides settings sheet; \"Setup guide\" is guideCardTitle."
+  },
+  "setupGuidesStepApply": "Tap a row to use its value, or Apply all. A status icon next to each adjustment shows whether it follows the guide.",
+  "@setupGuidesStepApply": {
+    "description": "Third step of the setup guides settings sheet; \"Apply all\" is guideCardApplyAll."
+  },
+  "setupGuidesCaption": "If your weight falls between two weight steps of the manual, the value is worked out in between, and clicks are converted to your dial. These are starting points, so check your manual. Turning this off hides the card; your setups keep their values.",
+  "@setupGuidesCaption": {
+    "description": "Footnote of the setup guides settings sheet."
   },
   "featuresCategoricalAdjustment": "Categorical Adjustment",
   "@featuresCategoricalAdjustment": {
@@ -1295,14 +1335,6 @@
   "featuresRiderInfo": "Adds a rider profile, opened with the rider button in the app bar. Link the rider to your bikes to record riding weight and other rider attributes with each setup. A new rider starts with a \"Riding weight\" attribute. Turning this off hides the rider but keeps its data.",
   "@featuresRiderInfo": {
     "description": "Explanation of the rider feature."
-  },
-  "featuresRiderAdvanced": "Advanced Rider Layout",
-  "@featuresRiderAdvanced": {
-    "description": "Title of the advanced rider layout feature (developer builds)."
-  },
-  "featuresRiderAdvancedInfo": "Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.",
-  "@featuresRiderAdvancedInfo": {
-    "description": "Explanation of the advanced rider layout feature."
   },
   "featuresTestSessionGoal": "Test Session Goal",
   "@featuresTestSessionGoal": {
@@ -1427,14 +1459,6 @@
   "featuresGarageTaskIndicatorInfo": "Shows a colored status dot on component icons in the Garage when they have open tasks.",
   "@featuresGarageTaskIndicatorInfo": {
     "description": "Explanation of the garage task indicator feature."
-  },
-  "featuresAttachments": "Attachments",
-  "@featuresAttachments": {
-    "description": "Title of the attachments feature."
-  },
-  "featuresAttachmentsInfo": "Attach images and files to bikes, components, setups and tasks. WARNING: attachments are stored only on this device. They are NOT included in cloud/Drive backups and will be lost on reinstall or when restoring from a backup. Use \"Export Attachment Bundle\" to move them to a new device.",
-  "@featuresAttachmentsInfo": {
-    "description": "Explanation of the attachments feature, including the warning that they are not backed up."
   },
   "featuresGoogleDrive": "Google Drive Sync",
   "@featuresGoogleDrive": {
@@ -2072,10 +2096,6 @@
   "hintSubcomponentsEnabled": "Subcomponents enabled — edit a part and pick its parent under \"Installed on\"",
   "@hintSubcomponentsEnabled": {
     "description": "Snackbar after subcomponents were turned on from a hint."
-  },
-  "hintAttachmentsEnabled": "Attachments enabled — add photos and files to bikes, components, setups and tasks",
-  "@hintAttachmentsEnabled": {
-    "description": "Snackbar after attachments were turned on from a hint."
   },
   "hintTaskPresetsEnabled": "Tasks enabled — recommended tasks are offered when you add a component",
   "@hintTaskPresetsEnabled": {
@@ -3310,7 +3330,7 @@
   "@componentDetailsLineChartInfo": {
     "description": "Info text of the line chart section on the component details."
   },
-  "componentDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
+  "componentDetailsHistogramInfo": "• Shows how many Strava activities were ridden with each adjustment value.\n• Counts all setups in the table above, not just the selected ones.\n• Numerical values are grouped into ranges when there are many distinct values.\n• Bars are split by where the component was mounted, e.g. front or rear wheel. Touch a bar to see the activities per mount.\n• Tap a legend entry to show a different adjustment.\n• Long-press a legend entry to remove its column.",
   "@componentDetailsHistogramInfo": {
     "description": "Info text of the activity histogram section on the component details."
   },
@@ -5154,10 +5174,6 @@
       }
     }
   },
-  "setupTabCreateRider": "Create new rider",
-  "@setupTabCreateRider": {
-    "description": "Menu entry that creates a rider for the bike."
-  },
   "setupTabLinkRiderButton": "Link rider",
   "@setupTabLinkRiderButton": {
     "description": "Button that opens the rider link menu."
@@ -5290,13 +5306,14 @@
   "@setupFormEditTitle": {
     "description": "App bar title of the setup form in edit mode."
   },
-  "setupFormFirstRun": "First Run",
-  "@setupFormFirstRun": {
-    "description": "App bar title of the setup form for the first run of a test session."
-  },
-  "setupFormNextRun": "Next Run",
-  "@setupFormNextRun": {
-    "description": "App bar title of the setup form for a later run of a test session."
+  "setupFormRunTitle": "Setup for run {number}",
+  "@setupFormRunTitle": {
+    "description": "App bar title of the setup form for a run of a test session. {number} counts the runs, starting at 1.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "setupFormNameLabel": "Setup Name",
   "@setupFormNameLabel": {
@@ -5477,24 +5494,6 @@
   "@setupFormSessionNextBase": {
     "description": "Notice on a later run of a non-tournament test session."
   },
-  "setupFormSessionFirstRunTitle": "First run of '{name}'",
-  "@setupFormSessionFirstRunTitle": {
-    "description": "Title of the test session notice on the first run. {name} is the session name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "setupFormSessionRunTitle": "Run of '{name}'",
-  "@setupFormSessionRunTitle": {
-    "description": "Title of the test session notice on a later run. {name} is the session name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "setupFormGuideWeightSaved": "Saved with this setup as {name}'s riding weight",
   "@setupFormGuideWeightSaved": {
     "description": "Hint under the weight field of the setup guide card. {name} is the rider.",
@@ -5532,6 +5531,18 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "setupFormGuideAppliedOne": "{name} set to {value}",
+  "@setupFormGuideAppliedOne": {
+    "description": "Snackbar after applying one recommended value. {name} is the adjuster, {value} the formatted value.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
       }
     }
   },
@@ -6868,38 +6879,6 @@
   "@riderAttributeTypeTextHint": {
     "description": "Description of the text rider attribute."
   },
-  "riderDetailsNotFoundTitle": "Rider not found",
-  "@riderDetailsNotFoundTitle": {
-    "description": "Title shown when the rider of the details page no longer exists."
-  },
-  "riderDetailsNotFoundSubtitle": "This rider was deleted or is no longer available.",
-  "@riderDetailsNotFoundSubtitle": {
-    "description": "Subtitle shown when the rider of the details page no longer exists."
-  },
-  "riderDetailsNoStrava": "No Strava Athlete linked to this rider.",
-  "@riderDetailsNoStrava": {
-    "description": "Shown on the rider details when no Strava athlete is linked."
-  },
-  "riderDetailsStravaNotFound": "STRAVA ATHLETE NOT FOUND",
-  "@riderDetailsStravaNotFound": {
-    "description": "Shown in red when the linked Strava athlete no longer exists."
-  },
-  "riderDetailsNoBikes": "No bikes linked to this rider.",
-  "@riderDetailsNoBikes": {
-    "description": "Shown on the rider details when no bike is linked."
-  },
-  "riderListEmptyTitle": "No rider yet",
-  "@riderListEmptyTitle": {
-    "description": "Title of the empty state of the rider list."
-  },
-  "riderListEmptySubtitle": "Add a rider to link to your bikes and setups.",
-  "@riderListEmptySubtitle": {
-    "description": "Subtitle of the empty state of the rider list."
-  },
-  "riderListEmptyAction": "Add a rider",
-  "@riderListEmptyAction": {
-    "description": "Button of the empty state of the rider list."
-  },
   "riderOptionLinkBikes": "Link bikes",
   "@riderOptionLinkBikes": {
     "description": "Menu item of a rider card that opens the bike link sheet."
@@ -7276,6 +7255,15 @@
   "mapEmptyRetry": "Retry",
   "@mapEmptyRetry": {
     "description": "Button that reloads the Strava activities for the map."
+  },
+  "mapClusterSemantics": "Cluster of {count} pins",
+  "@mapClusterSemantics": {
+    "description": "Screen reader label of a map cluster bubble. {count} is the number of pins it groups.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "mapEmptyFilteredTitle": "Nothing on the map in this view",
   "@mapEmptyFilteredTitle": {
@@ -7903,45 +7891,11 @@
   "@feedbackRestoredFromTrash": {
     "description": "Snackbar after restoring feedback."
   },
-  "customIssueRenameTitle": "Rename issue",
-  "@customIssueRenameTitle": {
-    "description": "Title of the dialog that renames a rider-defined problem."
-  },
-  "customIssueMerged": "Merged into \"{label}\".",
-  "@customIssueMerged": {
-    "description": "Snackbar after renaming a problem to the name of another one.",
-    "placeholders": {
-      "label": {
-        "type": "String"
-      }
-    }
-  },
-  "customIssueRenamed": "Issue renamed.",
-  "@customIssueRenamed": {
-    "description": "Snackbar after renaming a rider-defined problem."
-  },
-  "customIssueRemoveTitle": "Remove \"{label}\"?",
-  "@customIssueRemoveTitle": {
-    "description": "Title of the dialog that confirms removing a rider-defined problem.",
-    "placeholders": {
-      "label": {
-        "type": "String"
-      }
-    }
-  },
-  "customIssueRemoveBody": "It is removed from every feedback and test session goal, including the trash. This cannot be undone.",
-  "@customIssueRemoveBody": {
-    "description": "Body of the dialog that confirms removing a rider-defined problem."
-  },
-  "customIssueRemoved": "Issue removed.",
-  "@customIssueRemoved": {
-    "description": "Snackbar after removing a rider-defined problem."
-  },
   "customIssuesTitle": "Issues",
   "@customIssuesTitle": {
     "description": "Title of the sheet with the rider-defined problems."
   },
-  "customIssuesInfo": "Your own problems, beside the built-in ones. Long-press an issue to rename or remove it.",
+  "customIssuesInfo": "Your own problems, beside the built-in ones. An issue disappears once no feedback uses it.",
   "@customIssuesInfo": {
     "description": "Info line of the sheet with the rider-defined problems."
   },
@@ -8479,6 +8433,24 @@
   "dataErrorReadDriveBackup": "Reading Google Drive backup failed: {detail}",
   "@dataErrorReadDriveBackup": {
     "description": "Error when a Google Drive backup could not be downloaded or read. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorGetCloudBackups": "Getting cloud backups failed: {detail}",
+  "@dataErrorGetCloudBackups": {
+    "description": "Error under the backup list when the cloud backups could not be listed. {detail} is the technical reason.",
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "dataErrorReadCloudBackup": "Reading cloud backup failed: {detail}",
+  "@dataErrorReadCloudBackup": {
+    "description": "Error when a cloud backup could not be downloaded or read. {detail} is the technical reason.",
     "placeholders": {
       "detail": {
         "type": "String"
@@ -9468,6 +9440,18 @@
   "@stravaActivityNoStartLocation": {
     "description": "Note under a disabled map entry of the activity menu."
   },
+  "stravaActivityNotFoundTitle": "Activity not found",
+  "@stravaActivityNotFoundTitle": {
+    "description": "Title of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityNotFoundSubtitle": "This activity was deleted or is no longer available.",
+  "@stravaActivityNotFoundSubtitle": {
+    "description": "Subtitle of the Strava activity page when the activity no longer exists."
+  },
+  "stravaActivityLoadErrorTitle": "Could not load activity",
+  "@stravaActivityLoadErrorTitle": {
+    "description": "Title of the Strava activity page when reading the activity failed."
+  },
   "exportFileSaved": "File saved",
   "@exportFileSaved": {
     "description": "Snackbar after an exported file was saved."
@@ -9566,7 +9550,7 @@
   "@exportSaveFile": {
     "description": "Entry of the export sheet that saves a JSON file."
   },
-  "exportSaveFileSubtitle": "Choose where to save the JSON file",
+  "exportSaveFileSubtitle": "Choose where to save the JSON file. Attachments not included.",
   "@exportSaveFileSubtitle": {
     "description": "Subtitle of the entry that saves a JSON file."
   },
@@ -9574,7 +9558,7 @@
   "@exportSaveBackup": {
     "description": "Entry of the export sheet that saves a local backup."
   },
-  "exportSaveBackupSubtitle": "Save current state as a local backup",
+  "exportSaveBackupSubtitle": "Save current state as a local backup. Attachments not included.",
   "@exportSaveBackupSubtitle": {
     "description": "Subtitle of the entry that saves a local backup."
   },
@@ -9582,7 +9566,7 @@
   "@exportSaveDriveBackup": {
     "description": "Entry of the export sheet that saves a backup to Google Drive."
   },
-  "exportSaveDriveBackupSubtitle": "Save current state as Backup in Google Drive",
+  "exportSaveDriveBackupSubtitle": "Save current state as Backup in Google Drive. Attachments not included.",
   "@exportSaveDriveBackupSubtitle": {
     "description": "Subtitle of the entry that saves a backup to Google Drive."
   },
@@ -9718,7 +9702,7 @@
   "@importMethodReplace": {
     "description": "Import method that deletes the local data first."
   },
-  "importMethodReplaceSubtitle": "Replace your local data with the imported data. This will permanently delete all existing data and cannot be undone.",
+  "importMethodReplaceSubtitle": "Replace your local data with the imported data. Your current data moves to the trash and is deleted after 30 days.",
   "@importMethodReplaceSubtitle": {
     "description": "Explanation of the replace import method."
   },
@@ -9792,6 +9776,10 @@
   "backupGoogleDrive": "Google Drive Backup",
   "@backupGoogleDrive": {
     "description": "Name of a backup stored in Google Drive."
+  },
+  "backupCloud": "Cloud Backup",
+  "@backupCloud": {
+    "description": "Name of a daily backup stored in the cloud account (cloud sync)."
   },
   "backupReading": "Reading backup…",
   "@backupReading": {
@@ -10324,6 +10312,18 @@
       }
     }
   },
+  "chartHistogramSegment": "{slot}: {count, plural, =1{1 activity} other{{count} activities}}",
+  "@chartHistogramSegment": {
+    "description": "One stacked part of a histogram bar, in its tooltip and screen reader text. {slot} is where the component was mounted, e.g. 'Tire (Rear wheel)'.",
+    "placeholders": {
+      "slot": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "chartHistogramCountAxis": "Activity count",
   "@chartHistogramCountAxis": {
     "description": "Label of the vertical axis of the activity histogram."
@@ -10360,6 +10360,22 @@
         "type": "String"
       }
     }
+  },
+  "chartHistogramHintSubscribe": "Subscribe to Strava Sync to see which values you rode most. Tap the Strava icon on the home screen to get started.",
+  "@chartHistogramHintSubscribe": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when the user has no Strava Sync subscription."
+  },
+  "chartHistogramHintNoActivities": "No Strava activities synced yet. Sync your activities to see which values you rode most.",
+  "@chartHistogramHintNoActivities": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when no Strava activity is synced."
+  },
+  "chartHistogramHintNoLinked": "No activity has used a setup with this adjustment yet.",
+  "@chartHistogramHintNoLinked": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when no activity used a setup with this adjustment."
+  },
+  "chartHistogramHintLoadFailed": "Could not load the activity distribution.",
+  "@chartHistogramHintLoadFailed": {
+    "description": "Hint in the adjustment tooltip, instead of the activity histogram, when loading it failed."
   },
   "chartNoAdjustmentsTitle": "No adjustments selected",
   "@chartNoAdjustmentsTitle": {
@@ -10610,7 +10626,7 @@
       }
     }
   },
-  "pressureCheckFooterDrifted": "On the right is what your pump would read now. Pump back to the value you last set for the same feel.",
+  "pressureCheckFooterDrifted": "“Now” is what your pump would read today. Pump back to the “Set” value for the same feel.",
   "@pressureCheckFooterDrifted": {
     "description": "Footer of the pressure check card when at least one pressure is off."
   },
@@ -10623,20 +10639,26 @@
       }
     }
   },
-  "pressureCheckInfoTooltip": "How this is calculated",
-  "@pressureCheckInfoTooltip": {
-    "description": "Tooltip of the info button on the pressure check card."
+  "pressureCheckLoading": "Getting the current temperature and altitude…",
+  "@pressureCheckLoading": {
+    "description": "Body of the collapsed pressure check card while the current location or weather is still being fetched."
   },
-  "pressureCheckSetOn": "Set {value} {unit} on {date} · {conditions}",
+  "pressureCheckNoRecordedPressure": "No pressure recorded for this bike yet, so there is nothing to compare.",
+  "@pressureCheckNoRecordedPressure": {
+    "description": "Body of the pressure check card when no earlier setup recorded a pressure of the bike."
+  },
+  "pressureCheckNoRecordedConditions": "The pressures you last set were saved without a temperature or altitude, so there is nothing to compare.",
+  "@pressureCheckNoRecordedConditions": {
+    "description": "Footer of the pressure check card when the setups that last set the pressures all have no temperature or altitude, so no pressure can be compared."
+  },
+  "pressureCheckNoCurrentConditions": "Needs the current temperature and altitude. Set the location and weather above.",
+  "@pressureCheckNoCurrentConditions": {
+    "description": "Body of the pressure check card when the current temperature or altitude is missing."
+  },
+  "pressureCheckSetOn": "Set on {date} · {conditions}",
   "@pressureCheckSetOn": {
-    "description": "Row of the pressure check card: the value that was last set. {value} is the pressure, {unit} its unit, {date} the setup date, {conditions} the temperature and altitude then.",
+    "description": "Row of the pressure check card, under the pressure name: when the value was last set. {date} is the setup date, {conditions} the temperature and altitude then.",
     "placeholders": {
-      "value": {
-        "type": "String"
-      },
-      "unit": {
-        "type": "String"
-      },
       "date": {
         "type": "String"
       },
@@ -10644,6 +10666,62 @@
         "type": "String"
       }
     }
+  },
+  "pressureCheckSetNow": "Pumped",
+  "@pressureCheckSetNow": {
+    "description": "Chip on a drifted pressure row of the pressure check card: tapping the row marks that the rider pumped the pressure back or confirmed it on a gauge, so this setup becomes its reference. Also quoted in the info sheet."
+  },
+  "pressureCheckSetNowSemantics": "Mark {name} as pumped",
+  "@pressureCheckSetNowSemantics": {
+    "description": "Screen reader hint of a pressure row that can be marked as pumped. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNowMarked": "{name} marked as pumped",
+  "@pressureCheckSetNowMarked": {
+    "description": "Snackbar after a pressure row is marked as pumped, with an undo action. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNowUnmarked": "{name} no longer marked as pumped",
+  "@pressureCheckSetNowUnmarked": {
+    "description": "Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckSetNowDone": "Pumped just now",
+  "@pressureCheckSetNowDone": {
+    "description": "Replaces the set-on line under a pressure name once the row is marked as pumped."
+  },
+  "pressureCheckSetNowHint": "Pumped back to “Set”? Tap the pressure.",
+  "@pressureCheckSetNowHint": {
+    "description": "Appended to the footer of the pressure check card while a row can be marked: tapping a row marks it as pumped. “Set” is the column caption."
+  },
+  "pressureCheckNoConditionsOn": "No conditions recorded on {date}",
+  "@pressureCheckNoConditionsOn": {
+    "description": "Row of the pressure check card, under the pressure name, when the setup that last set it has no temperature or altitude. {date} is the setup date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pressureCheckColumnNow": "Now",
+  "@pressureCheckColumnNow": {
+    "description": "Caption of the pressure check card column with what the pump would read now."
+  },
+  "pressureCheckColumnSet": "Set",
+  "@pressureCheckColumnSet": {
+    "description": "Caption of the pressure check card column with the value last set in an earlier setup."
   },
   "pressureCheckPsi": "{value} psi",
   "@pressureCheckPsi": {
@@ -10673,6 +10751,15 @@
   "pressureCheckInfoCancel": "The two often partly cancel each other out.",
   "@pressureCheckInfoCancel": {
     "description": "Remark after the temperature and altitude effects in the pressure check info sheet."
+  },
+  "pressureCheckInfoLeak": "Tires also lose a little air every day. The check assumes a cautious {percent} per week for tires and none for forks and shocks. Real loss is usually bigger.",
+  "@pressureCheckInfoLeak": {
+    "description": "Note in the pressure check info sheet about slow air loss. {percent} is the assumed weekly tire loss, such as 3 %.",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
   "pressureCheckInfoExampleHeading": "Example",
   "@pressureCheckInfoExampleHeading": {
@@ -10717,19 +10804,31 @@
   "@pressureCheckInfoSettingsHint": {
     "description": "Pointer to the pressure check settings. The menu names must match the app's own labels."
   },
+  "pressureCheckInfoReferenceHeading": "Which setup is compared",
+  "@pressureCheckInfoReferenceHeading": {
+    "description": "Heading in the pressure check info sheet."
+  },
+  "pressureCheckInfoCompared": "Each pressure is compared with the setup that last changed it, or where you marked it \"Pumped\". That is not always your previous setup.",
+  "@pressureCheckInfoCompared": {
+    "description": "Note in the pressure check info sheet."
+  },
+  "pressureCheckInfoCarriedOver": "A value carried over unchanged doesn't count: the air in the chamber has been there since the setup that set it.",
+  "@pressureCheckInfoCarriedOver": {
+    "description": "Note in the pressure check info sheet."
+  },
+  "pressureCheckInfoSetNow": "After pumping back or checking on a gauge, tap the pressure to mark it \"Pumped\". This setup then becomes the reference. You can also do it later by editing the setup.",
+  "@pressureCheckInfoSetNow": {
+    "description": "Note in the pressure check info sheet. \"Pumped\" must match the chip on the pressure check card."
+  },
+  "pressureCheckInfoNeedsConditions": "A setup saved without temperature or altitude can't be compared. Its pressures still show up: mark one \"Pumped\" to start a new reference here, which needs today's conditions.",
+  "@pressureCheckInfoNeedsConditions": {
+    "description": "Note in the pressure check info sheet."
+  },
   "pressureCheckInfoGoodToKnowHeading": "Good to know",
   "@pressureCheckInfoGoodToKnowHeading": {
     "description": "Heading in the pressure check info sheet."
   },
-  "pressureCheckInfoCompared": "Each value is compared with the setup that last changed it, which is not always your previous setup.",
-  "@pressureCheckInfoCompared": {
-    "description": "Note in the pressure check info sheet."
-  },
-  "pressureCheckInfoNeedsConditions": "Both setups need a temperature and an altitude; pressures without them are left out.",
-  "@pressureCheckInfoNeedsConditions": {
-    "description": "Note in the pressure check info sheet."
-  },
-  "pressureCheckInfoNotIncluded": "Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it.",
+  "pressureCheckInfoNotIncluded": "Not included: how the spring curve changes at a different pressure, oil viscosity, and the air the pump hose takes when you connect it. The air loss over time is a cautious estimate.",
   "@pressureCheckInfoNotIncluded": {
     "description": "Note in the pressure check info sheet."
   },
@@ -10757,14 +10856,9 @@
   "@pressureCheckExampleHigherUp": {
     "description": "Example card: the share of the drift that comes from the altitude."
   },
-  "pressureCheckExampleTotal": "Total {value} psi",
+  "pressureCheckExampleTotal": "Total",
   "@pressureCheckExampleTotal": {
-    "description": "Example card: the total drift. {value} is the signed pressure.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
+    "description": "Example card: label of the total drift, shown next to the signed pressure."
   },
   "pressureCheckTypesAll": "All",
   "@pressureCheckTypesAll": {
@@ -10791,7 +10885,7 @@
       }
     }
   },
-  "pressureCheckSettingIntro": "When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently.",
+  "pressureCheckSettingIntro": "When adding a setup, checks whether your pump would still read the pressures you last set. Colder or thinner air makes the same sealed chamber read differently. Only shown for bikes with a pressure adjustment.",
   "@pressureCheckSettingIntro": {
     "description": "Introduction of the pressure check settings sheet."
   },
@@ -10819,10 +10913,6 @@
   "@guideCardTitle": {
     "description": "Title of the setup guide card, shown in capitals."
   },
-  "guideCardInfoTooltip": "About recommended values",
-  "@guideCardInfoTooltip": {
-    "description": "Tooltip of the info button on the setup guide card."
-  },
   "guideCardHeadline": "Recommended first values",
   "@guideCardHeadline": {
     "description": "Headline of the setup guide card."
@@ -10834,6 +10924,14 @@
   "guideCardApplyAll": "Apply all",
   "@guideCardApplyAll": {
     "description": "Button that applies every recommended value of the setup guide card."
+  },
+  "guideCardColumnNow": "Now",
+  "@guideCardColumnNow": {
+    "description": "Caption of the column with the value currently set, in the setup guide card."
+  },
+  "guideCardColumnGuide": "Guide",
+  "@guideCardColumnGuide": {
+    "description": "Caption of the column with the value the setup guide recommends."
   },
   "guideCardRidingWeight": "Riding weight",
   "@guideCardRidingWeight": {
@@ -10848,24 +10946,6 @@
     "description": "Line under a component name in the setup guide card. {guide} is the name of the guide.",
     "placeholders": {
       "guide": {
-        "type": "String"
-      }
-    }
-  },
-  "guideCardNow": "Now {value}",
-  "@guideCardNow": {
-    "description": "Current value of an adjustment in the setup guide card. {value} is the formatted value.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
-  },
-  "guideCardInRange": "in range {band}",
-  "@guideCardInRange": {
-    "description": "Part of the status line of a setup guide row. {band} is the range such as 72–80 psi.",
-    "placeholders": {
-      "band": {
         "type": "String"
       }
     }
@@ -10893,6 +10973,15 @@
   "guideDetailConverted": "converted to your dial",
   "@guideDetailConverted": {
     "description": "Part of the detail line of a setup guide row: the clicks were counted from the other end."
+  },
+  "guideDetailFollowsSpring": "{spring, select, pressure{follows your pressure} spring_rate{follows your spring rate} other{follows your spring}}",
+  "@guideDetailFollowsSpring": {
+    "description": "Part of the detail line of a setup guide row: clicks the manual lists by rider weight were looked up for the weight that matches the entered pressure or spring rate.",
+    "placeholders": {
+      "spring": {
+        "type": "String"
+      }
+    }
   },
   "guideDetailFixed": "Fixed value",
   "@guideDetailFixed": {
@@ -10931,6 +11020,15 @@
   "guideIssueOutsideRange": "Outside the published range",
   "@guideIssueOutsideRange": {
     "description": "Reason a setup guide row has no value."
+  },
+  "guideIssueOutsideRangeFor": "{input} is outside the published range",
+  "@guideIssueOutsideRangeFor": {
+    "description": "Reason a setup guide row has no value. {input} is the input the guide looks up with its value, such as \"Riding weight 140 kg\" or \"Pressure 120 psi\".",
+    "placeholders": {
+      "input": {
+        "type": "String"
+      }
+    }
   },
   "guideIssuePlaceholderMax": "Enter your dial's click count (max) first",
   "@guideIssuePlaceholderMax": {
@@ -11031,7 +11129,19 @@
   "@guideInfoClicks": {
     "description": "Explanation in the setup guide info sheet."
   },
-  "guideInfoStatusHeading": "Status",
+  "guideInfoFollowsSpring": "Damping, rebound in particular, has to match your spring, not your weight. Once you enter your pressure or spring rate, clicks the manual lists by weight follow it: they are taken for the weight the manual recommends that value for. So set the spring and check SAG first, then the clicks.",
+  "@guideInfoFollowsSpring": {
+    "description": "Explanation in the setup guide info sheet."
+  },
+  "guideInfoReadHeading": "Reading the card",
+  "@guideInfoReadHeading": {
+    "description": "Heading in the setup guide info sheet."
+  },
+  "guideInfoReadColumns": "Now is what your setup has, Guide what the manual recommends, with its range below. Tap a row to use its recommendation, or Apply all for every row. You can undo it right afterwards.",
+  "@guideInfoReadColumns": {
+    "description": "Explanation of the columns and of tapping a row in the setup guide info sheet."
+  },
+  "guideInfoStatusHeading": "Status legend",
   "@guideInfoStatusHeading": {
     "description": "Heading of the status legend in the setup guide info sheet."
   },
@@ -11043,7 +11153,7 @@
   "@guideLegendInRange": {
     "description": "Legend entry for the In range status."
   },
-  "guideLegendOff": "Further off. Shows how far your value is from the recommendation.",
+  "guideLegendOff": "Further off. The arrow shows which way to move your value: one arrow for a small step, two for a large one. Press and hold it for the exact distance.",
   "@guideLegendOff": {
     "description": "Legend entry for a status that shows a distance."
   },
@@ -12801,5 +12911,319 @@
   "adjustmentTemplateOptionRace": "Race",
   "@adjustmentTemplateOptionRace": {
     "description": "Option of the categorical template person:riding_style. It becomes an option of the adjustment, which is stored as written."
+  },
+  "featuresCloudSync": "Cloud Sync",
+  "@featuresCloudSync": {
+    "description": "Title of the developer toggle for cloud sync on the features page."
+  },
+  "featuresCloudSyncInfo": "Syncs your data between the devices of your account and keeps it backed up in the cloud. Needs a subscription and an account on this device. Still in development.",
+  "@featuresCloudSyncInfo": {
+    "description": "Info text of the cloud sync toggle on the features page."
+  },
+  "featuresAccounts": "Accounts",
+  "@featuresAccounts": {
+    "description": "Title of the developer toggle for accounts on the features page."
+  },
+  "featuresAccountsInfo": "Connecting Strava signs this device in to your account, so all your devices share one subscription and, with Cloud Sync, the same data. Still in development.",
+  "@featuresAccountsInfo": {
+    "description": "Info text of the accounts toggle on the features page."
+  },
+  "settingsAccount": "Account",
+  "@settingsAccount": {
+    "description": "Settings tile that opens the account page."
+  },
+  "settingsAccountSubtitle": "Your devices, sign out or delete the account",
+  "@settingsAccountSubtitle": {
+    "description": "Subtitle of the account tile in the settings."
+  },
+  "accountTitle": "Account",
+  "@accountTitle": {
+    "description": "Title of the account page."
+  },
+  "accountFallbackName": "Your account",
+  "@accountFallbackName": {
+    "description": "Account name on the account page when no Strava athlete name is known."
+  },
+  "accountSignedInThroughStrava": "Signed in through Strava",
+  "@accountSignedInThroughStrava": {
+    "description": "Line under the account name: the account is reached by connecting Strava."
+  },
+  "accountPremiumActive": "Subscription active until {date}",
+  "@accountPremiumActive": {
+    "description": "Subscription status on the account page. {date} is the expiry date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPremiumRenews": "Subscription renews on {date}",
+  "@accountPremiumRenews": {
+    "description": "Subscription status on the account page while the store subscription renews automatically. {date} is the next renewal date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountPremiumInactive": "No active subscription",
+  "@accountPremiumInactive": {
+    "description": "Subscription status on the account page without an active subscription."
+  },
+  "accountSectionCloudSync": "Cloud sync",
+  "@accountSectionCloudSync": {
+    "description": "Section title of the cloud sync status on the account page."
+  },
+  "accountSyncLastSynced": "Last synced {date}",
+  "@accountSyncLastSynced": {
+    "description": "Cloud sync status after a successful sync. {date} is the date and time of the last sync.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSyncNever": "Not synced yet",
+  "@accountSyncNever": {
+    "description": "Cloud sync status before the first sync on this device."
+  },
+  "accountSyncSyncing": "Syncing…",
+  "@accountSyncSyncing": {
+    "description": "Cloud sync status while a sync runs."
+  },
+  "accountSyncOffline": "Waiting for a connection",
+  "@accountSyncOffline": {
+    "description": "Cloud sync status while the device is offline."
+  },
+  "accountSyncError": "Sync failed. It will try again later.",
+  "@accountSyncError": {
+    "description": "Cloud sync status after a failed sync."
+  },
+  "accountSyncPending": "{count, plural, =1{1 change not uploaded yet} other{{count} changes not uploaded yet}}",
+  "@accountSyncPending": {
+    "description": "Number of local changes not uploaded to the cloud yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountSyncNeedsPremium": "Cloud sync needs an active subscription.",
+  "@accountSyncNeedsPremium": {
+    "description": "Cloud sync status when cloud sync is on but there is no active subscription."
+  },
+  "accountSyncNow": "Sync now",
+  "@accountSyncNow": {
+    "description": "Button that starts a cloud sync right away."
+  },
+  "accountSyncDone": "Synced",
+  "@accountSyncDone": {
+    "description": "SnackBar after a manual cloud sync succeeded."
+  },
+  "accountSyncFailed": "Couldn't sync. Try again later.",
+  "@accountSyncFailed": {
+    "description": "SnackBar after a manual cloud sync failed."
+  },
+  "accountSyncOfflineDone": "No connection. Your changes will sync once you're online.",
+  "@accountSyncOfflineDone": {
+    "description": "SnackBar after a manual cloud sync found no connection."
+  },
+  "accountSectionDevices": "Your devices",
+  "@accountSectionDevices": {
+    "description": "Section title of the signed-in devices on the account page."
+  },
+  "accountDevicesLoadFailed": "Your devices could not be loaded.",
+  "@accountDevicesLoadFailed": {
+    "description": "Shown when the device list of the account could not be loaded."
+  },
+  "accountDevicesEmpty": "No signed-in devices",
+  "@accountDevicesEmpty": {
+    "description": "Shown when the account has no signed-in devices."
+  },
+  "accountThisDevice": "This device",
+  "@accountThisDevice": {
+    "description": "Marks the current device in the device list of the account."
+  },
+  "accountDeviceLastSeen": "Last seen {date}",
+  "@accountDeviceLastSeen": {
+    "description": "When a device of the account last opened the app. {date} is a date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceTooltip": "Sign out device",
+  "@accountSignOutDeviceTooltip": {
+    "description": "Tooltip of the button that signs another device out of the account."
+  },
+  "accountSignOutDeviceTitle": "Sign out {device}?",
+  "@accountSignOutDeviceTitle": {
+    "description": "Title of the dialog that confirms signing another device out. {device} is its name.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceBody": "It is signed out the next time the app runs on it, and its Strava activities are removed. With cloud sync on there, its other data is removed too, because the cloud keeps a copy; otherwise it stays on the device. Your other devices stay signed in.",
+  "@accountSignOutDeviceBody": {
+    "description": "Body of the dialog that confirms signing another device out."
+  },
+  "accountSignOutDeviceConfirm": "Sign out",
+  "@accountSignOutDeviceConfirm": {
+    "description": "Destructive button that signs a device out of the account."
+  },
+  "accountSignOutDeviceDone": "{device} was signed out",
+  "@accountSignOutDeviceDone": {
+    "description": "Snackbar after another device was signed out. {device} is its name.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "accountSignOutDeviceFailed": "The device could not be signed out. Check your connection and try again.",
+  "@accountSignOutDeviceFailed": {
+    "description": "Snackbar when signing another device out failed."
+  },
+  "accountSignOut": "Sign out of this device",
+  "@accountSignOut": {
+    "description": "Account page tile that signs this device out of the account."
+  },
+  "accountSignOutSubtitle": "Your other devices stay signed in",
+  "@accountSignOutSubtitle": {
+    "description": "Subtitle of the sign-out tile on the account page."
+  },
+  "accountSignOutTitle": "Sign out of this device?",
+  "@accountSignOutTitle": {
+    "description": "Title of the dialog that confirms signing this device out of the account."
+  },
+  "accountSignOutBody": "Your account, your subscription and your other devices are not affected. Connect Strava again to sign back in.",
+  "@accountSignOutBody": {
+    "description": "Body of the dialog that confirms signing this device out of the account."
+  },
+  "accountRemoveDataFromDevice": "Remove data from this device",
+  "@accountRemoveDataFromDevice": {
+    "description": "Checkbox in the sign-out and delete-account dialogs, on by default."
+  },
+  "accountUnsyncedChangesTitle": "Changes not uploaded",
+  "@accountUnsyncedChangesTitle": {
+    "description": "Title of the dialog that warns about changes not uploaded to the cloud yet before signing out."
+  },
+  "accountUnsyncedChangesBody": "{count, plural, =1{1 change on this device hasn't been uploaded yet and will be lost.} other{{count} changes on this device haven't been uploaded yet and will be lost.}}",
+  "@accountUnsyncedChangesBody": {
+    "description": "Body of the dialog that warns about changes not uploaded yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountUnsyncedChangesConfirm": "Sign out anyway",
+  "@accountUnsyncedChangesConfirm": {
+    "description": "Destructive button of the dialog that warns about changes not uploaded yet."
+  },
+  "accountSignOutDone": "Signed out of this device",
+  "@accountSignOutDone": {
+    "description": "Snackbar after this device was signed out of the account."
+  },
+  "accountSignOutFailed": "Signing out failed. Check your connection and try again.",
+  "@accountSignOutFailed": {
+    "description": "Snackbar when signing this device out failed."
+  },
+  "accountDelete": "Delete account",
+  "@accountDelete": {
+    "description": "Account page tile that deletes the account."
+  },
+  "accountDeleteSubtitle": "Deletes the account and its data in the cloud",
+  "@accountDeleteSubtitle": {
+    "description": "Subtitle of the delete-account tile."
+  },
+  "accountDeleteTitle": "Delete your account?",
+  "@accountDeleteTitle": {
+    "description": "Title of the dialog that confirms deleting the account."
+  },
+  "accountDeleteBody": "This permanently deletes your account, its data in the cloud and your synced Strava activities, and signs out all your devices. The data on your other devices stays on them. It can't be undone.",
+  "@accountDeleteBody": {
+    "description": "Body of the dialog that confirms deleting the account."
+  },
+  "accountDeleteConfirm": "Delete account",
+  "@accountDeleteConfirm": {
+    "description": "Destructive button of the delete-account dialog."
+  },
+  "accountDeleteDone": "Your account was deleted",
+  "@accountDeleteDone": {
+    "description": "Snackbar after the account was deleted."
+  },
+  "accountDeleteFailed": "The account could not be deleted. Check your connection and try again.",
+  "@accountDeleteFailed": {
+    "description": "Snackbar when deleting the account failed."
+  },
+  "accountDeleteSubscriptionTitle": "Your subscription still renews",
+  "@accountDeleteSubscriptionTitle": {
+    "description": "Title of the dialog after deleting the account while a store subscription still renews."
+  },
+  "accountDeleteSubscriptionBody": "Deleting the account doesn't cancel the subscription. Cancel it in the {store} to stop the payments.",
+  "@accountDeleteSubscriptionBody": {
+    "description": "Body of the dialog after deleting the account while a store subscription still renews. {store} is \"Apple App Store\" or \"Google Play Store\".",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "accountNoticeSessionRevoked": "This device was signed out of your account from another device, and its data was removed.",
+  "@accountNoticeSessionRevoked": {
+    "description": "Snackbar when this device was signed out of the account from another device."
+  },
+  "accountNoticeSessionRevokedDataKept": "This device was signed out of your account from another device. Its Strava activities were removed; your other data stays on it.",
+  "@accountNoticeSessionRevokedDataKept": {
+    "description": "Snackbar when this device was signed out of the account from another device and kept its data (cloud sync off)."
+  },
+  "accountNoticeAccountDeleted": "Your account was deleted and this device was signed out. Its Strava activities were removed; your other data stays on it.",
+  "@accountNoticeAccountDeleted": {
+    "description": "Snackbar when the account was deleted (for example on another device)."
+  },
+  "stravaDisconnectBodyAccount": "This revokes the app's access and deletes your synced activities from our secure storage. Strava is disconnected on all devices of your account; none of them is signed out. Your Strava account itself is not affected.",
+  "@stravaDisconnectBodyAccount": {
+    "description": "Body of the Strava disconnect dialog on a device that is signed in to an account."
+  },
+  "stravaErrorOwnedByOtherAccount": "This Strava account belongs to another account. Sign out of this device first, then connect Strava again.",
+  "@stravaErrorOwnedByOtherAccount": {
+    "description": "Error when the Strava athlete belongs to another account of the app."
+  },
+  "stravaErrorLimitReached": "Strava Sync isn't accepting new connections right now. Please try again later.",
+  "@stravaErrorLimitReached": {
+    "description": "Error when no new Strava connections are accepted right now."
+  },
+  "attachmentDownloadNotInCloud": "Not in the cloud yet. Another device may still be uploading it.",
+  "@attachmentDownloadNotInCloud": {
+    "description": "Shown for an attachment this device doesn't have, when the cloud doesn't have it either yet."
+  },
+  "attachmentDownloadOffline": "No connection. Go online to download this file.",
+  "@attachmentDownloadOffline": {
+    "description": "Shown for an attachment this device doesn't have, when there is no connection to download it."
+  },
+  "attachmentDownloadFailed": "Couldn't download this file.",
+  "@attachmentDownloadFailed": {
+    "description": "Shown for an attachment this device doesn't have, when downloading it from the cloud failed."
+  },
+  "attachmentDownloadRetry": "Try again",
+  "@attachmentDownloadRetry": {
+    "description": "Button that tries to download a missing attachment again."
+  },
+  "accountSyncPendingFiles": "{count, plural, =1{1 file not uploaded yet} other{{count} files not uploaded yet}}",
+  "@accountSyncPendingFiles": {
+    "description": "Number of attachment files not uploaded to the cloud yet. {count} is their number.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accountSyncStorageFull": "Your 500 MB of cloud storage is full. New files stay on this device only.",
+  "@accountSyncStorageFull": {
+    "description": "Shown when attachments can't be uploaded because the 500 MB cloud storage is full."
   }
 }

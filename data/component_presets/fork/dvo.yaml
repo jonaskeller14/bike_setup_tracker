@@ -930,6 +930,7 @@ guides:
     label_es: Página de setup DVO Emerald
     label_pt: Página de setup DVO Emerald
     source: https://tech.dvosuspension.com/setup/emerald/
+    spring: pressure
     # Every click and turn is counted clockwise from wide open, as the
     # catalog dials are.
     rules:

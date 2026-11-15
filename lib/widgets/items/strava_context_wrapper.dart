@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../models/timeline_row.dart';
+import '../../theme.dart';
 
 class StravaContextWrapper extends StatelessWidget {
-  static const Color stravaOrange = Color(0xFFFC5200);
   static const double barWidth = 4;
   static const double endInset = 3;
 
@@ -32,7 +32,7 @@ class StravaContextWrapper extends StatelessWidget {
           width: barWidth,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: stravaOrange,
+              color: EntityColors.strava,
               borderRadius: BorderRadius.vertical(
                 top: stravaContext.isFirst && !isFirstAndCurrentSetupInSection
                     ? const Radius.circular(barWidth / 2)

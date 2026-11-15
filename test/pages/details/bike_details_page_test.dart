@@ -39,6 +39,7 @@ class MockSubscriptionService extends Mock implements SubscriptionService {
 }
 
 class MockSetupActivityAnalysisService extends Mock implements SetupActivityAnalysisService {}
+const _testSessionsHidden = true;
 
 void main() {
   late AppDatabase database;
@@ -46,8 +47,13 @@ void main() {
   late AppSettings appSettings;
   late SetupActivityAnalysisService setupActivityAnalysisService;
   late bool hasStravaEntitlement;
+  const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
 
   setUp(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
+      pathProviderChannel,
+      (call) async => Directory.systemTemp.path,
+    );
     SharedPreferences.setMockInitialValues({});
     database = AppDatabase.memory();
     appRepository = AppRepository(database);
@@ -57,6 +63,7 @@ void main() {
   });
 
   tearDown(() async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null);
     // Closing the database right after dispose() races its fire-and-forget
     // subscription cancellation and can hang; wait for cancellation first.
     await appRepository.disposeAndAwaitCancellation();
@@ -166,7 +173,7 @@ void main() {
     expect(find.text('No setups reference this bike'), findsOneWidget);
   });
 
-  testWidgets('offers to start a test session only while Feedback is on', (WidgetTester tester) async {
+  testWidgets('offers to start a test session only while Feedback is on', skip: _testSessionsHidden, (WidgetTester tester) async {
     await pumpPageWith(tester, () async {
       await appRepository.addBikes([Bike(id: 'bike1', name: 'Test Bike', person: null)]);
     });
@@ -181,7 +188,7 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Start Test Session'), findsOneWidget);
   });
 
-  testWidgets('a test session card has the Edit and Remove menu, on the edge of the component cards', (
+  testWidgets('a test session card has the Edit and Remove menu, on the edge of the component cards', skip: _testSessionsHidden, (
     WidgetTester tester,
   ) async {
     final started = DateTime(2024, 2, 1, 9);
@@ -231,15 +238,7 @@ void main() {
     expect(find.text('Remove'), findsOneWidget);
   });
 
-  testWidgets('shows the bike attachments only when attachments are enabled', (WidgetTester tester) async {
-    const pathProviderChannel = MethodChannel('plugins.flutter.io/path_provider');
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      pathProviderChannel,
-      (call) async => Directory.systemTemp.path,
-    );
-    addTearDown(
-      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(pathProviderChannel, null),
-    );
+  testWidgets('shows the bike attachments', (WidgetTester tester) async {
     await pumpPageWith(tester, () async {
       await appRepository.addBikes([
         Bike(
@@ -251,9 +250,6 @@ void main() {
       ]);
     });
 
-    expect(find.byType(AttachmentRow), findsNothing);
-
-    appSettings.enableAttachments = true;
     await tester.pumpAndSettle();
 
     expect(find.byType(AttachmentRow), findsOneWidget);

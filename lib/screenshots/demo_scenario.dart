@@ -102,7 +102,11 @@ enum DemoScenario {
 
   /// The Hightower without rides or tasks, its fork and shock pressures last
   /// set on a mild evening at the hometrails, checked on a cold morning there.
-  pressureCheck('pressure_check');
+  pressureCheck('pressure_check'),
+
+  /// The Hightower with five setups, three of them the same fork baseline, and
+  /// the front tire moved to the rear wheel halfway, ridden at 1.6 bar on both.
+  componentCharts('component_charts');
 
   const DemoScenario(this.id);
 
@@ -172,6 +176,7 @@ enum DemoScenario {
     forecastWeekly => _forecast(json, gapDays: 7),
     forecastMore => _forecast(json, gapDays: 7, idleDays: 2, moreRides: 2),
     forecastOften => _forecast(json, gapDays: 3),
+    componentCharts => _componentCharts(json),
   };
 }
 
@@ -502,6 +507,138 @@ _Json _ridesPerValue(_Json json) {
           ...setup(id),
           'notes': null,
           'bikeAdjustmentValues': {...values, _lyrikReboundId: rebound},
+        },
+    ],
+  };
+}
+
+const String _frontTireId = '1690756e-e782-485d-a490-d267d200ffd7';
+const String _frontTireModelId = 'f737bd0c-ed02-43f6-bf34-06fab34687dc';
+const String _frontTirePressureId = 'da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f';
+const String _rearTireId = '3f6bcbb2-2d4b-45de-9901-3a2b9686509e';
+const String _frontWheelId = '9a8e1dff-ad5a-42cc-8ac2-0da03cb2bc84';
+const String _rearWheelId = 'b5fb0d79-b367-4151-a31d-79329c6e50b5';
+const String _newFrontTireId = '2a67e351-5eb1-4e0b-b700-08bdf3d7f170';
+const String _newFrontTirePressureId = '279c3c2f-fc61-4828-8936-f4c2e876c611';
+
+_Json _installation(String id, String componentId, String type, String? parent, DateTime at) => {
+  'type': type,
+  'id': id,
+  'componentId': componentId,
+  'parent': parent,
+  'dateTimeUTC': at.toIso8601String(),
+  'dateTimeLocal': at.add(const Duration(hours: 2)).toIso8601String().replaceFirst('Z', ''),
+};
+
+_Json _part(String id, String name, String type, List<_Json> installations, {List<_Json> adjustments = const []}) => {
+  'version': 4,
+  'id': id,
+  'isDeleted': false,
+  'lastModified': '2026-06-10T18:00:00.000Z',
+  'name': name,
+  'componentType': type,
+  'installations': installations,
+  'notes': null,
+  'orderIndex': 0,
+  'adjustments': adjustments,
+  'initialDistance': 0.0,
+  'initialElevationGain': 0.0,
+  'initialMovingTime': 0,
+  'initialElapsedTime': 0,
+  'initialActivityCount': 0,
+};
+
+/// Five Hightower setups with the Lyrik on one baseline three times, so the radar
+/// chart draws three lines. Before the fourth setup's day the worn rear tire comes
+/// off, the Assegai moves from the front wheel to the rear and a new front tire
+/// goes on: its pressure histogram has 3 rides on 1.55 bar (front), 7 on 1.6
+/// (4 front, 3 rear, the newest setup's value) and 4 on 1.65 (rear).
+_Json _componentCharts(_Json json) {
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  final result = _dropAdjustments(
+    _dropTaskRules(hightower, _ids(hightower, 'taskRules')),
+    (_, adjustment) => adjustment['id'] == _frontTireModelId,
+  );
+  final setups = _list(result, 'setups');
+  _Json setup(String id) => setups.firstWhere((s) => s['id'] == id);
+  final baseline = setup(_endOfMaySetupId)['bikeAdjustmentValues'] as _Json;
+  final rearTireIds = {
+    for (final a in _list(_list(result, 'components').firstWhere((c) => c['id'] == _rearTireId), 'adjustments'))
+      a['id'],
+  };
+  final onRear = {
+    for (final MapEntry(:key, :value) in baseline.entries)
+      if (!rearTireIds.contains(key)) key: value,
+    _newFrontTirePressureId: 1.5,
+  };
+  // (setup, fork values, Assegai pressure, rides)
+  final windows = [
+    (_strombergSetupId, baseline, 1.55, 3),
+    (_lacBlancSetupId, {...baseline, _lyrikPressureId: 85, _lyrikReboundId: 10}, 1.6, 4),
+    (_endOfMaySetupId, onRear, 1.65, 3),
+    (_steepChuteSetupId, {...onRear, ..._restoreChange}, 1.65, 1),
+    (_backToNeutralSetupId, onRear, 1.6, 3),
+  ];
+  final rotated = DateTime.parse(setup(_endOfMaySetupId)['datetime'] as String).subtract(const Duration(hours: 6));
+  final epoch = DateTime.utc(1970);
+  var withRides = _where(result, 'stravaActivities', (_) => false);
+  for (final (i, (id, _, _, count)) in windows.indexed) {
+    final from = DateTime.parse(setup(id)['datetime'] as String).add(const Duration(days: 1));
+    final to = i + 1 < windows.length
+        ? DateTime.parse(setup(windows[i + 1].$1)['datetime'] as String).subtract(const Duration(days: 1))
+        : from.add(const Duration(days: 9));
+    withRides = _addHightowerRides(
+      withRides,
+      from: from,
+      to: to,
+      movingTimes: List.filled(count, 5400),
+      firstId: 18500000001 + i * 100,
+    );
+  }
+  return {
+    ...withRides,
+    'components': [
+      for (final component in _list(withRides, 'components'))
+        switch (component['id']) {
+          _frontTireId => {
+            ...component,
+            'name': 'Assegai MaxxGrip',
+            'installations': [
+              _installation('e1f9259f-4896-4e1d-9f60-963e823283c2', _frontTireId, 'component', _frontWheelId, epoch),
+              _installation('42773fea-2b0d-4cb2-9e8e-e75f3f463a82', _frontTireId, 'component', _rearWheelId, rotated),
+            ],
+          },
+          _rearTireId => {
+            ...component,
+            'installations': [
+              _installation('5d459b74-e745-458c-9789-3743f33f2835', _rearTireId, 'component', _rearWheelId, epoch),
+              _installation('cc027fbc-81fa-4bd3-9b3b-f6708ce102cd', _rearTireId, 'none', null, rotated),
+            ],
+          },
+          _ => component,
+        },
+      _part(_frontWheelId, 'DT Swiss EX 1700 Front', 'ComponentType.wheelFront', [
+        _installation('a4d98196-758e-46c1-9e33-81ad51695621', _frontWheelId, 'bike', _hightowerId, epoch),
+      ]),
+      _part(_rearWheelId, 'DT Swiss EX 1700 Rear', 'ComponentType.wheelRear', [
+        _installation('9e2158bc-6515-4266-a5ce-44904ad80d7a', _rearWheelId, 'bike', _hightowerId, epoch),
+      ]),
+      _part(
+        _newFrontTireId,
+        'Front Tire',
+        'ComponentType.tire',
+        [_installation('0b6f3f0e-2c8a-4c47-9d2e-5f1a7b3c9e41', _newFrontTireId, 'component', _frontWheelId, rotated)],
+        adjustments: [
+          {..._numerical(_newFrontTirePressureId, 'Pressure', 'bar'), 'min': 0.0},
+        ],
+      ),
+    ],
+    'setups': [
+      for (final (id, values, pressure, _) in windows)
+        {
+          ...setup(id),
+          'notes': null,
+          'bikeAdjustmentValues': {...values, _frontTirePressureId: pressure},
         },
     ],
   };

@@ -1,11 +1,13 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
+import 'package:bike_setup_tracker/models/component/component.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/screenshots/demo_scenario.dart';
 import 'package:bike_setup_tracker/screenshots/screenshot_seed.dart';
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
+import 'package:bike_setup_tracker/services/component_slot.dart';
 import 'package:bike_setup_tracker/services/setup_activity_analysis_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -358,6 +360,34 @@ void main() {
         'StepValue(9)': 7,
         'StepValue(10)': 4,
       });
+    });
+
+    test('component_charts rides the Assegai at 1.6 bar front and rear, the fork baseline three times', () async {
+      await seed(DemoScenario.componentCharts);
+      expect(repository.bikes.values.map((b) => b.name), ['Santa Cruz Hightower']);
+      final histogram = await SetupActivityAnalysisService(
+        database,
+        hierarchy: () => repository.componentHierarchy,
+      ).getAdjustmentHistogram('da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f');
+      const front = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelFront);
+      const rear = ComponentSlot(type: ComponentType.tire, parentType: ComponentType.wheelRear);
+      expect(histogram.slots, [front, rear]);
+      expect({for (final bar in histogram.bars) '${bar.exactValue}': bar.segments}, {
+        'NumericalValue(1.55)': [(slot: front, activityCount: 3)],
+        'NumericalValue(1.6)': [(slot: front, activityCount: 4), (slot: rear, activityCount: 3)],
+        'NumericalValue(1.65)': [(slot: rear, activityCount: 4)],
+      });
+
+      const forkIds = [
+        '22866141-fe35-4cdc-99df-6e1ba91c1033',
+        '2fae94d6-16d2-4b79-ad4b-55f6b9fa6e1d',
+        'aefea436-580a-479b-bcd4-943a93c8e2fb',
+      ];
+      final forks = [
+        for (final setup in (seedJson(DemoScenario.componentCharts)['setups'] as List).cast<Map<String, dynamic>>())
+          [for (final id in forkIds) (setup['bikeAdjustmentValues'] as Map)[id]].join('/'),
+      ];
+      expect(forks, ['84/7/9', '85/7/10', '84/7/9', '88/6/11', '84/7/9']);
     });
 
     for (final (scenario, hoursLeft, minDays, maxDays) in [

@@ -1,0 +1,47 @@
+# scenario: component_charts
+# Demo: equal setups share one line on the radar chart. The Lyrik's details
+# page with all five setups selected: three are the same baseline, so the chart
+# draws three lines, and tapping the newest setup in the legend highlights the
+# whole group.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_radar_equal
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+# RockShox Lyrik Ultimate: double-tap opens its details page
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# The table starts with the 3 newest setups; the radar chart needs all five.
+- tapOn:
+    id: setupTable.selectAll
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- scrollUntilVisible:
+    element:
+      id: componentDetails.radialChart
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+# Back to baseline, the newest: its group of three lights up together.
+- tapOn:
+    id: radialChart.legend.0
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

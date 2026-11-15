@@ -3247,6 +3247,30 @@ abstract class AppLocalizations {
   /// **'Choose language'**
   String get hintRelease46ChooseLanguage;
 
+  /// Body of the what's new hint about Setup Guides.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your fork or shock from the catalog and enter your riding weight: a new setup shows the manual’s starting values and applies them in one tap. A starting point to tune from.'**
+  String get hintRelease48GuidesBody;
+
+  /// Title of the what's new hint page about the chart improvements.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharper charts'**
+  String get hintRelease48ChartsTitle;
+
+  /// Body of the what's new hint page about the radar chart and the histogram.
+  ///
+  /// In en, this message translates to:
+  /// **'On the radar chart, setups with equal values now share one line. The histogram follows the installation stack, so a part’s values are split by where it was mounted, like the front or rear wheel.'**
+  String get hintRelease48ChartsBody;
+
+  /// Snackbar after turning on Setup Guides from the what's new hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup Guides enabled — find the guide card in a new setup'**
+  String get hintSetupGuidesEnabled;
+
   /// Title of the garage gestures hint.
   ///
   /// In en, this message translates to:

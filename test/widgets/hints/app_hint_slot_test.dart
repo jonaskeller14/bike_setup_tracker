@@ -202,4 +202,40 @@ void main() {
     expect(service.statusOf(AppHint.release45), AppHintStatus.completed);
     expect(find.text('Recommended tasks'), findsNothing);
   });
+
+  testWidgets('the build 48 deck turns on Setup Guides, moves on to the charts and ends on Got it', (tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 47});
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 48);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+
+    await tester.pumpWidget(buildSubject());
+    expect(find.text('Setup Guides').hitTestable(), findsOneWidget);
+    expect(settings.enableSetupGuides, isFalse);
+
+    await tester.tap(find.text('Turn on').hitTestable());
+    await tester.pumpAndSettle();
+    expect(settings.enableSetupGuides, isTrue);
+    expect(service.statusOf(AppHint.release48), AppHintStatus.unseen);
+    expect(find.text('Sharper charts').hitTestable(), findsOneWidget);
+
+    await tester.tap(find.text('Got it').hitTestable());
+    await tester.pumpAndSettle();
+    expect(service.statusOf(AppHint.release48), AppHintStatus.dismissed);
+    expect(find.text('Sharper charts'), findsNothing);
+  });
+
+  testWidgets('the build 48 deck offers no button when Setup Guides are already on', (tester) async {
+    SharedPreferences.setMockInitialValues({'app_hint.releaseBaselineBuild': 47});
+    settings.enableSetupGuides = true;
+    service.dispose();
+    service = AppHintService(appRepository: repository, appSettings: settings, currentBuild: 48);
+    await tester.runAsync(service.load);
+    service.update(appRepository: repository, appSettings: settings);
+
+    await tester.pumpWidget(buildSubject());
+    expect(find.text('Setup Guides').hitTestable(), findsOneWidget);
+    expect(find.text('Turn on'), findsNothing);
+  });
 }

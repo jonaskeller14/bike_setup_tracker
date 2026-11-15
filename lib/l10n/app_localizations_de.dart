@@ -1705,6 +1705,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Sprache wählen';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Wähle deine Gabel oder deinen Dämpfer aus dem Katalog und gib dein Fahrergewicht ein: Ein neues Setup zeigt die Startwerte aus dem Handbuch und übernimmt sie mit einem Tipp. Ein Ausgangspunkt zum Feintuning.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Bessere Diagramme';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'Im Netzdiagramm teilen sich Setups mit gleichen Werten jetzt eine Linie. Das Histogramm folgt dem Einbau: Die Werte eines Teils werden danach aufgeteilt, wo es montiert war, etwa am vorderen oder hinteren Laufrad.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Setup-Anleitungen aktiviert – die Karte findest du in einem neuen Setup';
+
+  @override
   String get hintGarageTitle => 'Gesten in der Garage';
 
   @override

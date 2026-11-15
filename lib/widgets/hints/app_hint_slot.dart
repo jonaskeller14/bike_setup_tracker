@@ -14,6 +14,7 @@ import 'getting_started_guide_hint.dart';
 import 'release_44_hint.dart';
 import 'release_45_hint.dart';
 import 'release_46_hint.dart';
+import 'release_48_hint.dart';
 import 'setup_calendar_hint.dart';
 import 'setup_comparison_hint.dart';
 import 'setup_task_hint.dart';
@@ -76,6 +77,10 @@ class AppHintSlot extends StatelessWidget {
       AppHint.release46 => Release46Hint(
         onDismiss: () => unawaited(hintService.dismiss(AppHint.release46)),
         onChooseLanguage: () => _chooseLanguage(context, hintService),
+      ),
+      AppHint.release48 => Release48Hint(
+        onDismiss: () => unawaited(hintService.dismiss(AppHint.release48)),
+        onEnableSetupGuides: () => _enableSetupGuides(context),
       ),
     };
 
@@ -143,6 +148,14 @@ class AppHintSlot extends StatelessWidget {
         settings.localeCode = code;
         unawaited(hintService.complete(AppHint.release46));
       },
+    );
+  }
+
+  /// Leaves the hint pending, so the deck moves on to its next card.
+  Future<void> _enableSetupGuides(BuildContext context) async {
+    context.read<AppSettings>().enableSetupGuides = true;
+    ScaffoldMessenger.of(context).showSnackBar(
+      AppSnackBar.success(context, context.l10n.hintSetupGuidesEnabled),
     );
   }
 

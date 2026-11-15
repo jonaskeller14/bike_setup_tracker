@@ -2137,6 +2137,22 @@
   "@hintRelease46ChooseLanguage": {
     "description": "Button of the what's new hint that opens the language picker."
   },
+  "hintRelease48GuidesBody": "Pick your fork or shock from the catalog and enter your riding weight: a new setup shows the manual’s starting values and applies them in one tap. A starting point to tune from.",
+  "@hintRelease48GuidesBody": {
+    "description": "Body of the what's new hint about Setup Guides."
+  },
+  "hintRelease48ChartsTitle": "Sharper charts",
+  "@hintRelease48ChartsTitle": {
+    "description": "Title of the what's new hint page about the chart improvements."
+  },
+  "hintRelease48ChartsBody": "On the radar chart, setups with equal values now share one line. The histogram follows the installation stack, so a part’s values are split by where it was mounted, like the front or rear wheel.",
+  "@hintRelease48ChartsBody": {
+    "description": "Body of the what's new hint page about the radar chart and the histogram."
+  },
+  "hintSetupGuidesEnabled": "Setup Guides enabled — find the guide card in a new setup",
+  "@hintSetupGuidesEnabled": {
+    "description": "Snackbar after turning on Setup Guides from the what's new hint."
+  },
   "hintGarageTitle": "Gestures in Garage",
   "@hintGarageTitle": {
     "description": "Title of the garage gestures hint."

@@ -1688,6 +1688,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Choose language';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Pick your fork or shock from the catalog and enter your riding weight: a new setup shows the manual’s starting values and applies them in one tap. A starting point to tune from.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Sharper charts';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'On the radar chart, setups with equal values now share one line. The histogram follows the installation stack, so a part’s values are split by where it was mounted, like the front or rear wheel.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Setup Guides enabled — find the guide card in a new setup';
+
+  @override
   String get hintGarageTitle => 'Gestures in Garage';
 
   @override

@@ -1699,6 +1699,20 @@ class AppLocalizationsIt extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Scegli la lingua';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Scegli la tua forcella o il tuo ammortizzatore dal catalogo e inserisci il tuo peso: un nuovo setup mostra i valori di partenza del manuale e li applica con un tocco. Un punto di partenza da cui affinare.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Grafici migliorati';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'Nel grafico radar, i setup con valori uguali ora condividono una linea. L’istogramma segue il montaggio: i valori di un pezzo sono divisi in base a dove era montato, come la ruota anteriore o posteriore.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Guide al setup attivate: la scheda compare in un nuovo setup';
+
+  @override
   String get hintGarageTitle => 'Gesti nel garage';
 
   @override

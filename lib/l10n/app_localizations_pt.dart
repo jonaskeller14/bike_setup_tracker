@@ -1700,6 +1700,20 @@ class AppLocalizationsPt extends AppLocalizations {
   String get hintRelease46ChooseLanguage => 'Escolher idioma';
 
   @override
+  String get hintRelease48GuidesBody =>
+      'Escolha seu garfo ou amortecedor no catálogo e informe seu peso: um novo setup mostra os valores iniciais do manual e os aplica com um toque. Um ponto de partida para ajustar.';
+
+  @override
+  String get hintRelease48ChartsTitle => 'Gráficos melhores';
+
+  @override
+  String get hintRelease48ChartsBody =>
+      'No gráfico radar, setups com valores iguais agora compartilham uma linha. O histograma segue a montagem: os valores de uma peça são divididos conforme onde ela estava montada, como a roda dianteira ou a traseira.';
+
+  @override
+  String get hintSetupGuidesEnabled => 'Guias de setup ativados: o cartão aparece em um novo setup';
+
+  @override
   String get hintGarageTitle => 'Gestos na garagem';
 
   @override

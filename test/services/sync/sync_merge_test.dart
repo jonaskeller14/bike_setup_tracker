@@ -17,7 +17,7 @@ TestSession _session(List<String> setupIds) => TestSession.fromJson(
     'isDeleted': false,
     'lastModified': '2026-01-01T12:00:00.000Z',
     'bike': 'b1',
-    'adjustmentIds': ['num'],
+    'adjustmentIds': const ['num'],
     'startedAtUTC': '2026-01-01T09:00:00.000Z',
     'startedAtLocal': '2026-01-01T10:00:00.000',
     'proposals': {

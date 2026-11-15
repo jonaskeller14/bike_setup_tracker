@@ -388,7 +388,7 @@ class FeedbackDetailsContent extends StatelessWidget {
 
     return _compactCard(
       context,
-      icon: Icons.flag_outlined,
+      icon: Icons.warning_amber_rounded,
       title: context.l10n.feedbackFormAnythingTitle,
       trailing: answered
           ? null

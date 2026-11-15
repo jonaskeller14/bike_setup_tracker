@@ -30,12 +30,12 @@ appId: ${APP_ID}
     file: _pause.yaml
     env:
       MS: 2500
-- scrollUntilVisible:
-    element:
-      id: taskRule.complete.d18b5523-f7a1-46b2-8348-ee765964d139
-    direction: DOWN
-    speed: 20
-    centerElement: true
+# The completed section, where the task went (it doesn't repeat). It shows the
+# newest three only, so the flow scrolls to the section rather than the task.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 30%
+    duration: 2500
 - runFlow:
     file: _stop_recording.yaml
     env:

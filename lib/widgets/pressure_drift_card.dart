@@ -11,6 +11,7 @@ import '../models/context/context_position.dart';
 import '../models/context/context_weather.dart';
 import '../services/pressure_drift_service.dart';
 import '../theme.dart';
+import '../utils/automation_ids.dart';
 import '../utils/localized_number.dart';
 import 'app_snackbar.dart';
 import 'hint_card_parts.dart';
@@ -330,6 +331,7 @@ class _PressureRow extends StatelessWidget {
     if (onSetNowChanged == null) return row;
 
     return Semantics(
+      identifier: AutomationIds.pressureCheckRow(entry.adjustmentId),
       toggled: setNow,
       hint: setNow ? null : context.l10n.pressureCheckSetNowSemantics(name),
       child: InkWell(

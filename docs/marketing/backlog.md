@@ -13,8 +13,8 @@ Every topic carries a pillar and an audience from [`messaging.md`](messaging.md)
 
 **Pick rules.** Spread a batch over at least three pillars and two audiences. Check each topic
 against the latest release build before planning (`messaging.md`, Pillars; `channels.md`): demos
-show only shipped, release-build features, so no ratings, pressure check, setup guides, riders or
-bookmarks; the fork and shock catalog and suggested service tasks only from v1.6.4. A feature that is off by default carries "Switch it on under Settings → Features" in the
+show only shipped, release-build features, so no ratings, riders or bookmarks; the fork and shock
+catalog and suggested service tasks only from v1.6.4, Pressure Check and Setup Guides only from v1.8.0. A feature that is off by default carries "Switch it on under Settings → Features" in the
 post; Strava Sync is the only paid part and is named wherever a topic needs it.
 
 ## Ready: positioning and concept
@@ -84,13 +84,6 @@ never promise to diagnose or fix; the app records and shows, it doesn't advise.
 |---|---|---|---|---|---|
 | Back up to Google Drive | D | MTB | D2 | Settings → Google Drive backup and restore | Android only (guarded at runtime). Post only on Android-facing copy; leave it out of store text |
 | Log a setup from the home screen | R | MTB | new | Long-press the app icon → *Add setup* | Maestro can't drive the home screen, so this would break the "every demo is a Maestro take" policy. Probably an Android-only manual take, or drop |
-
-## Waiting for a release
-
-| Topic | Shipped as | Notes |
-|---|---|---|
-| Pressure check | Not shipped (developer mode only) | Wait until released |
-| Setup guides | Not shipped (developer mode only) | Wait until released |
 
 ## Production ideas
 

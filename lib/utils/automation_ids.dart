@@ -20,6 +20,19 @@ abstract final class AutomationIds {
   /// The language sheet's options, by language code, e.g. `language.option.de`.
   static String languageOption(String code) => 'language.option.$code';
 
+  static const settingsFeatures = 'settings.features';
+  static const featuresSetupGuides = 'features.setupGuides';
+  static const featuresPressureCheck = 'features.pressureCheck';
+
+  /// The "On" option of a feature's on/off sheet.
+  static const featureSheetOn = 'featureSheet.on';
+  static const pressureCheckEnabled = 'pressureCheck.enabled';
+
+  /// A pressure on the setup form's Pressure Check card, by adjustment id.
+  static String pressureCheckRow(String adjustmentId) => 'pressureCheck.row.$adjustmentId';
+  static const setupGuideWeight = 'setupGuide.weight';
+  static const setupGuideApplyAll = 'setupGuide.applyAll';
+
   static const addSetupFab = 'setups.add';
   static const setupListCalendar = 'setups.calendar';
   static const setupListMap = 'setups.map';

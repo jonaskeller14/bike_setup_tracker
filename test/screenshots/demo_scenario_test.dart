@@ -317,6 +317,20 @@ void main() {
       expect((setups.last['bikeAdjustmentValues'] as Map)['aefea436-580a-479b-bcd4-943a93c8e2fb'], 9);
     });
 
+    test('pressure_check checks the Hightower at its hometrails, 3 °C against a mild evening', () async {
+      await seed(DemoScenario.pressureCheck);
+      expect(repository.bikes.values.map((b) => b.name), ['Santa Cruz Hightower']);
+      final json = seedJson(DemoScenario.pressureCheck);
+      expect(json['taskRules'], isEmpty);
+      expect(json['stravaActivities'], isEmpty);
+      final newest = ((json['setups'] as List).cast<Map<String, dynamic>>()
+            ..sort((a, b) => (a['datetime'] as String).compareTo(b['datetime'] as String)))
+          .last;
+      final today = DemoScenario.pressureCheck.weather!;
+      expect((newest['position'] as Map)['altitude'], today.altitude);
+      expect((newest['weather'] as Map)['currentTemperature'] as num, greaterThan(today.temperature + 15));
+    });
+
     test('wet_dry is one loop three times, only the ground and the tire pressures changing', () {
       final setups = (seedJson(DemoScenario.wetDry)['setups'] as List).cast<Map<String, dynamic>>();
       expect(setups.map((s) => (s['weather'] as Map)['condition']), ['Condition.dry', 'Condition.wet', 'Condition.dry']);

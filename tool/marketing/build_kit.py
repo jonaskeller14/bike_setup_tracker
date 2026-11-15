@@ -34,6 +34,10 @@ MUSIC = REPO_ROOT / "tool/marketing/assets/music"
 TEMPLATES = "docs/marketing/templates"
 MOTION = REPO_ROOT / "docs/marketing/motion"
 STANDARD_MOTION = "standard.html"
+# standard.html with a series look (brand.md, Formats), filled in from the Short's "format".
+FORMAT_MOTION = "format.html"
+# Where each look puts the phone after the reveal: (left, top, width) in the frame.
+FORMAT_PHONES = {"howto": (182, 452, 716), "before-after": (215, 590, 650), "rider": (215, 590, 650)}
 CREATIVE = "docs/store/app-store/creative"
 
 SHORT = (f"{TEMPLATES}/video_9x16.html", (1080, 1920))
@@ -255,7 +259,7 @@ class Kit:
         clips = [self.clip(clip_name) for clip_name in short["clips"]]
         joined = self.work / "shorts" / name / "joined.mp4"
         length = rv.join([clip for clip, _, _ in clips], joined)
-        if short["motion"] != STANDARD_MOTION:
+        if short["motion"] not in (STANDARD_MOTION, FORMAT_MOTION):
             lines, _ = self.voiceover(name, short, rv.motion_length(page))
             return page, joined, {"VOICE": self.voice_json(short, lines)}, lines
         offsets = [sum(length - rv.JOIN_FADE for _, _, length in clips[:i]) for i in range(len(clips))]
@@ -268,8 +272,24 @@ class Kit:
                  for (_, edit, _), offset in zip(clips, offsets) for start, end, rect in edit.callout_spans("lift")]
         spec_captions = short.get("voice", {}).get("captions") or [None]
         said = [i for i, text in enumerate(spec_captions) if text or (i == 0 and short.get("hook"))] if lines else []
-        fill = rv.standard_motion_fill(self.chrome, SHORT[0], size, self.params(), joined, captions, lifts, said)
+        layouts, phone = {}, (230, 640, 620)
+        if short["motion"] == FORMAT_MOTION and lines:
+            kind = short["format"]["kind"]
+            phone = FORMAT_PHONES[kind]
+            # The phone waits below the frame until the reveal, so the captions before it have room, down
+            # to the note on a Before / After; a How-to's captions after the hook sit beside the step number.
+            reveal = lines[short["format"].get("after", 1)][3]
+            before = "note" if kind == "before-after" else "tall"
+            layouts = {i: "step" if kind == "howto" and start >= reveal else before
+                       for i, (start, _, _) in enumerate(captions) if start < reveal or kind == "howto"}
+        fill = rv.standard_motion_fill(self.chrome, SHORT[0], size, self.params(), joined, captions, lifts, said,
+                                       layouts, phone)
         fill["VOICE"] = self.voice_json(short, lines)
+        if short["motion"] == FORMAT_MOTION:
+            fill["FORMAT"] = json.dumps(short["format"], ensure_ascii=False)
+            left, top, width = phone
+            fill["PHONE"] = (f"#move {{ left: {left}px; top: {top}px; width: {width}px; height: {round(width * 1266 / 620)}px; }} "
+                             f"#move .phone {{ --pw: {width}; }}")
         return page, joined, fill, lines
 
     def voice_json(self, short, lines):

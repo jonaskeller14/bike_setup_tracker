@@ -374,6 +374,7 @@ def motion_project(page, clip, work, fill=None):
                          (page.with_name("motion.js"), "motion.js"),
                          (root / "docs/store/app-store/iPhone-17-Pro-Max/frame.png", "frame.png"),
                          (root / "assets/icons/logo_1024.png", "logo_1024.png"),
+                         (root / "assets/icons/logo_1024_white_transparent.png", "logo_1024_white_transparent.png"),
                          (root / "tool/marketing/node_modules/gsap/dist/gsap.min.js", "gsap.min.js")):
         shutil.copy(source, assets / name)
     shutil.copytree(root / "tool/marketing/assets/fonts", assets / "fonts")
@@ -407,17 +408,22 @@ def motion_markup(text):
     return re.sub(r"\*([^*]+)\*", r"<em>\1</em>", escaped)
 
 
-def standard_motion_fill(chrome, template, size, params, clip, captions, lifts, said=()):
+def standard_motion_fill(chrome, template, size, params, clip, captions, lifts, said=(), layouts=None, phone=(230, 640, 620)):
     """The {{…}} of motion/standard.html. captions: (start, end, text); lifts: (start, end, rect), in
-    Short seconds and recording pixels; said: per caption, the voice line it shows, if any. Each caption
-    goes through the layout's own template, so its size and the safe-area check are the same as on a still."""
+    Short seconds and recording pixels; said: per caption, the voice line it shows, if any; layouts: per
+    caption index, its box in format.html and video_9x16.html ("tall" while the phone waits below the
+    frame, "note" above a Before / After note, "step" beside a How-to step number); phone: (left, top, width) of the phone in the frame.
+    Each caption goes through the layout's own template, so its size and the safe-area check are the
+    same as on a still."""
+    layouts = layouts or {}
     length = duration(clip)
     rows = []
     for i, (start, end, text) in enumerate(captions):
         # Two clips overlap while they crossfade; their captions don't.
         if i + 1 < len(captions):
             end = min(end, captions[i + 1][0])
-        query = "?" + urlencode({**params, "caption": text})
+        layout = layouts.get(i)
+        query = "?" + urlencode({**params, "caption": text, **({layout: ""} if layout else {})})
         dom = render_images.dump_dom(chrome, size, render_images.page_url(
             template, size, render_images.with_query(query, "check&" + render_images.safe_query(size))))
         problems = render_images.dom_problems(dom)[0]
@@ -426,13 +432,13 @@ def standard_motion_fill(chrome, template, size, params, clip, captions, lifts, 
         tag = re.search(r'<h1[^>]*\bcaption\b[^>]*>', dom)[0]
         fitted = re.search(r'font-size:\s*([0-9.]+)px', tag)
         line = f'data-line="{said[i]}" ' if i < len(said) else ""
-        rows.append(f'  <h1 class="caption hl" data-words {line}data-from="{start:.3f}" data-to="{end:.3f}" '
+        rows.append(f'  <h1 class="caption hl{" " + layout if layout else ""}" data-words {line}data-from="{start:.3f}" data-to="{end:.3f}" '
                     f'style="font-size: {fitted[1] if fitted else CAPTION_SIZE}px">{motion_markup(text)}</h1>')
-    # The phone's place in video_9x16.html.
-    frame_scale = 620 / 1470
+    phone_left, phone_top, phone_width = phone
+    frame_scale = phone_width / 1470
     clip_w, clip_h = video_size(clip)
     scale = 1320 * frame_scale / clip_w
-    screen = (230 + 75 * frame_scale, 640 + 66 * frame_scale, scale)
+    screen = (phone_left + 75 * frame_scale, phone_top + 66 * frame_scale, scale)
     boxes = []
     for i, (start, end, (x, y, w, h)) in enumerate(lifts):
         lift, lw, lh, cx, cy = lift_geometry((x, y, w, h), size, screen)

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../icons/simple_icons.dart';
 import '../../l10n/l10n.dart';
 import '../../l10n/markup_text.dart';
+import '../../utils/automation_ids.dart';
 import 'sheet_header.dart';
 
 /// Settings sheet with Off/On radios; resolves to the selected value, or null if dismissed.
@@ -135,7 +136,10 @@ class _PresetsSettingSheet extends StatelessWidget {
             child: Column(
               children: [
                 RadioListTile(value: false, title: Text(l10n.valueOff)),
-                RadioListTile(value: true, title: Text(l10n.valueOn)),
+                Semantics(
+                  identifier: AutomationIds.featureSheetOn,
+                  child: RadioListTile(value: true, title: Text(l10n.valueOn)),
+                ),
               ],
             ),
           ),

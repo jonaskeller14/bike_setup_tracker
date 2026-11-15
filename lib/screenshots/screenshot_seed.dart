@@ -86,6 +86,8 @@ class ScreenshotSeed {
           await preferences.setBool(prefKey, value);
         case String():
           await preferences.setString(prefKey, value);
+        case List<String>():
+          await preferences.setStringList(prefKey, value);
       }
     }
     if (localeCode != null) await preferences.setString('app_settings.localeCode', localeCode);

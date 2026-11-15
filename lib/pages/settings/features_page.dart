@@ -13,6 +13,7 @@ import '../../models/filters/layer_filter.dart';
 import '../../models/task/task_rule.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/automation_ids.dart';
 import '../../widgets/sheets/checkbox_group.dart';
 import '../../widgets/sheets/feature_setting_sheet.dart';
 import '../../widgets/sheets/installation_timeline_hint_sheet.dart';
@@ -166,28 +167,36 @@ class FeaturesPage extends StatelessWidget {
                     ),
                 ],
               ),
-              _FeatureToggleTile(
-                enabled: appSettings.enableComponentPresets,
-                disabledSubtitle: l10n.featuresRequiresComponentPresets,
-                icon: Icons.tips_and_updates_outlined,
-                title: l10n.featuresSetupGuides,
-                value: appSettings.enableSetupGuides,
-                onChanged: (v) => appSettings.enableSetupGuides = v,
-                sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
-              ),
-              ListTile(
-                leading: const Icon(Icons.tire_repair),
-                title: Text(l10n.featuresPressureCheck),
-                subtitle: Text(
-                  appSettings.enablePressureAssistant
-                      ? l10n.featuresPressureCheckOn(
-                          appSettings.pressureCheckThresholdPercent,
-                          pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, l10n),
-                        )
-                      : l10n.valueOff,
+              Semantics(
+                container: true,
+                identifier: AutomationIds.featuresSetupGuides,
+                child: _FeatureToggleTile(
+                  enabled: appSettings.enableComponentPresets,
+                  disabledSubtitle: l10n.featuresRequiresComponentPresets,
+                  icon: Icons.tips_and_updates_outlined,
+                  title: l10n.featuresSetupGuides,
+                  value: appSettings.enableSetupGuides,
+                  onChanged: (v) => appSettings.enableSetupGuides = v,
+                  sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
                 ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => showPressureCheckSettingSheet(context),
+              ),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.featuresPressureCheck,
+                child: ListTile(
+                  leading: const Icon(Icons.tire_repair),
+                  title: Text(l10n.featuresPressureCheck),
+                  subtitle: Text(
+                    appSettings.enablePressureAssistant
+                        ? l10n.featuresPressureCheckOn(
+                            appSettings.pressureCheckThresholdPercent,
+                            pressureCheckComponentTypesSummary(appSettings.pressureCheckHiddenComponentTypes, l10n),
+                          )
+                        : l10n.valueOff,
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => showPressureCheckSettingSheet(context),
+                ),
               ),
               if (appSettings.developerMode)
                 _FeatureToggleTile(

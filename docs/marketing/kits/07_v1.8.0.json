@@ -1,0 +1,173 @@
+{
+  "music": "the_mountain-app-184141.mp3",
+  "voice": "07_v1.8.0",
+  "recordings": "build/marketing/raw/ios",
+  "clips": {
+    "demo_setup_guide": {
+      "title": "Setup Guides",
+      "segments": [[0, 10.6, 2.944], [10.6, 16.3, 1.966], [29.6, 37.9, 2.862], [37.9, 38.6, 1], [66.0, 68.0, 1], [71.8, 73.6, 1.5], [76.7, 82.6, 1], [82.6, 85.5, 1]]
+    },
+    "demo_setup_guide_before": {
+      "source": "build/marketing/raw/ios/demo_setup_guide.mp4",
+      "title": "Setup Guides",
+      "segments": [[57.0, 58.0, 0.13], [58.0, 62.4, 4.4], [62.4, 67.4, 2], [67.4, 72.0, 1.917], [72.0, 73.8, 2.5], [76.7, 82.6, 1], [82.6, 85.2, 1]]
+    },
+    "demo_pressure_check": {
+      "title": "Pressure Check",
+      "segments": [[0, 12.6, 4.345], [12.6, 21.6, 3.333], [29.4, 32, 1], [32, 35.8, 0.392], [35.8, 40.3, 0.95]],
+      "callouts": [{"t0": 32.31, "t1": 35.68, "rect": [660, 1840, 570, 160], "mode": "lift"}]
+    },
+    "demo_pressure_check_before": {
+      "source": "build/marketing/raw/ios/demo_pressure_check.mp4",
+      "title": "Pressure Check",
+      "segments": [[29.9, 30.6, 0.0909], [30.6, 35.8, 0.53], [35.8, 40.3, 0.95]],
+      "callouts": [{"t0": 32.6, "t1": 35.6, "rect": [660, 1840, 570, 160], "mode": "lift"}]
+    },
+    "demo_add_setup": {
+      "title": "Record a Setup",
+      "segments": [[0, 1.3, 0.394], [1.3, 6.5, 1.37], [6.5, 10.5, 2.07], [10.5, 15.3, 1.5], [15.3, 18.3, 3], [18.3, 23.6, 4], [23.6, 27.9, 0.8]]
+    },
+    "demo_analysis": {
+      "title": "Season charts",
+      "segments": [[0, 2.3, 0.676], [2.3, 8.0, 2.11], [8.0, 15.0, 2], [15.0, 17.0, 2.5], [17.0, 21.2, 1.6], [21.2, 26.5, 1.57], [26.5, 31.8, 1.05]]
+    },
+    "demo_setup_history": {
+      "title": "Setup history",
+      "segments": [[0, 0.5, 0.082], [0.5, 10.5, 1.45], [10.5, 12.6, 1.5], [12.6, 16.9, 0.7]]
+    },
+    "demo_setup_restore": {
+      "title": "Restore a setup",
+      "segments": [[0, 0.4, 0.105], [0.4, 6.4, 0.77], [6.4, 10.4, 1.7], [10.4, 18, 2], [28.8, 34, 1.12]]
+    },
+    "demo_tasks": {
+      "title": "Service tasks",
+      "segments": [[0, 2.0, 0.476], [2.0, 5.0, 0.706], [5.0, 9.3, 3.44], [9.3, 12.5, 2.8], [12.5, 18.0, 4], [18.0, 22.1, 0.49]]
+    },
+    "demo_downhill": {
+      "title": "Downhill setups",
+      "segments": [[0, 1, 0.185], [1, 6, 2.5], [6, 10, 1.48], [13, 17.5, 1.96], [17.5, 19.4, 1.9], [27.2, 33, 1.29], [33, 37.6, 1.06]]
+    }
+  },
+  "shorts": {
+    "howto-guide": {
+      "title": "How to set your fork to the manual's starting values",
+      "clips": ["demo_setup_guide"],
+      "hook": "How to set your *fork* to the manual's starting values",
+      "motion": "format.html",
+      "format": {"kind": "howto", "label": "How to · 01", "steps": [1, 2, 3]},
+      "voice": {
+        "lines": ["batch-4#11"],
+        "at": [0.3, 3.5, 7.2, 9.5, 12.7, 17.5],
+        "captions": [null, "Turn on *Setup Guides*", "Your *fork* from the catalog", "Weight: *78 kg*", "Apply all: *76 psi*", "Next time, *skip the manual*"]
+      }
+    },
+    "howto-pressure": {
+      "title": "How to check your fork pressure before a ride",
+      "clips": ["demo_pressure_check"],
+      "hook": "How to check your *fork pressure* before a ride",
+      "motion": "format.html",
+      "format": {"kind": "howto", "label": "How to · 02", "steps": [1, 2, 5]},
+      "voice": {
+        "lines": ["batch-4#12"],
+        "at": [0.3, 2.7, 6.2, 9.0, 12.8, 17.8],
+        "captions": [null, "*Pressure Check*, on", "A new setup, *before you ride*", "You set *84 psi*", "This morning: *78.5*", "Pump back to *84*"]
+      }
+    },
+    "howto-log": {
+      "title": "How to log a fork setup in 20 seconds",
+      "clips": ["demo_add_setup"],
+      "hook": "How to log a *fork setup* in 20 seconds",
+      "motion": "format.html",
+      "format": {"kind": "howto", "label": "How to · 03", "steps": [1, 2, 4]},
+      "voice": {
+        "lines": ["batch-4#13"],
+        "at": [0.3, 3.0, 7.2, 10.0, 13.6, 15.5],
+        "captions": [null, "Add setup: *weather's in*", "Rebound, *9 clicks*", "Pressure, *84 psi*", "Name it, *save*", "Next time: *what you rode*"]
+      }
+    },
+    "howto-charts": {
+      "title": "How to see how your fork setup changed this season",
+      "clips": ["demo_analysis"],
+      "hook": "How to see how your *fork setup* changed this season",
+      "motion": "format.html",
+      "format": {"kind": "howto", "label": "How to · 04", "steps": [1, 2, 4]},
+      "voice": {
+        "lines": ["batch-4#14"],
+        "at": [0.3, 3.2, 6.1, 9.7, 13.0, 16.4],
+        "captions": [null, "Your *fork*, your setups", "Each setting, *one line*", "Tap *LSC*, on its own", "Similar setups *stand out*", "Next time: *what changed*"]
+      }
+    },
+    "ba-pressure": {
+      "title": "You set your fork pressure on a warm evening. Is it still right on a cold morning?",
+      "clips": ["demo_pressure_check_before"],
+      "hook": "You set your *fork pressure* on a warm evening. Is it still right on a cold morning?",
+      "motion": "format.html",
+      "format": {"kind": "before-after", "label": "Before / After", "note": ["Set 84 psi, 20 °C", "Now 3 °C...", "still 84??"], "after": 2},
+      "voice": {
+        "lines": ["batch-5#15"],
+        "at": [0.3, 5.7, 7.7, 11.5, 14.2, 17.4],
+        "captions": [null, "No air *got out*", "Cold air *shrinks*", "You set *84 psi*, warm evening", "Your pump: *78.5*", "Pump back to *84*"]
+      }
+    },
+    "ba-guide": {
+      "title": "Still looking up your fork's starting values in the manual?",
+      "clips": ["demo_setup_guide_before"],
+      "hook": "Still looking up your *fork's* starting values in the manual?",
+      "motion": "format.html",
+      "format": {"kind": "before-after", "label": "Before / After", "after": 2, "table": {"source": "RockShox Front Suspension Specifications 2026", "title": "Lyrik · air pressure (psi)", "head": ["Rider (lb)", "140 mm", "150 mm", "160 mm"], "rows": [["120–140", "60–70", "50–60", "50–60"], ["140–160", "70–80", "60–70", "60–70"], ["160–180", "80–90", "70–80", "70–80"], ["180–200", "90–100", "80–90", "80–90"], ["200–220", "100–110", "90–100", "90–100"], ["Volume spacers", "1", "0", "0"]], "circle": 2, "scribble": "78 kg = ? lb"}},
+      "voice": {
+        "lines": ["batch-5#16"],
+        "at": [0.3, 3.5, 7.7, 10.4, 13.6, 18.2],
+        "captions": [null, "A PDF, *in pounds*", "Type your *weight*", "*78 kg*, with gear", "Apply all: *76 psi*", "No more *kilos to pounds*"]
+      }
+    },
+    "ba-notebook": {
+      "title": "Still writing your fork clicks on tape?",
+      "clips": ["demo_setup_history"],
+      "hook": "Still writing your *fork clicks* on tape?",
+      "motion": "format.html",
+      "format": {"kind": "before-after", "label": "Before / After", "note": ["Reb 9? or 10??", "84 psi... or 85", "LSC 7 (wet?)"], "after": 2},
+      "voice": {
+        "lines": ["batch-5#17"],
+        "at": [0.3, 2.7, 6.1, 9.3, 13.1, 16.3],
+        "captions": [null, "Tape comes off. *Nine or ten?*", "Now *every click* is saved", "Later: rebound *9 → 10*", "Compare two: *what changed*", "Next time, *you know why*"]
+      }
+    },
+    "for-racers": {
+      "title": "Why every racer needs a fork setup history",
+      "clips": ["demo_setup_restore"],
+      "hook": "Why every racer needs a *fork setup history*",
+      "motion": "format.html",
+      "format": {"kind": "rider", "word": "Racers", "color": "#ff5a1f", "label": "For racers", "size": 170},
+      "voice": {
+        "lines": ["batch-6#18"],
+        "at": [0.3, 3.8, 7.9, 11.7, 14.6, 17.8],
+        "captions": [null, "Calm on the rocks *at Finale*", "Firmer fork: *harsh on the roots*", "The *Finale setup*, restored", "Your clicks, *back to what worked*", "Next race: *a setup you trust*"]
+      }
+    },
+    "for-mechanics": {
+      "title": "Why every home mechanic needs a bike service log",
+      "clips": ["demo_tasks"],
+      "hook": "Why every home mechanic needs a *bike service log*",
+      "motion": "format.html",
+      "format": {"kind": "rider", "word": "Mechanics", "color": "#4ba3ff", "label": "For home mechanics", "size": 100},
+      "voice": {
+        "lines": ["batch-6#19"],
+        "at": [0.3, 4.2, 7.3, 9.7, 11.6, 15.7],
+        "captions": [null, "The BB *creaks*", "Fix it, *tick it off*", "Then *what's due next*", "Rear pads: *every 700 km*", "Next creak: *you know when*"]
+      }
+    },
+    "for-downhill": {
+      "title": "Why every downhill rider needs a suspension setup for each track",
+      "clips": ["demo_downhill"],
+      "hook": "Why every downhill rider needs a *suspension setup* for each track",
+      "motion": "format.html",
+      "format": {"kind": "rider", "word": "Downhill", "color": "#c6f432", "label": "For downhill riders", "size": 112},
+      "voice": {
+        "lines": ["batch-6#20"],
+        "at": [0.3, 5.4, 9.5, 13.4, 17.9],
+        "captions": [null, "Raced the World Cup track, *in the rain*", "You saved *the dry Speedster* too", "*2 more psi* in the dry, a click firmer", "Next rain: *start here*"]
+      }
+    }
+  }
+}

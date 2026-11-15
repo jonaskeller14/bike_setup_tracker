@@ -411,4 +411,31 @@ nodes:
     await tester.tap(find.text('Add riding weight to Rider'));
     expect(added, 1);
   });
+
+  testWidgets('tapping the unit switches the weight field to pounds and reports kilograms', (tester) async {
+    final weights = <double?>[];
+    await pumpCard(
+      tester,
+      guided: guided(),
+      inputs: const GuideInputs(),
+      weightInput: GuideWeightInput(
+        weight: 80,
+        unit: const GuideInputs().riderWeightUnit,
+        onChanged: weights.add,
+        hint: 'Only used for these recommendations',
+      ),
+    );
+
+    await tester.tap(find.text('kg'));
+    await tester.pump();
+    expect(find.text('lb'), findsOneWidget);
+    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '176.4');
+
+    await tester.enterText(find.byType(TextField), '176,4');
+    expect(weights.last, closeTo(80, 0.05));
+
+    await tester.tap(find.text('lb'));
+    await tester.pump();
+    expect(find.text('kg'), findsOneWidget);
+  });
 }

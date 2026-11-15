@@ -16,7 +16,18 @@ const Motion = (() => {
         splitWords(child);
         continue;
       }
-      child.replaceWith(...child.textContent.split(/(\s+)/).filter(Boolean).map((part) => {
+      const parts = child.textContent.split(/(\s+)/).filter(Boolean);
+      // Each word is an inline-block, so text that touches an <em> ("*76 psi*,") could wrap away from
+      // it: it joins the em's last word instead, in its own colour.
+      const last = child.previousSibling && child.previousSibling.nodeType === Node.ELEMENT_NODE
+        && [...child.previousSibling.querySelectorAll('.w')].pop();
+      if (last && parts[0].trim()) {
+        const tail = document.createElement('span');
+        tail.textContent = parts.shift();
+        tail.style.color = getComputedStyle(node).color;
+        last.append(tail);
+      }
+      child.replaceWith(...parts.map((part) => {
         if (!part.trim()) return document.createTextNode(' ');
         const span = document.createElement('span');
         span.className = 'w';

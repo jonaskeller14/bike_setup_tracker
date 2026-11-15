@@ -113,7 +113,8 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
       "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
     },
-    "motion": "restore.html"  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+    "motion": "restore.html",  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
+    "format": { "kind": "howto", "label": "How to · 01", "steps": [{"line": 1, "text": "Switch on"}] }  // with "motion": "format.html": the series look, fields in its header
   } },
   "walkthrough": ["clip", "…"],
   "gifs": ["clip", "…"],
@@ -233,7 +234,9 @@ tool/marketing/node_modules/.bin/hyperframes preview --kill-all       # stop the
   `tool/marketing/node_modules/.bin/hyperframes telemetry disable` once per machine, and run it from a
   project folder, because it reads a `.env` in the current directory. Its agent skills aren't installed: they
   send usage pings and point to HeyGen's paid services.
-- **Licenses:** Hyperframes is Apache 2.0, Archivo (`assets/fonts/`) SIL OFL. GSAP uses its own
+- **Licenses:** Hyperframes is Apache 2.0. The fonts in `assets/fonts/` are SIL OFL: Archivo (`OFL.txt`), and for
+  the formats Space Grotesk (© 2020 The Space Grotesk Project Authors), JetBrains Mono (© 2020 The JetBrains Mono
+  Project Authors) and Caveat (© 2014 The Caveat Project Authors), downloaded from Google Fonts. GSAP uses its own
   [no-charge license](https://gsap.com/standard-license): commercial use is allowed, and it restricts tools that
   build animations without code.
 

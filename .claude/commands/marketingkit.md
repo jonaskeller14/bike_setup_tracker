@@ -59,7 +59,23 @@ Every hook and headline comes from the bank in `messaging.md`. A hook marked `ne
 or a release headline, goes into the bank first: EN + DE, an ID in its pillar, bike context in the
 line, a question for hooks. No headline repeats a store-funnel headline (Surfaces table).
 
-## 3. Record
+## 3. Voiceover script
+
+If the kit uses voice, the script comes first and is settled before anything is recorded or cut: the video follows
+the script, not the other way round. Re-timing cuts and captions to a rewritten script costs far more than a
+rewrite on paper.
+- Write `<kit>.vo.md` (facts from the app and the sample, the takes table) and the scripts, following `messaging.md`,
+  Voiceover scripts. For a How to, walk the flow in the app (or an existing recording) and write every screen change
+  into the steps: where the rider is, and what they tap to get to the next screen.
+- Show the scripts to the maintainer as plain text and revise until they approve them. Only then write the
+  `batch-N.md` texts in `tool/marketing/assets/voice/<kit>/` (at most 2,000 characters each; never edit a batch
+  once its MP3 exists), and **stop**: the maintainer generates the MP3s in speechma.
+- Continue after they say the batches exist: `python3 tool/marketing/voice.py <kit>/batch-N --words` writes the word
+  times that captions and drawings follow.
+- The approved script drives the recording: the flow does the steps in the script's order, one paragraph per step,
+  with pauses long enough for each, so the cut doesn't have to stretch or skip screens.
+
+## 4. Record
 
 For a new or changed flow, follow `tool/screenshots/README.md` (Demo scenarios, Adding a screen):
 the flow in `tool/screenshots/flows/demo_*.yaml`, the scenario in `lib/screenshots/demo_scenario.dart`
@@ -77,7 +93,7 @@ fixed timings. Before recording:
 Then `tool/screenshots/run_ios.sh iphone --demo --flows a,b` (add `--skip-build` only when neither
 the app code nor the sample changed). Re-record only the affected flows.
 
-## 4. Write the kit
+## 5. Write the kit
 
 `docs/marketing/kits/<kit>.json`, in the shape documented in `tool/marketing/README.md` (Kit file);
 copy `02_showcase.json` or `03_features.json` as the starting point.
@@ -93,13 +109,11 @@ copy `02_showcase.json` or `03_features.json` as the starting point.
 - Images (release mode): `release` and `changed` slides in `carousel` and `square`, a thumbnail. The
   `release` slide opens `carousel`, `square` and `vertical`, because it is the preview image; its
   `version` is `X.Y.Z`, without the `v`.
-- Voiceover is optional. If the kit uses it, write `<kit>.vo.md` and the `batch-N.md` texts in
-  `tool/marketing/assets/voice/<kit>/` (rules in `messaging.md`, Voiceover scripts), then **stop**: the
-  maintainer generates the MP3s in speechma. Continue after they say the batches exist; check
-  them with `python3 tool/marketing/voice.py <kit>/batch-N --words`, which writes the word times that captions
-  and drawings follow. Hooks stay word for word; other captions show the key idea and may differ from the voice.
+- Voice (step 3): set `voice.at` and time the segments so each tap lands on the word that names it. Hooks stay word
+  for word; other captions show the key idea and may differ from the voice, but start each one on a word said early
+  in its line (a caption sits empty until its first spoken word).
 
-## 5. Render
+## 6. Render
 
 `python3 tool/marketing/build_kit.py <kit>` (the kit is new, so the full run clears only its own
 folder). It must exit 0; on `FAIL` lines, fix the kit and rebuild, don't continue. It writes
@@ -110,7 +124,7 @@ Check every video frame by frame (1 fps tiles) and fix what you find before show
 Then `python3 tool/marketing/review_kit.py <kit> --open` (the `/reviewkit` page) and hand the
 maintainer the path, plus the **Copy feedback** instruction: pasted feedback goes to `/reviewkit`.
 
-## 6. Post files
+## 7. Post files
 
 - `docs/marketing/kits/<kit>.posts.md`: the drafts per channel, in the format of
   `02_showcase.posts.md`. Channels, languages and limits come from `channels.md`: English everywhere
@@ -128,7 +142,7 @@ maintainer the path, plus the **Copy feedback** instruction: pasted feedback goe
   (`gh issue list --search "vX.Y.Z: Marketing in:title"`; `gh issue edit` the body, keeping its
   other items as they are).
 
-## 7. Report
+## 8. Report
 
 Summarize: the kit and its outputs, what was re-recorded, the post files with dates, rows skipped
 and why, and what's open (voice batches, Shorts to re-time, opt-in notes). Remind the maintainer of
@@ -139,7 +153,7 @@ that now have a Short: delete their rows from `backlog.md`. Ask before staging o
 - Never post, upload, stage or commit. Never overwrite an existing recording or kit without asking.
 - Never put store numbers from `docs/marketing/metrics/` into any file, issue or post.
 - Never claim the app finds, recommends or tunes a setting (messaging.md, Is / is not).
-- No ratings, pressure check, setup guides, riders or bookmarks in any demo or post. The fork and
-  shock catalog and suggested service tasks only from v1.6.4, and brand names only as
-  `channels.md` allows (plain text, disclaimer).
+- No ratings, riders or bookmarks in any demo or post. The fork and shock catalog and suggested
+  service tasks only from v1.6.4, Pressure Check and Setup Guides only from v1.8.0 (opt-in), and
+  brand names only as `channels.md` allows (plain text, disclaimer).
 - No Claude or Co-Authored-By attribution in anything written here.

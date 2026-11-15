@@ -120,6 +120,7 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `wet_dry` | The Grizl with one loop three times: dry, wet, dry, only the tire pressures and the ground changing |
 | `part_km` | The Hightower and the Session with their parts and rides, no setups or tasks, the installation timeline on: the pedals moved across and back |
 | `rides_per_value` | The Hightower with four setups that differ in the Lyrik's rebound only, and 14 rides between them |
+| `pressure_check` | The Hightower without rides or tasks; tires hidden from Pressure Check. Its Add Setup form gets 3 °C and 320 m (`DemoScenario.weather`, through `ScreenshotWeatherService` and `ScreenshotElevationService`) against the 20 °C of the setup that last set the fork |
 | `forecast_weekly`, `forecast_more`, `forecast_often` | The Hightower with *Fork lowers service* at 36 of 50 h, ridden once a week or every three days; `forecast_more` is the weekly rider after two more rides this week, at 40 of 50 h |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
@@ -222,6 +223,9 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_part_km` | `part_km` | The garage with the pedals among the parts, their km and rides, and the History of the move |
 | `demo_rides_per_value` | `rides_per_value` | The rides between the setups in the history, then the newest setup's Rebound name with its histogram of rides per value |
 | `demo_forecast_weekly`, `demo_forecast_more`, `demo_forecast_often` | `forecast_*` | The calendar's month view from today to where the fork service's prediction lands at that pace of riding |
+| `demo_setup_guide` | `one_bike_no_components` | Settings → Features → Setup Guides on, the Lyrik from the catalog, then a new setup: riding weight 78 kg and Apply all |
+| `demo_pressure_check` | `pressure_check` | Settings → Features → Pressure Check on, then a new setup on a 3 °C morning at the hometrails: the fork's row marked pumped, saved as "Cold morning" |
+| `demo_downhill` | `full` | The Trek Session's history, then Leogang wet and dry compared |
 | `demo_language` | `one_bike_no_components` | Settings → Preferences → Language, the page relabelling itself through French, Italian, Spanish, Portuguese and German, then the Hightower's fork from the catalog with its adjusters in German |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.

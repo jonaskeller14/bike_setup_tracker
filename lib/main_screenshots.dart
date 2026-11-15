@@ -22,6 +22,7 @@ import 'screenshots/screenshot_seed.dart';
 import 'screenshots/screenshot_services.dart';
 import 'screenshots/touch_indicator.dart';
 import 'services/app_hint_service.dart';
+import 'services/elevation_service.dart';
 import 'services/weather_service.dart';
 
 void main() async {
@@ -47,6 +48,10 @@ void main() async {
   final scenario = scenarioMarker.existsSync()
       ? DemoScenario.fromId(scenarioMarker.readAsStringSync().trim())
       : DemoScenario.full;
+  if (scenario.weather case (:final temperature, :final altitude)) {
+    createWeatherService = () => ScreenshotWeatherService(temperature: temperature);
+    createElevationService = () => ScreenshotElevationService(altitude);
+  }
 
   final localeMarker = File('${documents.path}/${ScreenshotSeed.localeMarkerFile}');
   final localeCode = localeMarker.existsSync() ? localeMarker.readAsStringSync().trim() : null;

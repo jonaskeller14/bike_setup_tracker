@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
@@ -11,9 +13,11 @@ import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
 import '../theme.dart';
 import '../utils/adjustment_role.dart';
+import '../utils/automation_ids.dart';
 import '../utils/localized_number.dart';
 import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
+import '../utils/unit_conversion.dart';
 import 'hint_card_parts.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
@@ -180,11 +184,14 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
                         flex: 2,
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
-                          child: FilledButton.icon(
-                            style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
-                            onPressed: widget.onApplyAll,
-                            icon: const Icon(Icons.done_all),
-                            label: Text(context.l10n.guideCardApplyAll),
+                          child: Semantics(
+                            identifier: AutomationIds.setupGuideApplyAll,
+                            child: FilledButton.icon(
+                              style: FilledButton.styleFrom(backgroundColor: hint.accent, foregroundColor: hint.onAccent),
+                              onPressed: widget.onApplyAll,
+                              icon: const Icon(Icons.done_all),
+                              label: Text(context.l10n.guideCardApplyAll),
+                            ),
                           ),
                         ),
                       ),
@@ -211,16 +218,43 @@ class _WeightField extends StatefulWidget {
 }
 
 class _WeightFieldState extends State<_WeightField> {
+  static const _pounds = KnownUnit(quantity: UnitQuantity.mass, unitId: 'pounds');
+  static const _kilograms = KnownUnit(quantity: UnitQuantity.mass, unitId: 'kilograms');
+
   late final _controller = TextEditingController(text: _format(widget.input.weight));
 
-  String _format(double? weight) =>
-      weight == null ? '' : localizeDecimalSeparator(formatSpecNumber(weight), locale: context.l10n.localeName);
+  /// What the field shows; the weight is still reported in [GuideWeightInput.unit].
+  late KnownUnit _displayUnit = widget.input.unit;
+
+  KnownUnit get _otherUnit => widget.input.unit == _pounds ? _kilograms : _pounds;
+
+  double _toStorage(double weight) => convertUnit(weight, _displayUnit, widget.input.unit);
+
+  String _format(double? weight) {
+    if (weight == null) return '';
+    final locale = context.l10n.localeName;
+    if (_displayUnit == widget.input.unit) return localizeDecimalSeparator(formatSpecNumber(weight), locale: locale);
+    final shown = convertUnit(weight, widget.input.unit, _displayUnit);
+    return formatLocalizedDouble(double.parse(shown.toStringAsFixed(1)), locale: locale);
+  }
+
+  void _toggleUnit() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() {
+      _displayUnit = _displayUnit == widget.input.unit ? _otherUnit : widget.input.unit;
+      _controller.text = _format(widget.input.weight);
+    });
+  }
 
   @override
   void didUpdateWidget(covariant _WeightField oldWidget) {
     super.didUpdateWidget(oldWidget);
     // The weight may also change on the Rider tab.
-    if (parseLocalizedDouble(_controller.text) != widget.input.weight) _controller.text = _format(widget.input.weight);
+    if (widget.input.weight == oldWidget.input.weight) return;
+    final typed = parseLocalizedDouble(_controller.text);
+    final weight = widget.input.weight;
+    final matches = typed == null || weight == null ? typed == weight : (_toStorage(typed) - weight).abs() < 1e-9;
+    if (!matches) _controller.text = _format(weight);
   }
 
   @override
@@ -254,25 +288,36 @@ class _WeightFieldState extends State<_WeightField> {
             ),
             ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 64, maxWidth: 96),
-              child: TextField(
-                controller: _controller,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                textAlign: TextAlign.end,
-                style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
-                cursorColor: hint.accent,
-                decoration: InputDecoration(
-                  isDense: true,
-                  suffixText: " ${input.unit.label}",
-                  suffixStyle: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+              child: Semantics(
+                identifier: AutomationIds.setupGuideWeight,
+                child: TextField(
+                  controller: _controller,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.end,
+                  style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
+                  cursorColor: hint.accent,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    suffix: InkWell(
+                      borderRadius: BorderRadius.circular(4),
+                      onTap: _toggleUnit,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                        child: Text(_displayUnit.label, style: textTheme.bodyMedium?.copyWith(color: hint.onContainer)),
+                      ),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+                    ),
+                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
                   ),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
+                  // The iOS number pad has no Done key and would keep covering Apply all.
+                  onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
+                  onChanged: (text) {
+                    final weight = parseLocalizedDouble(text);
+                    input.onChanged(weight != null && weight > 0 ? _toStorage(weight) : null);
+                  },
                 ),
-                onChanged: (text) {
-                  final weight = parseLocalizedDouble(text);
-                  input.onChanged(weight != null && weight > 0 ? weight : null);
-                },
               ),
             ),
           ],

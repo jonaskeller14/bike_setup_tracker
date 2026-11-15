@@ -1,0 +1,80 @@
+# scenario: full
+# Demo: a downhill bike's history. The Trek Session's setups, one per run or
+# track: three at Winterberg in one day, then Leogang wet and dry. The dry
+# Speedster setup is compared with the wet Worldcup Track one before it.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+# Trek Session: double-tap sets the bike filter
+- doubleTapOn:
+    id: garage.bike.5c9f1ccd-f00b-4145-ad8d-5e74fbf3c55a
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_downhill
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+
+# Slow drags read as scrolling instead of a jump.
+- swipe:
+    start: 50%, 75%
+    end: 50%, 30%
+    duration: 3000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- swipe:
+    start: 50%, 30%
+    end: 50%, 80%
+    duration: 2000
+- waitForAnimationToEnd:
+    timeout: 3000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# Leogang - Speedster (dry), compared with the wet setup before it. Its tile
+# starts half under the navigation bar, where a tap opens the tile above.
+- scrollUntilVisible:
+    element:
+      id: setup.actions.9e39cdba-9d91-446c-bcb7-a2a402796a28
+    direction: DOWN
+    speed: 20
+    centerElement: true
+- tapOn:
+    id: setup.actions.9e39cdba-9d91-446c-bcb7-a2a402796a28
+- tapOn:
+    id: setup.compare
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# Compare pairs it with the bike's newest setup; side A becomes the wet one.
+- tapOn:
+    id: compareSetups.side.A
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+# Leogang - Worldcup Track (wet)
+- tapOn:
+    id: compareSetups.option.dd4aadb3-4cef-41b5-b7af-39c406c35e91
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- swipe:
+    start: 50%, 80%
+    end: 50%, 45%
+    duration: 2000
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

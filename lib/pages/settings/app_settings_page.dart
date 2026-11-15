@@ -93,12 +93,16 @@ class AppSettingsPage extends StatelessWidget {
                   onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const PreferencesPage())),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.extension),
-                title: Text(l10n.settingsFeatures),
-                subtitle: Text(l10n.settingsFeaturesSubtitle),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
-                onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FeaturesPage())),
+              Semantics(
+                container: true,
+                identifier: AutomationIds.settingsFeatures,
+                child: ListTile(
+                  leading: const Icon(Icons.extension),
+                  title: Text(l10n.settingsFeatures),
+                  subtitle: Text(l10n.settingsFeaturesSubtitle),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16.0),
+                  onTap: () => Navigator.push<void>(context, MaterialPageRoute(builder: (context) => const FeaturesPage())),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.attach_file),

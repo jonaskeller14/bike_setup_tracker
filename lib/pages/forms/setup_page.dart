@@ -195,7 +195,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   double? _guideFallbackWeight;
 
   final LocationService _locationService = LocationService();
-  final ElevationService _elevationService = ElevationService();
+  final ElevationService _elevationService = createElevationService();
   final ValueNotifier<ContextPosition?> _currentLocation = ValueNotifier<ContextPosition?>(null);
 
   final AddressService _addressService = AddressService();

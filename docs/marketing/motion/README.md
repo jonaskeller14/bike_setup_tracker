@@ -11,9 +11,10 @@ cuts, voice, music and the end card stay in `build_kit.py`. The look is in
 | `"motion"` | When | Work |
 |---|---|---|
 | `standard.html` | The screen explains itself: brand row, captions word by word, the whole phone, lift callouts | None beyond the kit: filled in from its clips, voice, captions and callouts; with a `.words.json` its captions follow the voice |
+| `format.html` | A Short of a series (`../brand.md`, Formats): How to, Before / After, For riders who… | `standard.html` plus the kit's `"format"` (its header lists the fields): the steps, the note or the rider word, timed to voice lines |
 | `<short>.html` | A concept needs explaining before the phone makes sense, or the Short needs a camera move, boxes or an arrow | Hand-written, one file per Short, like [`restore.html`](restore.html) |
 
-Start from `standard.html`. Write a custom one only when the Short needs it. Kits without `"motion"`,
+Start from `standard.html`, or `format.html` for a series Short. Write a custom one only when the Short needs it. Kits without `"motion"`,
 which are older kits only, keep the previous look. Zoom callouts are cut into the clip, so they work in
 both; a custom composition draws its own lifts and boxes.
 

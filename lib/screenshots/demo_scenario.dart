@@ -98,7 +98,11 @@ enum DemoScenario {
   forecastMore('forecast_more'),
 
   /// [forecastWeekly], ridden every three days.
-  forecastOften('forecast_often');
+  forecastOften('forecast_often'),
+
+  /// The Hightower without rides or tasks, its fork and shock pressures last
+  /// set on a mild evening at the hometrails, checked on a cold morning there.
+  pressureCheck('pressure_check');
 
   const DemoScenario(this.id);
 
@@ -110,10 +114,21 @@ enum DemoScenario {
   static DemoScenario fromId(String id) =>
       values.firstWhere((s) => s.id == id, orElse: () => throw ArgumentError.value(id, 'id', 'Unknown demo scenario'));
 
+  /// Today's temperature (°C) and altitude (m) on the Add Setup form, where a
+  /// demo needs other than the default clear, mild weather.
+  ({double temperature, double altitude})? get weather => switch (this) {
+    pressureCheck => (temperature: 3.0, altitude: 320.0),
+    _ => null,
+  };
+
   /// Preferences written over `ScreenshotSeed.settings`.
   Map<String, Object> get settings => switch (this) {
     tags => const {'enableSetupTags': true, 'enableTaskTags': true},
     swap || partKm => const {'enableInstallationTimeline': true},
+    // Tires lose air by the week, which would crowd the card; the demo is about the fork.
+    pressureCheck => const {
+      'pressureCheckHiddenComponentTypes': ['tire'],
+    },
     _ => const {},
   };
 
@@ -150,6 +165,7 @@ enum DemoScenario {
     dialStyle => _withDefaultDials(json, _lyrikId),
     restore => _withRestoreHistory(json),
     oneClick => _oneClick(json),
+    pressureCheck => _pressureCheck(json),
     wetDry => _wetDry(json),
     partKm => _partKm(json),
     ridesPerValue => _ridesPerValue(json),
@@ -393,6 +409,11 @@ _Json _oneClick(_Json json) {
     _where(_dropTaskRules(hightower, _ids(hightower, 'taskRules')), 'stravaActivities', (_) => false),
     (s) => const {_steepChuteSetupId, _backToNeutralSetupId}.contains(s['id']),
   );
+}
+
+_Json _pressureCheck(_Json json) {
+  final hightower = _dropBikes(json, _ids(json, 'bikes').difference({_hightowerId}));
+  return _where(_dropTaskRules(hightower, _ids(hightower, 'taskRules')), 'stravaActivities', (_) => false);
 }
 
 /// The Kaiserstuhl setup as three rides of one loop, a week apart: the same place,

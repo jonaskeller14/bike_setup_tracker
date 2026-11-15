@@ -17,9 +17,10 @@ and when a post gets removed.
   any other App Store or Play link. Bios use the smart link
   `jonaskeller14.com/bike_setup_tracker/get?c=<channel>` (Phase 5). Check that it redirects
   before posting the first bio.
-- **Only state what release builds do.** No ratings, pressure check, setup guides, riders or
-  bookmarks (debug-only). Tasks, the calendar and setup tags are user toggles under Settings →
-  Features; say so when a post leans on them. The fork and shock catalog (Component Presets) and
+- **Only state what release builds do.** No ratings, riders or bookmarks (debug-only). Tasks, the
+  calendar and setup tags are user toggles under Settings → Features, and so are Pressure Check and
+  Setup Guides from v1.8.0; say so when a post leans on them. Setup Guides show the manufacturer's
+  published starting values for the rider's weight, never the app's own suggestion. The fork and shock catalog (Component Presets) and
   the suggested service tasks (Task Presets) ship on by default from v1.6.4; the tasks still need
   Tasks switched on. The catalog fills in what a part can do (click ranges), never what to set.
 - **Brand names as plain text only**, to say which products the catalog covers: no logos, brand

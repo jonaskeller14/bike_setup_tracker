@@ -1,0 +1,180 @@
+# scenario: one_bike_no_components
+# Demo: Setup Guides. Settings, Features, Setup Guides switched on; then the
+# Hightower gets its fork from the catalog, the 2025–2026 Lyrik Ultimate, like
+# demo_add_component_catalog, without its service tasks. A new setup opens the
+# Setup guide card by itself, because the fork has no values yet: the riding
+# weight goes in, Apply all fills in the manual's starting values, and the setup
+# is saved.
+appId: ${APP_ID}
+---
+# Finale Ligure, as run_ios.sh sets it; a flow before may have moved it.
+- setLocation:
+    latitude: 44.1690
+    longitude: 8.3439
+- runFlow: _launch.yaml
+# Without components the app opens on the garage, but only as the default
+# tab, which turns to the setups once a component exists. Picking the tab
+# keeps the garage on screen after saving.
+- tapOn:
+    id: nav.setups
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_setup_guide
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: appBar.options
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: appBar.options.settings
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: settings.features
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: features.setupGuides
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2500
+- tapOn:
+    id: featureSheet.on
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- runFlow: _back.yaml
+- runFlow: _back.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# Santa Cruz Hightower
+- tapOn:
+    id: garage.addComponent.93f93d45-3a56-43ae-8936-5cfcbd768c9b
+- tapOn:
+    id: componentForm.type
+- tapOn:
+    id: componentType.fork
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: componentForm.catalog
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: catalogPicker.search
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Lyrik
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+# The first Charger 3.1 row is the 2025–2026 Ultimate.
+- tapOn:
+    text: ".*Charger 3.1.*"
+    index: 0
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn: "160 mm"
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+- tapOn:
+    id: catalogPicker.apply
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: componentForm.save
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+# Tasks is on in the seed, so saving offers the fork's service tasks; not here.
+- runFlow: _dismiss_sheet.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+
+# The garage stays open after saving; the new setup starts from the history.
+- tapOn:
+    id: nav.setups
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setups.add
+- extendedWaitUntil:
+    visible:
+      id: setupGuide.weight
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+- tapOn:
+    id: setupGuide.weight
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: "78"
+- runFlow: _hide_keyboard_android.yaml
+# The "Riding weight" label, beside the field: a tap outside closes the iOS number pad.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: 18%, 60%
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+# Apply all sits under the guide's rows.
+- scrollUntilVisible:
+    element:
+      id: setupGuide.applyAll
+    direction: DOWN
+    speed: 20
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setupGuide.applyAll
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 4000
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3000

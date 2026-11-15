@@ -1,0 +1,8 @@
+• Guide al setup: i valori di partenza del manuale per il tuo peso
+• Controllo pressione: nota quando forcella o ammortizzatore vanno rigonfiati dopo un calo di temperatura
+• Attivali in Impostazioni > Funzioni
+• I click del catalogo seguono la tua pressione su più forcelle e ammortizzatori
+• I grafici mostrano dove era montato un pezzo e il valore attuale
+• I setup uguali condividono una linea nel grafico radar
+• Le notifiche Strava arrivano nella tua lingua
+• Gli allegati sono sempre attivi

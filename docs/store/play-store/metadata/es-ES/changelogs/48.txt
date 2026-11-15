@@ -1,0 +1,8 @@
+• Guías de setup: los valores iniciales del manual para tu peso
+• Control de presión: detecta cuándo horquilla o amortiguador necesitan aire tras bajar la temperatura
+• Actívalos en Configuración > Funciones
+• Más horquillas y amortiguadores: los clics del catálogo siguen tu presión
+• Los gráficos muestran dónde estaba montada una pieza y tu valor actual
+• Los setups iguales comparten una línea en el gráfico radar
+• Notificaciones de Strava en tu idioma
+• Los adjuntos están siempre activos

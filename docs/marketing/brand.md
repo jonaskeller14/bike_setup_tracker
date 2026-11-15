@@ -208,8 +208,9 @@ ink: type is set, rules are drawn, and nothing glows.
 
 From `07_v1.8.0` on, Shorts come in series. Each format repeats one recipe and one look, so a viewer
 recognizes the series in its first frame. `motion/format.html` draws them from the kit's `"format"`
-(`motion/README.md`). They are the one exception to white paper: the end card, posts, store assets
-and the website stay on the look above. Picked on 2026-11-13 from a gallery of three looks per format
+(`motion/README.md`). They are the one exception to white paper, and a format's Short ends on an end card in
+its look (background, type, key color; `templates/endcard.html`, `kind=`). Posts, store assets and the website
+stay on the look above. Picked on 2026-11-13 from a gallery of three looks per format
 (H2, B1, F3).
 
 | Format | Recipe | Background | Type | Key phrase | Changed value | Series label |

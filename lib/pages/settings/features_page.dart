@@ -106,15 +106,6 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enableComponentPresets = v,
                 sheet: (context, value) => showComponentPresetsSettingSheet(context, value: value),
               ),
-              _FeatureToggleTile(
-                enabled: appSettings.enableComponentPresets,
-                disabledSubtitle: l10n.featuresRequiresComponentPresets,
-                icon: Icons.tips_and_updates_outlined,
-                title: l10n.featuresSetupGuides,
-                value: appSettings.enableSetupGuides,
-                onChanged: (v) => appSettings.enableSetupGuides = v,
-                sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
-              ),
               const Divider(),
               SectionTitle(title: l10n.featuresSectionAdjustments),
               _FeatureGroupTile(
@@ -175,6 +166,15 @@ class FeaturesPage extends StatelessWidget {
                     ),
                 ],
               ),
+              _FeatureToggleTile(
+                enabled: appSettings.enableComponentPresets,
+                disabledSubtitle: l10n.featuresRequiresComponentPresets,
+                icon: Icons.tips_and_updates_outlined,
+                title: l10n.featuresSetupGuides,
+                value: appSettings.enableSetupGuides,
+                onChanged: (v) => appSettings.enableSetupGuides = v,
+                sheet: (context, value) => showSetupGuidesSettingSheet(context, value: value),
+              ),
               ListTile(
                 leading: const Icon(Icons.tire_repair),
                 title: Text(l10n.featuresPressureCheck),
@@ -217,14 +217,6 @@ class FeaturesPage extends StatelessWidget {
                 onChanged: (v) => appSettings.enablePerson = v,
                 infoText: l10n.featuresRiderInfo,
               ),
-              if (appSettings.developerMode && appSettings.enablePerson)
-                _FeatureToggleTile(
-                  icon: Icons.groups_outlined,
-                  title: l10n.featuresRiderAdvanced,
-                  value: appSettings.enablePersonAdvanced,
-                  onChanged: (v) => appSettings.enablePersonAdvanced = v,
-                  infoText: l10n.featuresRiderAdvancedInfo,
-                ),
               const Divider(),
               SectionTitle(title: l10n.featuresSectionSetupHistory),
               _FeatureGroupTile(

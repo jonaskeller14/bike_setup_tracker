@@ -417,7 +417,7 @@ class _PersonPageState extends State<PersonPage> {
                           child: Column(
                             children: [
                               _notesField(),
-                              if (appSettings.showAdvancedPersonUi &&
+                              if (appSettings.developerMode &&
                                   appSettings.enableStrava &&
                                   subscriptionService.hasStravaEntitlement) ...[
                                 const SizedBox(height: 12),

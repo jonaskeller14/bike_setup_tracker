@@ -1336,14 +1336,6 @@
   "@featuresRiderInfo": {
     "description": "Explanation of the rider feature."
   },
-  "featuresRiderAdvanced": "Advanced Rider Layout",
-  "@featuresRiderAdvanced": {
-    "description": "Title of the advanced rider layout feature (developer builds)."
-  },
-  "featuresRiderAdvancedInfo": "Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.",
-  "@featuresRiderAdvancedInfo": {
-    "description": "Explanation of the advanced rider layout feature."
-  },
   "featuresTestSessionGoal": "Test Session Goal",
   "@featuresTestSessionGoal": {
     "description": "Title of the test session goal feature (developer builds)."
@@ -5182,10 +5174,6 @@
       }
     }
   },
-  "setupTabCreateRider": "Create new rider",
-  "@setupTabCreateRider": {
-    "description": "Menu entry that creates a rider for the bike."
-  },
   "setupTabLinkRiderButton": "Link rider",
   "@setupTabLinkRiderButton": {
     "description": "Button that opens the rider link menu."
@@ -6890,26 +6878,6 @@
   "riderAttributeTypeTextHint": "Flexible field for any other attribute",
   "@riderAttributeTypeTextHint": {
     "description": "Description of the text rider attribute."
-  },
-  "riderDetailsNotFoundTitle": "Rider not found",
-  "@riderDetailsNotFoundTitle": {
-    "description": "Title shown when the rider of the details page no longer exists."
-  },
-  "riderDetailsNotFoundSubtitle": "This rider was deleted or is no longer available.",
-  "@riderDetailsNotFoundSubtitle": {
-    "description": "Subtitle shown when the rider of the details page no longer exists."
-  },
-  "riderDetailsNoStrava": "No Strava Athlete linked to this rider.",
-  "@riderDetailsNoStrava": {
-    "description": "Shown on the rider details when no Strava athlete is linked."
-  },
-  "riderDetailsStravaNotFound": "STRAVA ATHLETE NOT FOUND",
-  "@riderDetailsStravaNotFound": {
-    "description": "Shown in red when the linked Strava athlete no longer exists."
-  },
-  "riderDetailsNoBikes": "No bikes linked to this rider.",
-  "@riderDetailsNoBikes": {
-    "description": "Shown on the rider details when no bike is linked."
   },
   "riderOptionLinkBikes": "Link bikes",
   "@riderOptionLinkBikes": {

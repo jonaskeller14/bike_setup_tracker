@@ -1022,13 +1022,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Adds a rider profile, opened with the rider button in the app bar. Link the rider to your bikes to record riding weight and other rider attributes with each setup. A new rider starts with a \"Riding weight\" attribute. Turning this off hides the rider but keeps its data.';
 
   @override
-  String get featuresRiderAdvanced => 'Advanced Rider Layout';
-
-  @override
-  String get featuresRiderAdvancedInfo =>
-      'Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.';
-
-  @override
   String get featuresTestSessionGoal => 'Test Session Goal';
 
   @override
@@ -4059,9 +4052,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get setupTabCreateRider => 'Create new rider';
-
-  @override
   String get setupTabLinkRiderButton => 'Link rider';
 
   @override
@@ -5334,21 +5324,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get riderAttributeTypeTextHint => 'Flexible field for any other attribute';
-
-  @override
-  String get riderDetailsNotFoundTitle => 'Rider not found';
-
-  @override
-  String get riderDetailsNotFoundSubtitle => 'This rider was deleted or is no longer available.';
-
-  @override
-  String get riderDetailsNoStrava => 'No Strava Athlete linked to this rider.';
-
-  @override
-  String get riderDetailsStravaNotFound => 'STRAVA ATHLETE NOT FOUND';
-
-  @override
-  String get riderDetailsNoBikes => 'No bikes linked to this rider.';
 
   @override
   String get riderOptionLinkBikes => 'Link bikes';

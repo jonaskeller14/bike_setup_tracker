@@ -1025,13 +1025,6 @@ class AppLocalizationsIt extends AppLocalizations {
       'Aggiunge un profilo rider, che si apre con il pulsante rider nella barra dell’app. Collega il rider alle tue bici per registrare peso e altri attributi con ogni setup. Un nuovo rider parte con l’attributo “Peso del rider”. Se disattivi la funzione, il rider viene nascosto ma i suoi dati restano.';
 
   @override
-  String get featuresRiderAdvanced => 'Layout rider avanzato';
-
-  @override
-  String get featuresRiderAdvancedInfo =>
-      'Ripristina l’interfaccia multi-rider: una scheda Rider con riordino e filtro per bici, Duplica, la pagina dei dettagli del rider e il collegamento con l’atleta Strava.';
-
-  @override
   String get featuresTestSessionGoal => 'Obiettivo della sessione di test';
 
   @override
@@ -4081,9 +4074,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String get setupTabCreateRider => 'Crea un nuovo rider';
-
-  @override
   String get setupTabLinkRiderButton => 'Collega rider';
 
   @override
@@ -5360,21 +5350,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get riderAttributeTypeTextHint => 'Campo libero per qualsiasi altro attributo';
-
-  @override
-  String get riderDetailsNotFoundTitle => 'Rider non trovato';
-
-  @override
-  String get riderDetailsNotFoundSubtitle => 'Questo rider è stato eliminato o non è più disponibile.';
-
-  @override
-  String get riderDetailsNoStrava => 'Nessun atleta Strava collegato a questo rider.';
-
-  @override
-  String get riderDetailsStravaNotFound => 'ATLETA STRAVA NON TROVATO';
-
-  @override
-  String get riderDetailsNoBikes => 'Nessuna bici collegata a questo rider.';
 
   @override
   String get riderOptionLinkBikes => 'Collega bici';

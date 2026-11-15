@@ -1027,13 +1027,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajoute un profil de pilote, ouvert avec le bouton pilote de la barre d’application. Associez le pilote à vos vélos pour enregistrer le poids et d’autres attributs avec chaque setup. Un nouveau pilote démarre avec l’attribut « Poids du pilote ». Si vous désactivez cette fonction, le pilote est masqué mais ses données sont conservées.';
 
   @override
-  String get featuresRiderAdvanced => 'Affichage pilote avancé';
-
-  @override
-  String get featuresRiderAdvancedInfo =>
-      'Rétablit l’interface multi-pilotes : un onglet Pilotes avec réorganisation et filtre par vélo, la duplication, la page de détails du pilote et le lien avec l’athlète Strava.';
-
-  @override
   String get featuresTestSessionGoal => 'Objectif de la session de test';
 
   @override
@@ -4086,9 +4079,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get setupTabCreateRider => 'Créer un nouveau pilote';
-
-  @override
   String get setupTabLinkRiderButton => 'Associer un pilote';
 
   @override
@@ -5367,21 +5357,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get riderAttributeTypeTextHint => 'Champ libre pour tout autre attribut';
-
-  @override
-  String get riderDetailsNotFoundTitle => 'Pilote introuvable';
-
-  @override
-  String get riderDetailsNotFoundSubtitle => 'Ce pilote a été supprimé ou n’est plus disponible.';
-
-  @override
-  String get riderDetailsNoStrava => 'Aucun athlète Strava associé à ce pilote.';
-
-  @override
-  String get riderDetailsStravaNotFound => 'ATHLÈTE STRAVA INTROUVABLE';
-
-  @override
-  String get riderDetailsNoBikes => 'Aucun vélo associé à ce pilote.';
 
   @override
   String get riderOptionLinkBikes => 'Associer des vélos';

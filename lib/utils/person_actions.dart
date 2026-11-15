@@ -34,20 +34,6 @@ class PersonActions {
     await appRepository.addPersons([person]);
   }
 
-  static Future<void> addPersonForBike(BuildContext context, {required String bikeId}) async {
-    final appRepository = context.read<AppRepository>();
-
-    final person = await Navigator.push<Person>(
-      context,
-      MaterialPageRoute(builder: (context) => PersonPage.add()),
-    );
-    if (person == null) return;
-
-    await appRepository.addPersons([person]);
-    if (!context.mounted) return;
-    await linkPersonToBike(context, bikeId: bikeId, person: person);
-  }
-
   static Future<void> linkPersonToBike(BuildContext context, {required String bikeId, required Person person}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);

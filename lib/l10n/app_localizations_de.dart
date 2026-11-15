@@ -1027,13 +1027,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Fügt ein Rider-Profil hinzu, das du mit der Rider-Schaltfläche in der App-Leiste öffnest. Verknüpfe den Rider mit deinen Bikes, um Fahrergewicht und weitere Merkmale bei jedem Setup festzuhalten. Ein neuer Rider startet mit dem Merkmal „Fahrergewicht“. Wenn du die Funktion ausschaltest, wird der Rider ausgeblendet, seine Daten bleiben aber erhalten.';
 
   @override
-  String get featuresRiderAdvanced => 'Erweitertes Rider-Layout';
-
-  @override
-  String get featuresRiderAdvancedInfo =>
-      'Stellt die Oberfläche für mehrere Rider wieder her: einen Rider-Tab mit Sortierung und Bike-Filter, Duplizieren, die Rider-Detailseite und die Strava-Athletenverknüpfung.';
-
-  @override
   String get featuresTestSessionGoal => 'Testsession-Ziel';
 
   @override
@@ -4086,9 +4079,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get setupTabCreateRider => 'Neuen Rider anlegen';
-
-  @override
   String get setupTabLinkRiderButton => 'Rider verknüpfen';
 
   @override
@@ -5369,21 +5359,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get riderAttributeTypeTextHint => 'Flexibles Feld für jedes andere Attribut';
-
-  @override
-  String get riderDetailsNotFoundTitle => 'Rider nicht gefunden';
-
-  @override
-  String get riderDetailsNotFoundSubtitle => 'Dieser Rider wurde gelöscht oder ist nicht mehr verfügbar.';
-
-  @override
-  String get riderDetailsNoStrava => 'Diesem Rider ist kein Strava-Athlet zugeordnet.';
-
-  @override
-  String get riderDetailsStravaNotFound => 'STRAVA-ATHLET NICHT GEFUNDEN';
-
-  @override
-  String get riderDetailsNoBikes => 'Diesem Rider sind keine Bikes zugeordnet.';
 
   @override
   String get riderOptionLinkBikes => 'Bikes verknüpfen';

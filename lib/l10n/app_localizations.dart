@@ -2053,18 +2053,6 @@ abstract class AppLocalizations {
   /// **'Adds a rider profile, opened with the rider button in the app bar. Link the rider to your bikes to record riding weight and other rider attributes with each setup. A new rider starts with a \"Riding weight\" attribute. Turning this off hides the rider but keeps its data.'**
   String get featuresRiderInfo;
 
-  /// Title of the advanced rider layout feature (developer builds).
-  ///
-  /// In en, this message translates to:
-  /// **'Advanced Rider Layout'**
-  String get featuresRiderAdvanced;
-
-  /// Explanation of the advanced rider layout feature.
-  ///
-  /// In en, this message translates to:
-  /// **'Restores the multi-rider UI: a Riders tab with reorder and bike filter, Duplicate, the rider details page and the Strava athlete link.'**
-  String get featuresRiderAdvancedInfo;
-
   /// Title of the test session goal feature (developer builds).
   ///
   /// In en, this message translates to:
@@ -6883,12 +6871,6 @@ abstract class AppLocalizations {
   /// **'Link \'{name}\''**
   String setupTabLinkRider(String name);
 
-  /// Menu entry that creates a rider for the bike.
-  ///
-  /// In en, this message translates to:
-  /// **'Create new rider'**
-  String get setupTabCreateRider;
-
   /// Button that opens the rider link menu.
   ///
   /// In en, this message translates to:
@@ -8796,36 +8778,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Flexible field for any other attribute'**
   String get riderAttributeTypeTextHint;
-
-  /// Title shown when the rider of the details page no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'Rider not found'**
-  String get riderDetailsNotFoundTitle;
-
-  /// Subtitle shown when the rider of the details page no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'This rider was deleted or is no longer available.'**
-  String get riderDetailsNotFoundSubtitle;
-
-  /// Shown on the rider details when no Strava athlete is linked.
-  ///
-  /// In en, this message translates to:
-  /// **'No Strava Athlete linked to this rider.'**
-  String get riderDetailsNoStrava;
-
-  /// Shown in red when the linked Strava athlete no longer exists.
-  ///
-  /// In en, this message translates to:
-  /// **'STRAVA ATHLETE NOT FOUND'**
-  String get riderDetailsStravaNotFound;
-
-  /// Shown on the rider details when no bike is linked.
-  ///
-  /// In en, this message translates to:
-  /// **'No bikes linked to this rider.'**
-  String get riderDetailsNoBikes;
 
   /// Menu item of a rider card that opens the bike link sheet.
   ///

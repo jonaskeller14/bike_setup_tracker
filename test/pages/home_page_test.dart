@@ -517,16 +517,7 @@ void main() {
       expect(_appBarTitle(tester), '1 selected');
     }
 
-    testWidgets('simple layout has no Riders tab', (tester) async {
-      await pumpWithTaskRule(tester);
-
-      expect(_navigationDestination('Riders'), findsNothing);
-      expect(find.byTooltip('Add Rider'), findsNothing);
-      await expectTasksTabIndexed(tester);
-    });
-
-    testWidgets('advanced rider layout still has no Riders tab', (tester) async {
-      appSettings.enablePersonAdvanced = true;
+    testWidgets('has no Riders tab', (tester) async {
       await pumpWithTaskRule(tester);
 
       expect(_navigationDestination('Riders'), findsNothing);

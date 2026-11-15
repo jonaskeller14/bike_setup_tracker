@@ -1,7 +1,6 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/person.dart';
-import 'package:bike_setup_tracker/pages/details/person_details_page.dart';
 import 'package:bike_setup_tracker/pages/forms/person_page.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
@@ -78,7 +77,7 @@ void main() {
     children: [PersonListCard(key: const ValueKey('card'), person: person, index: 0)],
   );
 
-  group('simple layout', () {
+  group('PersonListCard', () {
     testWidgets('has no handle, Duplicate or Strava badge', (tester) async {
       await pumpCard(tester, PersonListCard(person: person));
 
@@ -94,7 +93,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(PersonPage), findsNothing);
-      expect(find.byType(PersonDetailsPage), findsNothing);
     });
 
     testWidgets('Link bikes opens the bike link sheet', (tester) async {
@@ -109,24 +107,11 @@ void main() {
     });
   });
 
-  group('advanced layout', () {
-    setUp(() => settings.enablePersonAdvanced = true);
-
-    testWidgets('shows handle, Duplicate and Strava badge', (tester) async {
+  group('reorderable list', () {
+    testWidgets('shows the handle', (tester) async {
       await pumpCard(tester, reorderable());
 
       expect(find.byIcon(Icons.drag_handle), findsOneWidget);
-      expect(find.byIcon(Icons.link_off), findsOneWidget);
-      expect(await openMenu(tester), ['Edit', 'Link bikes', 'Duplicate', 'Remove']);
-    });
-
-    testWidgets('tap opens the details page', (tester) async {
-      await pumpCard(tester, reorderable());
-
-      await tester.tap(find.text('Rider'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(PersonDetailsPage), findsOneWidget);
     });
 
     testWidgets('no index outside a reorderable list draws no handle', (tester) async {
@@ -134,6 +119,17 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.byIcon(Icons.drag_handle), findsNothing);
+    });
+  });
+
+  group('developer mode', () {
+    setUp(() => settings.developerMode = true);
+
+    testWidgets('shows the Strava badge and Duplicate', (tester) async {
+      await pumpCard(tester, PersonListCard(person: person));
+
+      expect(find.byIcon(Icons.link_off), findsOneWidget);
+      expect(await openMenu(tester), ['Edit', 'Link bikes', 'Duplicate', 'Remove']);
     });
   });
 }

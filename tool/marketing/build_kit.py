@@ -157,9 +157,15 @@ class Kit:
         """URL parameters every template of the kit gets: the device (iphone or android)."""
         return {"device": self.spec["device"]} if "device" in self.spec else {}
 
-    def end_card(self, size, file_name):
+    def end_card(self, size, file_name, series=None):
+        """The end card; a Short in a format (brand.md, Formats) gets that format's look."""
+        params = dict(self.spec.get("endcard", {}))
+        if series:
+            params["kind"] = series["kind"]
+            if "color" in series:
+                params["color"] = series["color"]
         path = self.work / file_name
-        rv.render_still(self.chrome, ENDCARD, size, self.spec.get("endcard", {}), path)
+        rv.render_still(self.chrome, ENDCARD, size, params, path)
         return path
 
     def check(self, path, size, length_range=(0, None), audio=False):
@@ -227,8 +233,13 @@ class Kit:
 
     def build_shorts(self):
         template, size = SHORT
-        card = self.end_card(size, "end_9x16.png")
+        cards = {}
         for name, short in self.spec["shorts"].items():
+            series = short.get("format")
+            look = series and (series["kind"], series.get("color"))
+            if look not in cards:
+                cards[look] = self.end_card(size, f"end_9x16_{len(cards)}.png", series)
+            card = cards[look]
             if "motion" in short:
                 self.build_motion_short(name, short, size, card)
                 continue

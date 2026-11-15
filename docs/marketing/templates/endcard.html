@@ -8,6 +8,8 @@
   URL parameters (and size, safe from template.js):
     signature=…   default "78 psi. 4 clicks. Saved." (messaging.md)
     note=…        default "Free on iOS and Android"
+    kind=…        a Short format's look (brand.md, Formats): howto, before-after or rider; default white paper
+    color=…       with kind=rider: the rider's color
 -->
 <html lang="en">
 <head>
@@ -39,6 +41,22 @@
   [data-size="1920x1080"] .name br { display: none; }
   [data-size="1080x1350"] .card { inset: 72px; --mark: 260px; --name: 128px; --rule-w: 640px; --sig: 42px; --badge-h: 96px; --note: 28px; }
   [data-size="1080x1080"] .card { inset: 72px; --mark: 200px; --name: 112px; --rule-w: 600px; --sig: 40px; --badge-h: 88px; --note: 28px; }
+
+  /* Short formats (brand.md, Formats): the series' background, type and key color carry into the end card. */
+  @font-face { font-family: 'Space Grotesk'; font-weight: 500 700; font-display: block; src: url('../../../tool/marketing/assets/fonts/spacegrotesk-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'JetBrains Mono'; font-weight: 500 800; font-display: block; src: url('../../../tool/marketing/assets/fonts/jetbrainsmono-latin.woff2') format('woff2'); }
+  @font-face { font-family: 'Caveat'; font-weight: 500 700; font-display: block; src: url('../../../tool/marketing/assets/fonts/caveat-latin.woff2') format('woff2'); }
+  [data-kind="howto"] { --paper: #0e3a5b; --ink: #f2f6f8; --muted: #8fb0c6; --headline: #7fd3f7;
+    background-image: linear-gradient(rgba(255,255,255,.06) 2px, transparent 2px), linear-gradient(90deg, rgba(255,255,255,.06) 2px, transparent 2px);
+    background-size: 90px 90px; background-position: 60px 0; }
+  [data-kind="howto"] .name { font-family: 'Space Grotesk', 'Archivo', sans-serif; font-weight: 700; letter-spacing: -.035em; }
+  [data-kind="howto"] .signature, [data-kind="howto"] .note { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+  [data-kind="howto"] .signature { color: var(--headline); letter-spacing: -.02em; }
+  [data-kind="before-after"] { --paper: #faf7ef; }
+  [data-kind="before-after"] .signature { font: 700 calc(var(--sig) * 1.9)/1 'Caveat', cursive; color: #1f3a8a; }
+  [data-kind="rider"] { --paper: #141414; --ink: #f5f5f5; --muted: #9a9a9a; }
+  [data-kind="rider"] .signature { color: var(--headline); }
+  [data-kind="rider"] .card .rule { border-top-color: var(--headline); }
 </style>
 </head>
 <body data-size="1080x1920">
@@ -54,5 +72,10 @@
     <div class="meta muted note" data-param="note" data-default="Free on iOS and Android"></div>
   </div>
 <script src="template.js"></script>
+<script>
+  // The rider's color as the key color.
+  const color = new URLSearchParams(location.search).get('color');
+  if (document.body.dataset.kind === 'rider' && color) document.body.style.setProperty('--headline', color);
+</script>
 </body>
 </html>

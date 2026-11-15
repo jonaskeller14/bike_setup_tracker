@@ -246,7 +246,7 @@ void main() {
       await settle(tester);
 
       expect(find.byType(SetupPage), findsOneWidget, reason: 'run 1 is set up before the session starts');
-      expect(find.text('First Run'), findsOneWidget);
+      expect(find.text('Setup for run 1'), findsOneWidget);
       expect(find.textContaining('This is the base setup'), findsOneWidget);
       expect(appRepository.testSessions, isEmpty);
       await saveForm(tester, saved: () => appRepository.testSessions.isNotEmpty && appRepository.setups.length == 2);
@@ -347,7 +347,7 @@ void main() {
       expect(find.byType(SetStepAdjustmentWidget), findsOneWidget, reason: 'only the knob');
       expect(find.textContaining('Rebound'), findsWidgets);
       expect(find.textContaining('Compression'), findsNothing);
-      expect(find.text('Next Run'), findsOneWidget);
+      expect(find.text('Setup for run 2'), findsOneWidget);
 
       await saveForm(tester, saved: () => appRepository.setupsInSession('ts').length == 2);
 
@@ -521,7 +521,7 @@ void main() {
         (context) => SetupActions.duplicateSetup(context, setup: appRepository.setups['r1']!),
       );
 
-      expect(find.text('Next Run'), findsOneWidget);
+      expect(find.text('Setup for run 3'), findsOneWidget);
       await saveForm(tester, saved: () => appRepository.setupsInSession('ts').length == 3);
 
       final runs = appRepository.setupsInSession('ts');
@@ -555,7 +555,7 @@ void main() {
       await pumpButton(tester, (context) => SetupActions.addSetup(context));
 
       expect(find.text('End the session first?'), findsOneWidget);
-      expect(find.text('Next Run'), findsNothing);
+      expect(find.text('Setup for run 2'), findsNothing);
       await tester.tap(find.text('Cancel'));
       await settle(tester);
 
@@ -570,7 +570,7 @@ void main() {
       expect(step.label, 'Next run');
 
       await pumpButton(tester, step.run);
-      expect(find.text('Next Run'), findsOneWidget);
+      expect(find.text('Setup for run 2'), findsOneWidget);
     });
 
     testWidgets('the next step is feedback while the latest run is unrated', (tester) async {
@@ -600,7 +600,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(appRepository.feedbacksForSetup('r1'), hasLength(1));
-      expect(find.text('Next Run'), findsOneWidget);
+      expect(find.text('Setup for run 2'), findsOneWidget);
     });
 
     testWidgets('backing out of the feedback keeps the session where it was', (tester) async {

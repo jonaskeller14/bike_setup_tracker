@@ -1,0 +1,8 @@
+• Guides de setup : valeurs de départ du manuel selon votre poids
+• Contrôle de pression : repérez quand fourche ou amortisseur est à regonfler après une baisse de température
+• Activez-les dans Paramètres > Fonctionnalités
+• Plus de fourches et amortisseurs : clics selon votre pression
+• Les graphiques montrent où la pièce était montée et la valeur actuelle
+• Setups identiques : une seule ligne sur le graphique en toile
+• Notifications Strava dans votre langue
+• Pièces jointes toujours actives

@@ -739,12 +739,6 @@ class AppSettings extends ChangeNotifier {
     'stravaGearHintDismissed',
     'enableSetupImages',
     'enableStepDialColorSize',
-    // TODO: delete after grace period (when all users have migrated hints via AppHintService._migrateLegacyStatuses)
-    // 'showGarageListHint',
-    // 'showGettingStartedGuideHint',
-    // 'showSetupCalendarHint',
-    // 'showSetupTaskHint',
-    // 'showStravaLinkGearHint',
   ];
 
   Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {

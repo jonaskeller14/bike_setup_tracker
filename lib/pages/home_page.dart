@@ -24,6 +24,7 @@ import '../utils/test_session_actions.dart';
 import '../utils/timeline_actions.dart';
 import '../widgets/animated_app_bar_switcher.dart';
 import '../widgets/app_snackbar.dart';
+import '../widgets/drive_notice_listener.dart';
 import '../widgets/google_drive_sync_button.dart';
 import '../widgets/lists/garage_list.dart';
 import '../widgets/lists/list_scroll_controller.dart';
@@ -238,7 +239,7 @@ class _HomePageState extends State<HomePage> {
         .whereType<Setup>();
     final removesBookmarks = selectedSetups.isNotEmpty && selectedSetups.every((setup) => setup.isBookmarked);
 
-    return PopScope(
+    return DriveNoticeListener(child: PopScope(
       canPop: !showTaskSelectionAppBar && !showBikeSelectionAppBar && !showTimelineSelectionAppBar,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
@@ -584,7 +585,7 @@ class _HomePageState extends State<HomePage> {
           ),
       ][pageIndex],
       ),
-    );
+    ));
   }
 }
 

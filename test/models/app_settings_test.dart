@@ -32,6 +32,16 @@ void main() {
       expect(settings.themeMode, ThemeMode.system);
     });
 
+    test('Google Drive, cloud sync and accounts are off until turned on', () async {
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings();
+      await settings.loadAppSettings();
+
+      expect(settings.enableGoogleDrive, isFalse);
+      expect(settings.enableCloudSync, isFalse);
+      expect(settings.enableAccounts, isFalse);
+    });
+
     test('a stored per-key value overrides the default', () async {
       SharedPreferences.setMockInitialValues({
         '${_kPrefix}enableCalendar': true,

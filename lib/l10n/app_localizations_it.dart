@@ -9933,4 +9933,92 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get accountSyncStorageFull =>
       'Il tuo spazio cloud da 500 MB è pieno. I nuovi file restano solo su questo dispositivo.';
+
+  @override
+  String get driveMoveOfferTitle => 'Passa alla sincronizzazione cloud';
+
+  @override
+  String get driveMoveOfferBody =>
+      'La sincronizzazione cloud ora mantiene i tuoi dati su tutti i tuoi dispositivi. Importa una volta la copia più recente da Google Drive, poi la sincronizzazione con Google Drive si disattiva. Da Google Drive non viene eliminato nulla.';
+
+  @override
+  String get driveMoveStart => 'Sposta ora';
+
+  @override
+  String get driveNotNow => 'Non ora';
+
+  @override
+  String get driveMoveRunning => 'Spostamento dei dati di Google Drive…';
+
+  @override
+  String get driveMoveDoneTitle => 'Spostato nella sincronizzazione cloud';
+
+  @override
+  String get driveMoveDoneBody =>
+      'I tuoi dati di Google Drive sono su questo dispositivo e si sincronizzano con il tuo account. La sincronizzazione con Google Drive è disattivata.';
+
+  @override
+  String get driveMoveNothingTitle => 'Niente da spostare';
+
+  @override
+  String get driveMoveNothingBody =>
+      'Google Drive non contiene dati di questa app. La sincronizzazione con Google Drive è disattivata e d\'ora in poi la sincronizzazione cloud conserva i tuoi dati.';
+
+  @override
+  String get driveMoveSignInFailedTitle => 'Accesso a Google non riuscito';
+
+  @override
+  String get driveMoveSignInFailedBody =>
+      'Accedi a Google per importare i tuoi dati di Drive. Non è ancora cambiato nulla.';
+
+  @override
+  String get driveMoveOfflineTitle => 'Sei offline';
+
+  @override
+  String get driveMoveOfflineBody => 'Collegati a Internet e riprova. Non è ancora cambiato nulla.';
+
+  @override
+  String get driveMoveFailedTitle => 'Spostamento non riuscito';
+
+  @override
+  String get driveMoveFailedBody => 'La sincronizzazione con Google Drive resta attiva. Riprova più tardi.';
+
+  @override
+  String get driveMoveRetry => 'Riprova';
+
+  @override
+  String get driveMoveTileSubtitle => 'Sposta una volta i tuoi dati di Google Drive nella sincronizzazione cloud';
+
+  @override
+  String get driveEndingTitle => 'La sincronizzazione con Google Drive sta per finire';
+
+  @override
+  String get driveEndingBody =>
+      'Un prossimo aggiornamento rimuove la sincronizzazione con Google Drive. I tuoi dati restano su questo dispositivo. Per tenerne una copia altrove, salva un file di backup oppure abbonati per avere la sincronizzazione cloud su tutti i tuoi dispositivi.';
+
+  @override
+  String get driveEndingSaveFile => 'Salva file di backup';
+
+  @override
+  String get driveEndingGetCloudSync => 'Ottieni la sincronizzazione cloud';
+
+  @override
+  String get driveEndingTileSubtitle => 'Salva un file di backup o passa alla sincronizzazione cloud';
+
+  @override
+  String get driveEndingBodySync =>
+      'Un prossimo aggiornamento rimuove la sincronizzazione con Google Drive. I tuoi dati restano su questo dispositivo. Per tenerne una copia altrove, salva un file di backup oppure attiva la sincronizzazione cloud, inclusa nel tuo abbonamento.';
+
+  @override
+  String get driveEndingTurnOnSync => 'Attiva la sincronizzazione cloud';
+
+  @override
+  String get driveEndingSyncTurnedOn => 'La sincronizzazione cloud è attiva.';
+
+  @override
+  String get driveEndingBodyConnect =>
+      'Un prossimo aggiornamento rimuove la sincronizzazione con Google Drive. I tuoi dati restano su questo dispositivo. Per tenerne una copia altrove, salva un file di backup oppure collega Strava per avviare la sincronizzazione cloud, inclusa nel tuo abbonamento.';
+
+  @override
+  String get driveEndingConnectStrava => 'Collega Strava';
 }

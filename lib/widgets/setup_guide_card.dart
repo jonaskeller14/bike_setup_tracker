@@ -19,6 +19,7 @@ import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
 import '../utils/unit_conversion.dart';
 import 'hint_card_parts.dart';
+import 'rolling_value_text.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
 
@@ -58,11 +59,16 @@ class GuideWeightInput {
 /// guide, styled like the app hints. Collapsed unless [initiallyExpanded],
 /// with the header icon in the status colours: orange while a value differs from
 /// the guide, green while every value that has a recommendation follows it.
-/// Tapping a row applies its value; [onApplyAll] applies every one.
+/// Tapping a row applies its value; [onApplyAll] applies every one. Tapping
+/// an applied row again, before its value is changed, undoes it.
 class SetupGuideCard extends StatefulWidget {
   final List<SetupGuideSection> sections;
   final GuideInputs inputs;
   final void Function(GuideRecommendation recommendation) onApply;
+
+  /// The adjusters whose applied value can still be undone.
+  final Set<String> undoableIds;
+  final void Function(GuideRecommendation recommendation)? onUndo;
 
   /// Null while there is nothing left to apply.
   final VoidCallback? onApplyAll;
@@ -77,6 +83,8 @@ class SetupGuideCard extends StatefulWidget {
     required this.inputs,
     required this.onApply,
     required this.onApplyAll,
+    this.undoableIds = const {},
+    this.onUndo,
     this.weightInput,
     this.initiallyExpanded = true,
   });
@@ -158,11 +166,13 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
                   const _ColumnsHeader(),
                   for (final recommendation in section.recommendations)
                     _RecommendationRow(
+                      key: ValueKey(recommendation.adjustment.id),
                       recommendation: recommendation,
                       component: section.guided.component,
                       hasRiderWeight: inputs.riderWeight != null,
                       riderWeightUnit: inputs.riderWeightUnit,
                       onApply: widget.onApply,
+                      onUndo: widget.undoableIds.contains(recommendation.adjustment.id) ? widget.onUndo : null,
                     ),
                 ],
                 Padding(
@@ -382,7 +392,8 @@ class _SectionHeader extends StatelessWidget {
 }
 
 /// One adjuster: what it is, what is set now, what the guide recommends and
-/// whether the two agree. Tapping applies the recommendation.
+/// whether the two agree. Tapping applies the recommendation, or undoes it
+/// while it is still the applied value.
 class _RecommendationRow extends StatelessWidget {
   final GuideRecommendation recommendation;
   final Component component;
@@ -390,12 +401,17 @@ class _RecommendationRow extends StatelessWidget {
   final KnownUnit riderWeightUnit;
   final void Function(GuideRecommendation recommendation) onApply;
 
+  /// Null where the value was not applied here or has changed since.
+  final void Function(GuideRecommendation recommendation)? onUndo;
+
   const _RecommendationRow({
+    super.key,
     required this.recommendation,
     required this.component,
     required this.hasRiderWeight,
     required this.riderWeightUnit,
     required this.onApply,
+    required this.onUndo,
   });
 
   @override
@@ -408,12 +424,18 @@ class _RecommendationRow extends StatelessWidget {
     final shown = value ?? recommendation.unappliedValue;
     final current = recommendation.current;
     final canApply = value != null && current != value;
+    // A guide that now recommends something else is applied rather than undone.
+    final onUndo = value != null && current == value ? this.onUndo : null;
     final note = recommendation.rule.note;
     final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
     final band = _bandText(recommendation, context.l10n);
 
     return InkWell(
-      onTap: canApply ? () => onApply(recommendation) : null,
+      onTap: switch (onUndo) {
+        final onUndo? => () => onUndo(recommendation),
+        null when canApply => () => onApply(recommendation),
+        null => null,
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: _ColumnsLayout(
@@ -431,12 +453,19 @@ class _RecommendationRow extends StatelessWidget {
               if (note != null) Text(note, style: mutedStyle),
             ],
           ),
-          now: Text(
+          now: RollingValueText(
             current == null ? "–" : guideValueText(adjustment, current, context.l10n),
+            value: switch (current) {
+              NumericalValue(:final value) => value,
+              StepValue(:final value) => value.toDouble(),
+              _ => null,
+            },
+            format: switch (current) {
+              NumericalValue() => (value) => guideValueText(adjustment, NumericalValue(value), context.l10n),
+              StepValue() => (value) => guideValueText(adjustment, StepValue(value.round()), context.l10n),
+              _ => null,
+            },
             style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           guide: Column(
             crossAxisAlignment: CrossAxisAlignment.end,

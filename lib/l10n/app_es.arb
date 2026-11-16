@@ -2174,7 +2174,6 @@
   "pressureCheckSetNow": "Inflado",
   "pressureCheckSetNowSemantics": "Marcar {name} como inflado",
   "pressureCheckSetNowMarked": "{name} marcado como inflado",
-  "pressureCheckSetNowUnmarked": "{name} ya no está marcado como inflado",
   "pressureCheckSetNowDone": "Inflado ahora mismo",
   "pressureCheckSetNowHint": "¿Lo has vuelto a inflar al valor «Ajustado»? Toca la presión.",
   "pressureCheckNoConditionsOn": "Sin condiciones registradas el {date}",

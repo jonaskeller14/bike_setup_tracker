@@ -8040,11 +8040,6 @@ class AppLocalizationsIt extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name non è più segnato come gonfiato';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Gonfiato proprio ora';
 
   @override

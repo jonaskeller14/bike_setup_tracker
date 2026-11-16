@@ -2174,7 +2174,6 @@
   "pressureCheckSetNow": "Regonflé",
   "pressureCheckSetNowSemantics": "Marquer {name} comme regonflé",
   "pressureCheckSetNowMarked": "{name} marqué comme regonflé",
-  "pressureCheckSetNowUnmarked": "{name} n’est plus marqué comme regonflé",
   "pressureCheckSetNowDone": "Regonflé à l’instant",
   "pressureCheckSetNowHint": "Regonflé à la valeur « Réglé » ? Touchez la pression.",
   "pressureCheckNoConditionsOn": "Aucune condition enregistrée le {date}",

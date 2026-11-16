@@ -2174,7 +2174,6 @@
   "pressureCheckSetNow": "Gonfiato",
   "pressureCheckSetNowSemantics": "Segna {name} come gonfiato",
   "pressureCheckSetNowMarked": "{name} segnato come gonfiato",
-  "pressureCheckSetNowUnmarked": "{name} non è più segnato come gonfiato",
   "pressureCheckSetNowDone": "Gonfiato proprio ora",
   "pressureCheckSetNowHint": "Hai rigonfiato fino al valore «Impostato»? Tocca la pressione.",
   "pressureCheckNoConditionsOn": "Nessuna condizione registrata il {date}",

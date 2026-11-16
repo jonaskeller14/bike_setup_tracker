@@ -8035,11 +8035,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name ya no está marcado como inflado';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Inflado ahora mismo';
 
   @override

@@ -15,6 +15,7 @@ import '../utils/automation_ids.dart';
 import '../utils/localized_number.dart';
 import 'app_snackbar.dart';
 import 'hint_card_parts.dart';
+import 'rolling_value_text.dart';
 import 'setup_guide_status.dart';
 import 'sheets/pressure_check_info_sheet.dart';
 
@@ -55,22 +56,24 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
   /// Null until the rider toggles the card; until then it follows the drift.
   bool? _expanded;
 
-  /// Either way the undo restores the previous mark.
+  /// Only marking shows one: unmarking is itself the undo, so it just hides
+  /// the marked snackbar.
   void _showSetNowSnackBar(PressureCheckEntry entry, bool setNow) {
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    if (!setNow) return;
     final name = "${entry.componentName} · ${entry.adjustmentName}";
-    final action = AppSnackBarAction(
-      label: context.l10n.undo,
-      onPressed: () {
-        if (mounted) widget.onSetNowChanged?.call(entry.adjustmentId, !setNow);
-      },
+    messenger.showSnackBar(
+      AppSnackBar.success(
+        context,
+        context.l10n.pressureCheckSetNowMarked(name),
+        action: AppSnackBarAction(
+          label: context.l10n.undo,
+          onPressed: () {
+            if (mounted) widget.onSetNowChanged?.call(entry.adjustmentId, false);
+          },
+        ),
+      ),
     );
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        setNow
-            ? AppSnackBar.success(context, context.l10n.pressureCheckSetNowMarked(name), action: action)
-            : AppSnackBar.info(context, context.l10n.pressureCheckSetNowUnmarked(name), action: action),
-      );
   }
 
   @override
@@ -240,6 +243,12 @@ class _PressureRow extends StatelessWidget {
       PressureReferenceGapEntry() => context.l10n.pressureCheckNoConditionsOn(setOnDate),
     };
     final setText = "${formatPressure(entry.referenceValue, context.l10n)} $unit";
+    // Just pumped, the pump reads the set value.
+    final now = switch (entry) {
+      _ when setNow => entry.referenceValue,
+      final PressureDriftEntry drift => drift.predictedReading,
+      PressureReferenceGapEntry() => null,
+    };
     final onSetNowChanged = this.onSetNowChanged;
     // Only where marking is the expected next step: past the threshold, or with
     // nothing to compare until the row is marked.
@@ -282,35 +291,32 @@ class _PressureRow extends StatelessWidget {
             ),
           ],
         ),
-        now: switch (entry) {
-          // Just pumped: the pump reads the set value.
-          _ when setNow => FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerRight,
-            child: Text(setText, style: valueStyle, maxLines: 1),
-          ),
-          final PressureDriftEntry drift => Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Scaled rather than cut off: a truncated pressure is no use.
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerRight,
-                child: Text(
-                  "${formatPressure(drift.predictedReading, context.l10n)} $unit",
+        // One value in both states, so marking the row counts it to the set value.
+        now: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            // Scaled rather than cut off: a truncated pressure is no use.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: switch (now) {
+                final now? => RollingValueText(
+                  "${formatPressure(now, context.l10n)} $unit",
+                  value: now,
+                  format: (value) => "${formatPressure(value, context.l10n)} $unit",
                   style: valueStyle,
-                  maxLines: 1,
                 ),
-              ),
+                null => const SizedBox.shrink(),
+              },
+            ),
+            if (entry case final PressureDriftEntry drift when !setNow)
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerRight,
                 child: Text(signedPercent(drift.relativeDelta, context.l10n), style: mutedStyle, maxLines: 1),
               ),
-            ],
-          ),
-          PressureReferenceGapEntry() => const SizedBox.shrink(),
-        },
+          ],
+        ),
         set: showChip
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

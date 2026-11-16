@@ -13147,12 +13147,6 @@ abstract class AppLocalizations {
   /// **'{name} marked as pumped'**
   String pressureCheckSetNowMarked(String name);
 
-  /// Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} no longer marked as pumped'**
-  String pressureCheckSetNowUnmarked(String name);
-
   /// Replaces the set-on line under a pressure name once the row is marked as pumped.
   ///
   /// In en, this message translates to:

@@ -739,6 +739,11 @@ class AppSettings extends ChangeNotifier {
     'stravaGearHintDismissed',
     'enableSetupImages',
     'enableStepDialColorSize',
+    'showGarageListHint',
+    'showGettingStartedGuideHint',
+    'showSetupCalendarHint',
+    'showSetupTaskHint',
+    'showStravaLinkGearHint',
   ];
 
   Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {

@@ -40,6 +40,7 @@ import '../../utils/adjustment_presets.dart';
 import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/guide_details_actions.dart';
 import '../../utils/setup_guide_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
@@ -1512,6 +1513,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
           undoableIds: _guideUndo.keys.toSet(),
           onUndo: _undoGuideValue,
+          onCompleteDetails: (section, axisIds) => unawaited(completeGuideDetails(context, section.guided, axisIds)),
           initiallyExpanded: firstSetup,
         );
       },

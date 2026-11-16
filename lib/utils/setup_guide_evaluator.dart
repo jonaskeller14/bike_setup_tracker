@@ -6,6 +6,7 @@ import '../l10n/catalog_labels.dart';
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
+import '../models/component/component.dart';
 import '../models/component/component_catalog.dart';
 import '../models/component/preset_spec_keys.dart';
 import '../models/component/setup_guide.dart';
@@ -93,6 +94,32 @@ List<GuideRecommendation> evaluateSetupGuide(
     };
     results[rule.target] = evaluation(rule, adjustment, spring: followsSpring ? spring : null).evaluate();
   }
+
+  // A target that only a skipped option keeps every rule from matching still
+  // gets a row, so the rider learns which choice is missing.
+  final blocked = <String, (GuideRule, Set<String>)>{};
+  for (final rule in guide.rules) {
+    if (winners.containsKey(rule.target)) continue;
+    final axes = _unsetAxesBlocking(rule, preset, inputs);
+    if (axes == null) continue;
+    final (first, union) = blocked[rule.target] ?? (rule, const <String>{});
+    blocked[rule.target] = (first, {...union, ...axes});
+  }
+  for (final MapEntry(key: target, value: (rule, axes)) in blocked.entries) {
+    final adjustment = adjustmentFor(target);
+    if (adjustment == null) continue;
+    results[target] = GuideRecommendation(
+      guide: guide,
+      rule: rule,
+      adjustment: adjustment,
+      issue: GuideIssue.missingInput,
+      current: currentValues[adjustment.id],
+      missingAxes: [
+        for (final axis in preset.axes)
+          if (axes.contains(axis.id)) axis.id,
+      ],
+    );
+  }
   return results.values.sortedBy<num>((result) => adjustments.indexOf(result.adjustment));
 }
 
@@ -112,11 +139,44 @@ typedef _SpringReading = ({
 /// A rider-side key matches the rider's input; a level its node; an axis the
 /// chosen value, so a skipped option matches nothing.
 bool _matches(GuideRule rule, ResolvedPreset preset, GuideInputs inputs) => rule.when.entries.every((entry) {
-  final Object? actual = entry.key == kRidingStyleKey
-      ? inputs.ridingStyle?.name
-      : preset.path.firstWhereOrNull((node) => node.level == entry.key)?.id ?? preset.selections[entry.key]?.id;
+  final actual = _whenValue(entry.key, preset, inputs);
   return actual != null && entry.value.contains(actual);
 });
+
+Object? _whenValue(String key, ResolvedPreset preset, GuideInputs inputs) => key == kRidingStyleKey
+    ? inputs.ridingStyle?.name
+    : preset.path.firstWhereOrNull((node) => node.level == key)?.id ?? preset.selections[key]?.id;
+
+/// The unset axes of [preset] that alone keep [rule] from matching; null where
+/// anything else does too: another value, a level off the path, the style.
+Set<String>? _unsetAxesBlocking(GuideRule rule, ResolvedPreset preset, GuideInputs inputs) {
+  final unset = _unsetAxes(preset).map((axis) => axis.id).toSet();
+  final blocking = <String>{};
+  for (final MapEntry(:key, value: accepted) in rule.when.entries) {
+    final actual = _whenValue(key, preset, inputs);
+    if (actual == null && unset.contains(key)) {
+      blocking.add(key);
+    } else if (actual == null || !accepted.contains(actual)) {
+      return null;
+    }
+  }
+  return blocking.isEmpty ? null : blocking;
+}
+
+Iterable<OptionAxis> _unsetAxes(ResolvedPreset preset) =>
+    preset.axes.where((axis) => !preset.selections.containsKey(axis.id));
+
+/// The unset axes of [preset] whose choice supplies the input [id]: the axis
+/// of that id, else those whose values carry the spec (a shock size its
+/// stroke).
+List<String> _axesSupplying(ResolvedPreset preset, String id) {
+  final unset = _unsetAxes(preset).toList();
+  if (unset.any((axis) => axis.id == id)) return [id];
+  return [
+    for (final axis in unset)
+      if (axis.values.any((value) => value.specs.keys.contains(id))) axis.id,
+  ];
+}
 
 /// Ends an evaluation without a value.
 class _Failure implements Exception {
@@ -125,7 +185,12 @@ class _Failure implements Exception {
   /// What the guide asks for, where that is known but can't be applied.
   final AdjustmentValue? unapplied;
 
-  const _Failure(this.issue, [this.unapplied]);
+  /// For [GuideIssue.missingInput]: the unset axes that would supply it.
+  final List<String> missingAxes;
+
+  const _Failure(this.issue, [this.unapplied]) : missingAxes = const [];
+
+  const _Failure.missing(this.missingAxes) : issue = GuideIssue.missingInput, unapplied = null;
 }
 
 /// How the catalog dial's counting relates to the rider's step adjuster.
@@ -223,7 +288,11 @@ class _RuleEvaluation {
       };
       return _recommendation(value: value, band: band);
     } on _Failure catch (failure) {
-      return _recommendation(issue: failure.issue, unappliedValue: failure.unapplied);
+      return _recommendation(
+        issue: failure.issue,
+        unappliedValue: failure.unapplied,
+        missingAxes: failure.missingAxes,
+      );
     }
   }
 
@@ -232,6 +301,7 @@ class _RuleEvaluation {
     ({double min, double max})? band,
     GuideIssue? issue,
     AdjustmentValue? unappliedValue,
+    List<String> missingAxes = const [],
   }) => GuideRecommendation(
     guide: guide,
     rule: rule,
@@ -246,6 +316,7 @@ class _RuleEvaluation {
     interpolated: _interpolated,
     followsSpring: spring?.id,
     riderWeightRange: _riderWeightRange,
+    missingAxes: missingAxes,
   );
 
   /// [current] of this weight-keyed spring rule with the rider weight it is
@@ -477,7 +548,9 @@ class _RuleEvaluation {
       PresetGuideInput(:final id) => preset.selections[id]?.id,
       _ => throw StateError('Input "${input.id}" is numeric'),
     };
-    if (value == null) throw const _Failure(GuideIssue.missingInput);
+    if (value == null) {
+      throw input is PresetGuideInput ? _Failure.missing(_axesSupplying(preset, input.id)) : const _Failure(GuideIssue.missingInput);
+    }
     _inputText = switch (input) {
       PresetGuideInput(:final id) => preset.selections[id]!.label,
       _ => inputs.ridingStyle!.label(l10n),
@@ -497,7 +570,7 @@ class _RuleEvaluation {
       case PresetGuideInput(:final id):
         final spec = PresetSpecKeys.byId(id);
         final value = spec == null ? null : preset.effectiveSpecs.get(spec);
-        if (spec == null || value is! num) throw const _Failure(GuideIssue.missingInput);
+        if (spec == null || value is! num) throw _Failure.missing(_axesSupplying(preset, id));
         _inputText = spec.display(value, l10n);
         return value.toDouble();
       case AdjusterGuideInput(:final adjusterId):
@@ -674,8 +747,12 @@ class _RuleEvaluation {
   double _toAdjustmentUnit(num value) {
     final (unit, adjustment) = (rule.unit, this.adjustment);
     if (adjustment is SagAdjustment && unit is KnownUnit && unit.quantity == UnitQuantity.length) {
-      return adjustment.fromMillimeters(convertUnit(value.toDouble(), unit, _millimeters)) ??
-          (throw const _Failure(GuideIssue.incompatible));
+      final percent = adjustment.fromMillimeters(convertUnit(value.toDouble(), unit, _millimeters));
+      if (percent != null) return percent;
+      // The SAG takes its travel from the choice that supplies it, as when built.
+      final travel = preset.catalog.componentType == ComponentType.shock ? PresetSpecKeys.strokeMm : PresetSpecKeys.travelMm;
+      final axes = adjustment.referenceTravelMm == null ? _axesSupplying(preset, travel.id) : const <String>[];
+      throw axes.isEmpty ? const _Failure(GuideIssue.incompatible) : _Failure.missing(axes);
     }
     return switch ((unit, adjustment.unit)) {
       (final KnownUnit from, final KnownUnit to) when from.quantity == to.quantity => convertUnit(

@@ -8230,6 +8230,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guideIssueNeedsMore => 'Needs more information';
 
   @override
+  String get guideCardChooseDetail => 'Choose';
+
+  @override
+  String get guideDetailsTitle => 'Missing catalog details';
+
+  @override
+  String guideDetailsIntro(String component) {
+    return 'The recommended values for $component need these details. They are saved to the component.';
+  }
+
+  @override
+  String guideDetailsSaved(String component, String details) {
+    return '$component: $details saved';
+  }
+
+  @override
   String get guideIssueOutsideRange => 'Outside the published range';
 
   @override

@@ -35,11 +35,37 @@ nodes:
       - { name: LSC, type: step, max: 10 }
 ''';
 
+/// Spacers keyed by the travel, an option the rider may skip.
+const _travelCatalog = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    rules:
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 2, 160: 1 }
+      - { target: lsc, value: 4 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+      - { name: LSC, type: step, max: 10 }
+    options:
+      travel_mm: [150, 160]
+''';
+
 void main() {
   final preset = catalogProducts(parseCatalogFile(_catalog)).single;
+  final travelPreset = catalogProducts(parseCatalogFile(_travelCatalog)).single;
 
-  GuidedComponent guided({String? name}) {
-    final application = buildCatalogApplication(preset, englishL10n);
+  GuidedComponent guided({String? name, ResolvedPreset? from}) {
+    final product = from ?? preset;
+    final application = buildCatalogApplication(product, englishL10n);
     return GuidedComponent(
       Component(
         name: name ?? application.name,
@@ -48,7 +74,7 @@ void main() {
         adjustments: application.adjustments,
         preset: application.preset,
       ),
-      preset,
+      product,
     );
   }
 
@@ -62,6 +88,7 @@ void main() {
     void Function(GuideRecommendation)? onApply,
     VoidCallback? onApplyAll,
     GuideWeightInput? weightInput,
+    void Function(SetupGuideSection section, List<String> axisIds)? onCompleteDetails,
     ThemeData? theme,
     bool initiallyExpanded = true,
   }) {
@@ -76,6 +103,7 @@ void main() {
               onApply: onApply ?? (_) {},
               onApplyAll: onApplyAll,
               weightInput: weightInput,
+              onCompleteDetails: onCompleteDetails,
               initiallyExpanded: initiallyExpanded,
             ),
           ),
@@ -99,6 +127,54 @@ void main() {
     expect(find.text('Now'), findsOneWidget);
     expect(find.text('Guide'), findsOneWidget);
     expect(find.textContaining('A starting point. Check your manual.'), findsOneWidget);
+  });
+
+  group('a row waiting for a catalog detail', () {
+    testWidgets('names it and asks for it on tap', (tester) async {
+      final component = guided(from: travelPreset);
+      List<String>? asked;
+      GuideRecommendation? applied;
+      await pumpCard(
+        tester,
+        guided: component,
+        onApply: (r) => applied = r,
+        onCompleteDetails: (section, axisIds) {
+          expect(section.guided, component);
+          asked = axisIds;
+        },
+      );
+
+      expect(find.text("Needs the component's travel Choose"), findsOneWidget);
+      await tester.tap(find.text('Volume Spacers'));
+      expect(asked, ['travel_mm']);
+      expect(applied, isNull);
+
+      asked = null;
+      await tester.tap(find.text("Needs the component's travel Choose"));
+      expect(asked, ['travel_mm']);
+    });
+
+    testWidgets('without a way to ask only says what it needs', (tester) async {
+      await pumpCard(tester, guided: guided(from: travelPreset));
+
+      expect(find.text("Needs the component's travel"), findsOneWidget);
+      expect(find.textContaining('Choose'), findsNothing);
+    });
+
+    testWidgets('rows that have a value still apply it', (tester) async {
+      GuideRecommendation? applied;
+      List<String>? asked;
+      await pumpCard(
+        tester,
+        guided: guided(from: travelPreset),
+        onApply: (r) => applied = r,
+        onCompleteDetails: (_, axisIds) => asked = axisIds,
+      );
+
+      await tester.tap(find.text('LSC'));
+      expect(applied?.value, const StepValue(4));
+      expect(asked, isNull);
+    });
   });
 
   testWidgets('tapping a row applies that value', (tester) async {

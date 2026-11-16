@@ -48,6 +48,7 @@ void main() {
     ThemeData theme, {
     List<Adjustment>? existing,
     List<PresetMergeRow>? proposal,
+    bool allowReplace = true,
   }) async {
     tester.view.physicalSize = const Size(320, 1400);
     tester.view.devicePixelRatio = 1;
@@ -71,6 +72,7 @@ void main() {
               recordedValues: const {
                 'lsr': [StepValue(18)],
               },
+              allowReplace: allowReplace,
             ),
             child: const Text('open'),
           ),
@@ -96,6 +98,13 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('without replacing only merging is offered', (tester) async {
+    await open(tester, materialAppTheme, allowReplace: false);
+
+    expect(find.text('Replace'), findsNothing);
+    expect(find.text('Merge'), findsOneWidget);
+  });
 
   testWidgets('the status badge opens the choices for its card', (tester) async {
     await open(tester, materialAppTheme);

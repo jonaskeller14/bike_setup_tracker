@@ -1,7 +1,7 @@
 # yt-shorts · Before / After: Setup Guides
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/97YgVrVAUX0?feature=share
 - Posted: 2026-11-26 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

@@ -1,6 +1,6 @@
 # ig-bst · Reel: Before / After: Setup Guides
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-26 18:00
 - App version: 1.8.0

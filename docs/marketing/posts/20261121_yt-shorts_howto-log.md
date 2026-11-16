@@ -1,7 +1,7 @@
 # yt-shorts · How to: Log a setup
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/ipMt7M8Nawc
 - Posted: 2026-11-21 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

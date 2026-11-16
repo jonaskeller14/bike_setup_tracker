@@ -6377,6 +6377,53 @@ class AppLocalizationsFr extends AppLocalizations {
   String get testSessionEndSession => 'Terminer la session';
 
   @override
+  String testSessionProgressLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Encore $count runs',
+      one: 'Encore 1 run',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String testSessionProgressRange(int min, int max) {
+    return 'Encore $min à $max runs';
+  }
+
+  @override
+  String testSessionProgressUpTo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Encore $count runs au plus',
+      one: 'Encore 1 run au plus',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String testSessionProgressAbout(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Encore environ $count runs',
+      one: 'Encore environ 1 run',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get testSessionProgressLastRun => 'Dernier run';
+
+  @override
+  String get testSessionProgressConfirm => 'Dernier run : confirmer le meilleur';
+
+  @override
+  String get testSessionProgressDone => 'Terminé : mettez fin à la session';
+
+  @override
   String get testSessionActionsTooltip => 'Actions de la session de test';
 
   @override

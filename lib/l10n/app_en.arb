@@ -8290,6 +8290,57 @@
   "@testSessionEndSession": {
     "description": "Button that ends a test session."
   },
+  "testSessionProgressLeft": "{count, plural, =1{1 more run} other{{count} more runs}}",
+  "@testSessionProgressLeft": {
+    "description": "Label under the progress bar of a running test session: the exact number of runs the method still needs.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressRange": "{min}–{max} more runs",
+  "@testSessionProgressRange": {
+    "description": "Label under the progress bar of a running test session: the fewest and the most runs the method still needs. max is at least 2.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressUpTo": "{count, plural, =1{Up to 1 more run} other{Up to {count} more runs}}",
+  "@testSessionProgressUpTo": {
+    "description": "Label under the progress bar of a running test session: the method may be done after the current run, or need up to this many more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressAbout": "{count, plural, =1{About 1 more run} other{About {count} more runs}}",
+  "@testSessionProgressAbout": {
+    "description": "Label under the progress bar of a running Fine-tune test session: an estimate of the runs still needed, which grows when a run turns out better.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressLastRun": "Last run",
+  "@testSessionProgressLastRun": {
+    "description": "Label under the progress bar of a running test session while its last run waits for feedback."
+  },
+  "testSessionProgressConfirm": "Last run: confirm the best",
+  "@testSessionProgressConfirm": {
+    "description": "Label under the progress bar of a running test session when the last run rides the best run again to confirm it."
+  },
+  "testSessionProgressDone": "Done — end the session",
+  "@testSessionProgressDone": {
+    "description": "Label under the full progress bar of a running test session whose method has its result."
+  },
   "testSessionActionsTooltip": "Test session actions",
   "@testSessionActionsTooltip": {
     "description": "Tooltip of the menu button of a test session."

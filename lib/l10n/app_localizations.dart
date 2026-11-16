@@ -10447,6 +10447,48 @@ abstract class AppLocalizations {
   /// **'End session'**
   String get testSessionEndSession;
 
+  /// Label under the progress bar of a running test session: the exact number of runs the method still needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more run} other{{count} more runs}}'**
+  String testSessionProgressLeft(int count);
+
+  /// Label under the progress bar of a running test session: the fewest and the most runs the method still needs. max is at least 2.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max} more runs'**
+  String testSessionProgressRange(int min, int max);
+
+  /// Label under the progress bar of a running test session: the method may be done after the current run, or need up to this many more.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Up to 1 more run} other{Up to {count} more runs}}'**
+  String testSessionProgressUpTo(int count);
+
+  /// Label under the progress bar of a running Fine-tune test session: an estimate of the runs still needed, which grows when a run turns out better.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{About 1 more run} other{About {count} more runs}}'**
+  String testSessionProgressAbout(int count);
+
+  /// Label under the progress bar of a running test session while its last run waits for feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run'**
+  String get testSessionProgressLastRun;
+
+  /// Label under the progress bar of a running test session when the last run rides the best run again to confirm it.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run: confirm the best'**
+  String get testSessionProgressConfirm;
+
+  /// Label under the full progress bar of a running test session whose method has its result.
+  ///
+  /// In en, this message translates to:
+  /// **'Done — end the session'**
+  String get testSessionProgressDone;
+
   /// Tooltip of the menu button of a test session.
   ///
   /// In en, this message translates to:

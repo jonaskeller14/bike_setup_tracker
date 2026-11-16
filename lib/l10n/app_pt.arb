@@ -2336,6 +2336,7 @@
   "presetReplaceWarning": "{withValues, plural, =1{1 das suas regulagens tem} other{{withValues} das suas regulagens têm}} {valueCount, plural, =1{1 valor registrado} other{{valueCount} valores registrados}}. Ao substituir, eles são removidos deste componente: os valores ficam nos seus setups, mas não pertencem mais a nenhuma regulagem. Ao mesclar, eles são mantidos.",
   "presetMergeLine": "{own} + {catalog} (modelo)",
   "presetMergeKeptRange": "Mantém a sua faixa: há valores registrados fora da do modelo",
+  "presetMergeKeptTravel": "Mantém o seu curso de {own} mm (modelo: {catalog} mm)",
   "presetMergeChoiceMergeInto": "Mesclar em “{name}”",
   "presetMergeChoiceMergeWith": "Mesclar com “{name}” (modelo)",
   "presetMergeChoiceDontAdd": "Não adicionar",

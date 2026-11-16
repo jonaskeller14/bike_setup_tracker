@@ -2336,6 +2336,7 @@
   "presetReplaceWarning": "{withValues, plural, =1{1 deiner Einstellungen hat} other{{withValues} deiner Einstellungen haben}} {valueCount, plural, =1{1 aufgezeichneten Wert} other{{valueCount} aufgezeichnete Werte}}. Beim Ersetzen werden sie von dieser Komponente entfernt: Die Werte bleiben in deinen Setups, gehören aber zu keiner Einstellung mehr. Beim Zusammenführen bleiben sie erhalten.",
   "presetMergeLine": "{own} + {catalog} (Vorlage)",
   "presetMergeKeptRange": "Behält deinen Bereich: aufgezeichnete Werte liegen außerhalb dessen der Vorlage",
+  "presetMergeKeptTravel": "Behält deinen Federweg von {own} mm (Vorlage: {catalog} mm)",
   "presetMergeChoiceMergeInto": "In „{name}“ zusammenführen",
   "presetMergeChoiceMergeWith": "Mit „{name}“ (Vorlage) zusammenführen",
   "presetMergeChoiceDontAdd": "Nicht hinzufügen",

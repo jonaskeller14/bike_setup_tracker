@@ -8824,6 +8824,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get presetMergeKeptRange => 'Behält deinen Bereich: aufgezeichnete Werte liegen außerhalb dessen der Vorlage';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Behält deinen Federweg von $own mm (Vorlage: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'In „$name“ zusammenführen';
   }

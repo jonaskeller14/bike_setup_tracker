@@ -2336,6 +2336,7 @@
   "presetReplaceWarning": "{withValues, plural, =1{1 de vos réglages a} other{{withValues} de vos réglages ont}} {valueCount, plural, =1{1 valeur enregistrée} other{{valueCount} valeurs enregistrées}}. Le remplacement les retire de ce composant : les valeurs restent dans vos setups, mais n’appartiennent plus à aucun réglage. La fusion les conserve.",
   "presetMergeLine": "{own} + {catalog} (modèle)",
   "presetMergeKeptRange": "Garde votre plage : des valeurs enregistrées sont en dehors de celle du modèle",
+  "presetMergeKeptTravel": "Garde votre débattement de {own} mm (modèle : {catalog} mm)",
   "presetMergeChoiceMergeInto": "Fusionner dans « {name} »",
   "presetMergeChoiceMergeWith": "Fusionner avec « {name} » (modèle)",
   "presetMergeChoiceDontAdd": "Ne pas ajouter",

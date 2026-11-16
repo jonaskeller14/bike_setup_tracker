@@ -8824,6 +8824,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get presetMergeKeptRange => 'Garde votre plage : des valeurs enregistrées sont en dehors de celle du modèle';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Garde votre débattement de $own mm (modèle : $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Fusionner dans « $name »';
   }

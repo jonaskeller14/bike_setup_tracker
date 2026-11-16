@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/preset_merge.dart';
@@ -61,9 +62,18 @@ class _Entry {
   final Adjustment? own;
   final Adjustment? catalog;
   final bool keptOwnRange;
+  final bool keptOwnTravel;
   final List<(String, PresetMergeRow)> choices;
 
-  const _Entry(this.result, this.status, {this.own, this.catalog, this.keptOwnRange = false, this.choices = const []});
+  const _Entry(
+    this.result,
+    this.status, {
+    this.own,
+    this.catalog,
+    this.keptOwnRange = false,
+    this.keptOwnTravel = false,
+    this.choices = const [],
+  });
 }
 
 class _PresetMergeSheet extends StatefulWidget {
@@ -160,6 +170,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
       own: own,
       catalog: catalog,
       keptOwnRange: merged.keptOwnRange,
+      keptOwnTravel: merged.keptOwnTravel,
       choices: [
         (context.l10n.presetMergeChoiceSeparate, PresetMergeRow.newAdjustment(catalog)),
         (context.l10n.presetMergeChoiceSeparateDrop, PresetMergeRow.notAdded(catalog)),
@@ -468,6 +479,22 @@ class _EntryCardState extends State<_EntryCard> {
                 context,
                 Icons.info_outline,
                 context.l10n.presetMergeKeptRange,
+                colors.tertiary,
+              ),
+            if ((entry.keptOwnTravel, own, catalog) case (
+              true,
+              SagAdjustment(referenceTravelMm: final ownTravel?),
+              SagAdjustment(
+                referenceTravelMm: final catalogTravel?,
+              ),
+            ))
+              _line(
+                context,
+                Icons.info_outline,
+                context.l10n.presetMergeKeptTravel(
+                  NumericalValue(ownTravel).displayText(context.l10n),
+                  NumericalValue(catalogTravel).displayText(context.l10n),
+                ),
                 colors.tertiary,
               ),
           ],

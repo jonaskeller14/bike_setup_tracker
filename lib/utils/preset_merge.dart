@@ -76,7 +76,11 @@ class MergedAdjustment {
   /// would fall outside it.
   final bool keptOwnRange;
 
-  const MergedAdjustment(this.adjustment, {this.keptOwnRange = false});
+  /// The catalog SAG has another travel, which wasn't adopted because the
+  /// rider set one: it would change the millimetres of every recorded value.
+  final bool keptOwnTravel;
+
+  const MergedAdjustment(this.adjustment, {this.keptOwnRange = false, this.keptOwnTravel = false});
 }
 
 /// [existing] taking over [catalog]: its id, name, unit and type stay, so every
@@ -84,7 +88,8 @@ class MergedAdjustment {
 ///
 /// It adopts the catalog range only while every recorded value stays valid; a
 /// numerical range only in the same unit. A categorical adjustment gains the
-/// catalog options it lacks, so option values of a guide can be applied.
+/// catalog options it lacks, so option values of a guide can be applied. A SAG
+/// adopts the catalog travel only while it has none of its own.
 /// [unknownMaxKeys] are the catalog preset keys whose max is a placeholder.
 MergedAdjustment mergeAdjustment(
   Adjustment existing,
@@ -93,6 +98,11 @@ MergedAdjustment mergeAdjustment(
   Set<String> unknownMaxKeys = const {},
 }) {
   final stamped = existing.copyWith(presetKey: catalog.presetKey);
+  if ((stamped, catalog) case (final SagAdjustment own, SagAdjustment(referenceTravelMm: final travel?))) {
+    final ownTravel = own.referenceTravelMm;
+    if (ownTravel == null) return MergedAdjustment(own.copyWith(referenceTravelMm: travel));
+    return MergedAdjustment(own, keptOwnTravel: ownTravel != travel);
+  }
   final Adjustment? withRange = switch ((stamped, catalog)) {
     // A placeholder max is a guess; the rider's own range is better.
     (StepAdjustment(), StepAdjustment(:final presetKey)) when unknownMaxKeys.contains(presetKey) => null,

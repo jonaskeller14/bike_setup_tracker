@@ -8801,6 +8801,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get presetMergeKeptRange => 'Mantiene tu rango: hay valores registrados fuera del de la plantilla';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Mantiene tu recorrido de $own mm (plantilla: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Combinar en “$name”';
   }

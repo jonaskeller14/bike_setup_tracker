@@ -8805,6 +8805,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get presetMergeKeptRange => 'Mantiene il tuo intervallo: i valori registrati sono fuori da quello del modello';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Mantiene la tua escursione di $own mm (modello: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Unisci in “$name”';
   }

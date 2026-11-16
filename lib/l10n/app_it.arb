@@ -2336,6 +2336,7 @@
   "presetReplaceWarning": "{withValues, plural, =1{1 delle tue regolazioni ha} other{{withValues} delle tue regolazioni hanno}} {valueCount, plural, =1{1 valore registrato} other{{valueCount} valori registrati}}. Sostituendo, vengono rimosse da questo componente: i valori restano nei tuoi setup, ma non appartengono più a nessuna regolazione. Unendo, si mantengono.",
   "presetMergeLine": "{own} + {catalog} (modello)",
   "presetMergeKeptRange": "Mantiene il tuo intervallo: i valori registrati sono fuori da quello del modello",
+  "presetMergeKeptTravel": "Mantiene la tua escursione di {own} mm (modello: {catalog} mm)",
   "presetMergeChoiceMergeInto": "Unisci in “{name}”",
   "presetMergeChoiceMergeWith": "Unisci con “{name}” (modello)",
   "presetMergeChoiceDontAdd": "Non aggiungere",

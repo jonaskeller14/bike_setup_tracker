@@ -14119,6 +14119,12 @@ abstract class AppLocalizations {
   /// **'Keeps your range: recorded values lie outside the preset\'s'**
   String get presetMergeKeptRange;
 
+  /// Line on a merged SAG result card whose own travel was kept instead of the preset's. {own} and {catalog} are formatted millimetre values.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your travel of {own} mm (preset: {catalog} mm)'**
+  String presetMergeKeptTravel(String own, String catalog);
+
   /// Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.
   ///
   /// In en, this message translates to:

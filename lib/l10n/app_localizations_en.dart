@@ -8766,6 +8766,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presetMergeKeptRange => 'Keeps your range: recorded values lie outside the preset\'s';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Keeps your travel of $own mm (preset: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Merge into \"$name\"';
   }

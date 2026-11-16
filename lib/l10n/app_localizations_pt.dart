@@ -8798,6 +8798,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get presetMergeKeptRange => 'Mantém a sua faixa: há valores registrados fora da do modelo';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Mantém o seu curso de $own mm (modelo: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Mesclar em “$name”';
   }

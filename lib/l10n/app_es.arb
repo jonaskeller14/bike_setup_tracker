@@ -2336,6 +2336,7 @@
   "presetReplaceWarning": "{withValues, plural, =1{1 de tus ajustes tiene} other{{withValues} de tus ajustes tienen}} {valueCount, plural, =1{1 valor registrado} other{{valueCount} valores registrados}}. Al reemplazar, se quitan de este componente: los valores se quedan en tus setups, pero ya no pertenecen a ningún ajuste. Al combinar, se conservan.",
   "presetMergeLine": "{own} + {catalog} (plantilla)",
   "presetMergeKeptRange": "Mantiene tu rango: hay valores registrados fuera del de la plantilla",
+  "presetMergeKeptTravel": "Mantiene tu recorrido de {own} mm (plantilla: {catalog} mm)",
   "presetMergeChoiceMergeInto": "Combinar en “{name}”",
   "presetMergeChoiceMergeWith": "Combinar con “{name}” (plantilla)",
   "presetMergeChoiceDontAdd": "No añadir",

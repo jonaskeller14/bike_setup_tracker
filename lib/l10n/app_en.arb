@@ -11738,6 +11738,18 @@
   "@presetMergeKeptRange": {
     "description": "Line on a merged result card whose range was not replaced."
   },
+  "presetMergeKeptTravel": "Keeps your travel of {own} mm (preset: {catalog} mm)",
+  "@presetMergeKeptTravel": {
+    "description": "Line on a merged SAG result card whose own travel was kept instead of the preset's. {own} and {catalog} are formatted millimetre values.",
+    "placeholders": {
+      "own": {
+        "type": "String"
+      },
+      "catalog": {
+        "type": "String"
+      }
+    }
+  },
   "presetMergeChoiceMergeInto": "Merge into \"{name}\"",
   "@presetMergeChoiceMergeInto": {
     "description": "Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.",

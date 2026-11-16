@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 
 import '../../models/setup.dart';
 import 'knob_effect_model.dart';
+import 'session_progress.dart';
 import 'strategy_knob.dart';
 import 'suggestion_result.dart';
 import 'test_session_strategy.dart';
@@ -32,11 +33,34 @@ class PatternSearchStrategy extends TestSessionStrategy {
     final (:knobs, :result) = TestSessionStrategy.movableKnobs(history);
     if (result != null) return result;
 
-    final search = _Search(history, knobs);
-    for (final run in history.runs.skip(1)) {
-      search.add(run);
-    }
-    return search.next();
+    return _Search.replay(history, knobs).next();
+  }
+
+  /// Open-ended, so an estimate and no bound: the runs left if no run beats
+  /// the best one any more. A better run usually adds runs, but saves one
+  /// where its neighbours are ridden already (at the smallest step, at the end
+  /// of a range), and "same" answers on the finer steps raise
+  /// [TestSessionStrategy.minNoticeableStep] and skip them.
+  @override
+  SessionProgress? estimate(TestSessionHistory history) {
+    final (:knobs, :result) = TestSessionStrategy.movableKnobs(history);
+    if (result != null) return null;
+
+    final search = _Search.replay(history, knobs);
+    final ridden = history.runs.length;
+    return switch (search.next()) {
+      Converged() => SessionProgress.exact(ridden: ridden, left: 0),
+      Proposal(rationale: SuggestionNote(kind: SuggestionNoteKind.rideAgainCheck)) => SessionProgress.exact(
+        ridden: ridden,
+        left: 1,
+        confirming: true,
+      ),
+      _ => SessionProgress(
+        ridden: ridden,
+        left: search.pollsLeft() + (search.repeat == null ? 1 : 0),
+        maxLeft: null,
+      ),
+    };
   }
 }
 
@@ -90,6 +114,15 @@ class _Search {
     // The latest run's values were checked, so a missing first position only
     // means run 1 predates a knob; it starts from the latest run then.
     bestPosition = positions[best.id] ?? positions[history.runs.last.id]!;
+  }
+
+  /// The search after every run of [history].
+  factory _Search.replay(TestSessionHistory history, List<StrategyKnob> knobs) {
+    final search = _Search(history, knobs);
+    for (final run in history.runs.skip(1)) {
+      search.add(run);
+    }
+    return search;
   }
 
   static double _atLeast(double value, double minimum) => value < minimum ? minimum : value;
@@ -161,6 +194,24 @@ class _Search {
             previousId: history.runs[index - 1].id,
           ),
     );
+  }
+
+  /// The runs [next] goes on to propose before the confirmation when none of
+  /// them beats the best run: the pattern move, then every poll down to the
+  /// smallest steps. Uses up the search.
+  int pollsLeft() {
+    var count = 0;
+    if (_patternTarget() case final target?) {
+      notBetter.add(target);
+      count++;
+    }
+    while (true) {
+      for (var target = _nextPoll(); target != null; target = _nextPoll()) {
+        notBetter.add(target);
+        count++;
+      }
+      if (!_halveSteps()) return count;
+    }
   }
 
   /// The move that made the best run, once more, if not tried yet.

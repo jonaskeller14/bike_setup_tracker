@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import '../../models/setup.dart';
 import '../feedback_ranking_service.dart';
 import 'knob_effect_model.dart';
+import 'session_progress.dart';
 import 'strategy_knob.dart';
 import 'suggestion_result.dart';
 import 'test_session_strategy.dart';
@@ -132,6 +133,35 @@ class OrthogonalArrayStrategy extends TestSessionStrategy {
       referenceSetupId: runs.last.id,
       rationale: SuggestionNote(SuggestionNoteKind.rideAgainConfirm, [SetupArg(repeat.name)]),
     );
+  }
+
+  @override
+  SessionProgress? estimate(TestSessionHistory history) {
+    final ridden = history.runs.length;
+    return switch (propose(history)) {
+      Converged() => SessionProgress.exact(ridden: ridden, left: 0),
+      Proposal(rationale: SuggestionNote(kind: SuggestionNoteKind.patternStep)) => _duringPattern(history),
+      // Then the confirmation.
+      Proposal(rationale: SuggestionNote(kind: SuggestionNoteKind.estimatedBest)) => SessionProgress.exact(
+        ridden: ridden,
+        left: 2,
+      ),
+      Proposal(rationale: SuggestionNote(kind: SuggestionNoteKind.rideAgainConfirm)) => SessionProgress.exact(
+        ridden: ridden,
+        left: 1,
+        confirming: true,
+      ),
+      _ => null,
+    };
+  }
+
+  /// The rest of the pattern and the confirmation, plus the estimated best
+  /// unless it turns out to be a run already ridden. With one knob it always
+  /// is: the pattern rides both directions.
+  static SessionProgress _duringPattern(TestSessionHistory history) {
+    final knobs = TestSessionStrategy.movableKnobs(history).knobs.length;
+    final left = patternRows(knobs).length - (history.runs.length - 1) + 1;
+    return SessionProgress(ridden: history.runs.length, left: left, maxLeft: knobs == 1 ? left : left + 1);
   }
 
   static double _atLeast(double value, double minimum) => value < minimum ? minimum : value;

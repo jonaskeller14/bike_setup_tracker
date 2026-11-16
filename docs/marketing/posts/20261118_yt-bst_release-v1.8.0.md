@@ -1,6 +1,6 @@
 # yt-bst · Release v1.8.0 (community post)
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-18 17:00
 - App version: 1.8.0

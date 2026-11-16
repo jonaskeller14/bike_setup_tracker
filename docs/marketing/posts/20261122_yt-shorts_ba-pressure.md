@@ -1,7 +1,7 @@
 # yt-shorts · Before / After: Pressure Check
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/3REewu-syEE?feature=share
 - Posted: 2026-11-22 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

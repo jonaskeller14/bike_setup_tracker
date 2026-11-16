@@ -1,6 +1,6 @@
 # tiktok · Video: Before / After: Pressure Check
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-22 20:00
 - App version: 1.8.0

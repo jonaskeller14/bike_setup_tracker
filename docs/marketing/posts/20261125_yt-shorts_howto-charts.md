@@ -1,7 +1,7 @@
 # yt-shorts · How to: Season charts
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/lrI-hBEPJDc?feature=share
 - Posted: 2026-11-25 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

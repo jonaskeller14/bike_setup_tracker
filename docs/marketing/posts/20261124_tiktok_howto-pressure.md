@@ -1,6 +1,6 @@
 # tiktok · Video: How to: Pressure Check
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-24 20:00
 - App version: 1.8.0

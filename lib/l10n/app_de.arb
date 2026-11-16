@@ -719,6 +719,7 @@
   "componentFormAddAdjustment": "Einstellung hinzufügen",
   "componentFormPresetFilled": "Aus {name} übernommen",
   "componentFormPresetReplaced": "Einstellungen durch {name} ersetzt",
+  "componentFormPresetUpdated": "{name}: Katalogangaben aktualisiert",
   "componentFormPresetLinked": "{count, plural, =0{Mit {name} verknüpft · keine Einstellungen hinzugefügt} =1{Mit {name} verknüpft · 1 Einstellung hinzugefügt} other{Mit {name} verknüpft · {count} Einstellungen hinzugefügt}}",
   "componentFormCatalogUpdateDismissed": "Katalog-Aktualisierung verworfen",
   "componentFormPresetUnlinked": "Verknüpfung mit {name} aufgehoben – Werte bleiben erhalten",

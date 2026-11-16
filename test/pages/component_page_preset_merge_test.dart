@@ -1,4 +1,5 @@
 import 'package:bike_setup_tracker/database/app_database.dart';
+import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/app_settings.dart';
 import 'package:bike_setup_tracker/models/bike.dart';
@@ -10,11 +11,14 @@ import 'package:bike_setup_tracker/repositories/component_catalog_repository.dar
 import 'package:bike_setup_tracker/services/app_hint_service.dart';
 import 'package:bike_setup_tracker/services/subscription_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
+import 'package:bike_setup_tracker/utils/component_catalog_application.dart';
 import 'package:bike_setup_tracker/utils/component_catalog_parser.dart';
+import 'package:bike_setup_tracker/utils/component_preset_resolver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../goldens/support/localized_test_app.dart';
 
 /// Linking a hand-built component with recorded setups to a catalog product
@@ -37,6 +41,13 @@ nodes:
       - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
       - { name: LSR, type: step, max: 16 }
       - { name: HSC, type: step, max: 8 }
+  - label: Long
+    level: model
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: LSR, type: step, max: 16 }
+    options:
+      travel_mm: [150, 160]
 ''';
 
 const _productName = 'Acme Guided';
@@ -211,6 +222,65 @@ void main() {
     for (final id in recorded.keys) {
       expect(adjustments.singleWhere((a) => a.id == id).isValidValue(recorded[id]!), isTrue);
     }
+  });
+
+  group('re-picking the linked product', () {
+    setUp(() {
+      final long = catalogProducts(parseCatalogFile(_catalog)).firstWhere((p) => p.node.id == 'long');
+      final app = buildCatalogApplication(long, englishL10n);
+      fork = Component(
+        id: 'fork',
+        name: 'My Fork',
+        componentType: ComponentType.fork,
+        installations: const [],
+        adjustments: [
+          for (final a in app.adjustments) a is StepAdjustment ? a.copyWith(max: 20) : a,
+        ],
+        preset: app.preset,
+      ).copyWithNewInstallation(_bikeId);
+    });
+
+    Future<void> chooseTravel(WidgetTester tester, String travel) async {
+      await tester.tap(find.text('Acme Long'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(travel));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Apply'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('with only another travel skips the merge sheet', (tester) async {
+      final saved = await open(tester);
+      await chooseTravel(tester, '160 mm');
+
+      expect(find.text('Merge adjustments'), findsNothing);
+      expect(find.text('Acme Long: catalog details updated'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.check));
+      await tester.pumpAndSettle();
+
+      final component = (saved()! as EditResult<Component>).value;
+      expect(component.preset?['travel_mm'], 160);
+      expect(component.adjustments.map((a) => a.id), fork.adjustments.map((a) => a.id));
+      expect(component.adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
+      expect(
+        component.adjustments.whereType<StepAdjustment>().single.max,
+        20,
+        reason: 'The range the rider set stays; no catalog range is merged in',
+      );
+    });
+
+    testWidgets('undo restores the previous details', (tester) async {
+      await open(tester);
+      await chooseTravel(tester, '150 mm');
+
+      await tester.tap(find.text('UNDO'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Acme Long'));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, '150 mm')).selected, isFalse);
+    });
   });
 
   testWidgets('undo restores the unlinked adjustments', (tester) async {

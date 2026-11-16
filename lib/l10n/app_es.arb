@@ -719,6 +719,7 @@
   "componentFormAddAdjustment": "Añadir ajuste",
   "componentFormPresetFilled": "Rellenado a partir de {name}",
   "componentFormPresetReplaced": "Ajustes reemplazados por {name}",
+  "componentFormPresetUpdated": "{name}: datos del catálogo actualizados",
   "componentFormPresetLinked": "{count, plural, =0{Vinculado a {name} · ningún ajuste añadido} =1{Vinculado a {name} · 1 ajuste añadido} other{Vinculado a {name} · {count} ajustes añadidos}}",
   "componentFormCatalogUpdateDismissed": "Actualización del catálogo descartada",
   "componentFormPresetUnlinked": "Desvinculado de {name} — valores conservados",

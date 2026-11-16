@@ -1,11 +1,10 @@
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
-import '../models/component/component.dart';
 import '../models/component/component_preset.dart';
 import 'component_catalog_application.dart';
 import 'component_preset_resolver.dart';
 
-/// What choosing catalog details the setup guide was missing changes on a
+/// What choosing other details of the same catalog product changes on a
 /// component: its preset map, and a SAG without travel takes the catalog's.
 /// Every other adjustment stays as the rider has it.
 class GuideDetailsChange {
@@ -27,9 +26,10 @@ class GuideDetailsChange {
   });
 }
 
-/// [component], linked to [current], once [chosen] adds the missing details.
+/// The [adjustments] of a component linked to [current], once [chosen] sets
+/// its details.
 GuideDetailsChange planGuideDetailsChange(
-  Component component,
+  List<Adjustment> adjustments,
   ResolvedPreset current,
   ResolvedPreset chosen,
   AppLocalizations l10n,
@@ -40,7 +40,7 @@ GuideDetailsChange planGuideDetailsChange(
   return GuideDetailsChange(
     preset: app.preset,
     adjustments: [
-      for (final adjustment in component.adjustments)
+      for (final adjustment in adjustments)
         // A SAG with its own travel keeps it: it gives every recorded value its millimetres.
         if (adjustment is SagAdjustment && adjustment.referenceTravelMm == null && travel != null)
           adjustment.copyWith(referenceTravelMm: travel)

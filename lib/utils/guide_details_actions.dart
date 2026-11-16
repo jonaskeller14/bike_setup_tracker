@@ -30,7 +30,7 @@ Future<void> completeGuideDetails(BuildContext context, GuidedComponent guided, 
 
   final l10n = context.l10n;
   final repository = context.read<AppRepository>();
-  final change = planGuideDetailsChange(component, guided.preset, chosen, l10n);
+  final change = planGuideDetailsChange(component.adjustments, guided.preset, chosen, l10n);
   var adjustments = change.adjustments;
   if (change.added.isNotEmpty) {
     final merge = await showPresetMergeSheet(

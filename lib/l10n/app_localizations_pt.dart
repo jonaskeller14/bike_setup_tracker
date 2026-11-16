@@ -2434,6 +2434,11 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String componentFormPresetUpdated(String name) {
+    return '$name: dados do catálogo atualizados';
+  }
+
+  @override
   String componentFormPresetLinked(String name, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

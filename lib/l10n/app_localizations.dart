@@ -16254,6 +16254,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect Strava'**
   String get driveEndingConnectStrava;
+
+  /// Title of the account page row showing how much of the cloud storage quota is used.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud storage'**
+  String get accountStorageTitle;
+
+  /// Cloud storage in use and the quota, both in megabytes, already formatted (e.g. 123, 0.4, 500).
+  ///
+  /// In en, this message translates to:
+  /// **'{used} MB of {total} MB used'**
+  String accountStorageUsed(String used, String total);
+
+  /// Shown when the cloud storage use could not be read. Tapping the row reads it again.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your storage use. Tap to try again.'**
+  String get accountStorageLoadFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

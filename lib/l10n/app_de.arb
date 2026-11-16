@@ -2691,5 +2691,8 @@
   "driveEndingTurnOnSync": "Cloud-Sync einschalten",
   "driveEndingSyncTurnedOn": "Cloud-Sync ist an.",
   "driveEndingBodyConnect": "Ein kommendes Update entfernt die Google-Drive-Synchronisierung. Deine Daten bleiben auf diesem Gerät. Für eine Kopie an anderer Stelle speichere eine Sicherungsdatei oder verbinde Strava, um Cloud-Sync zu starten, das in deinem Abo enthalten ist.",
-  "driveEndingConnectStrava": "Strava verbinden"
+  "driveEndingConnectStrava": "Strava verbinden",
+  "accountStorageTitle": "Cloud-Speicher",
+  "accountStorageUsed": "{used} MB von {total} MB belegt",
+  "accountStorageLoadFailed": "Speicherbelegung konnte nicht geladen werden. Zum Wiederholen tippen."
 }

@@ -13390,5 +13390,25 @@
   "driveEndingConnectStrava": "Connect Strava",
   "@driveEndingConnectStrava": {
     "description": "Button in the notice that Google Drive sync is ending: opens the Strava sheet to connect Strava, which starts cloud sync."
+  },
+  "accountStorageTitle": "Cloud storage",
+  "@accountStorageTitle": {
+    "description": "Title of the account page row showing how much of the cloud storage quota is used."
+  },
+  "accountStorageUsed": "{used} MB of {total} MB used",
+  "@accountStorageUsed": {
+    "description": "Cloud storage in use and the quota, both in megabytes, already formatted (e.g. 123, 0.4, 500).",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "accountStorageLoadFailed": "Couldn't load your storage use. Tap to try again.",
+  "@accountStorageLoadFailed": {
+    "description": "Shown when the cloud storage use could not be read. Tapping the row reads it again."
   }
 }

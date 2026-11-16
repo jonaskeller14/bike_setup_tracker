@@ -74,7 +74,7 @@ void main() {
     final component = componentFor(current);
     expect(sagOf(component.adjustments).referenceTravelMm, isNull);
 
-    final change = planGuideDetailsChange(component, current, choose(current, 'travel_mm', 170), englishL10n);
+    final change = planGuideDetailsChange(component.adjustments, current, choose(current, 'travel_mm', 170), englishL10n);
 
     expect(change.added, isEmpty);
     expect(change.preset['travel_mm'], 170);
@@ -90,7 +90,7 @@ void main() {
     final sag = sagOf(componentFor(current).adjustments);
     final component = replacing(componentFor(current), sag.name, (_) => sag.copyWith(referenceTravelMm: 160.0));
 
-    final change = planGuideDetailsChange(component, current, choose(current, 'travel_mm', 170), englishL10n);
+    final change = planGuideDetailsChange(component.adjustments, current, choose(current, 'travel_mm', 170), englishL10n);
 
     expect(sagOf(change.adjustments).referenceTravelMm, 160);
   });
@@ -99,7 +99,7 @@ void main() {
     final current = product('38');
     final component = replacing(componentFor(current), 'Volume Spacers', (a) => (a as StepAdjustment).copyWith(max: 4));
 
-    final change = planGuideDetailsChange(component, current, choose(current, 'travel_mm', 160), englishL10n);
+    final change = planGuideDetailsChange(component.adjustments, current, choose(current, 'travel_mm', 160), englishL10n);
 
     expect((change.adjustments.firstWhere((a) => a.name == 'Volume Spacers') as StepAdjustment).max, 4);
   });
@@ -109,7 +109,7 @@ void main() {
     final component = componentFor(current);
     expect(current.openRequiredAxes.single.id, 'damper');
 
-    final change = planGuideDetailsChange(component, current, choose(current, 'damper', 'grip'), englishL10n);
+    final change = planGuideDetailsChange(component.adjustments, current, choose(current, 'damper', 'grip'), englishL10n);
 
     expect(change.added.map((a) => a.name), ['Rebound', 'LSC']);
     expect(change.adjustments, component.adjustments);
@@ -126,7 +126,7 @@ void main() {
       ],
     );
 
-    final change = planGuideDetailsChange(component, current, choose(current, 'travel_mm', 160), englishL10n);
+    final change = planGuideDetailsChange(component.adjustments, current, choose(current, 'travel_mm', 160), englishL10n);
 
     expect(change.added, isEmpty);
   });

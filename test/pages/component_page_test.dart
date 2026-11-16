@@ -601,12 +601,13 @@ nodes:
       expect(find.widgetWithText(TextFormField, 'My Fork'), findsOneWidget, reason: "Name stays the user's");
       expect(notesText(tester), 'Serial 123\n\n- Preset note');
 
-      // Re-picking swaps the appended block instead of stacking a second copy.
+      // Re-picking the same product asks nothing and stacks no second notes block.
       await tester.tap(find.widgetWithText(ListTile, presetName));
       await tester.pumpAndSettle();
       await pickFoxFactory(tester);
-      await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
-      await tester.pumpAndSettle();
+      expect(find.text('Merge adjustments'), findsNothing);
+      expect(find.text('$presetName: catalog details updated'), findsOneWidget);
+      expect(find.text('SAG'), findsOneWidget);
       expect(notesText(tester), 'Serial 123\n\n- Preset note');
     });
 

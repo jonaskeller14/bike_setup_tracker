@@ -719,6 +719,7 @@
   "componentFormAddAdjustment": "Adicionar regulagem",
   "componentFormPresetFilled": "Preenchido a partir de {name}",
   "componentFormPresetReplaced": "Regulagens substituídas por {name}",
+  "componentFormPresetUpdated": "{name}: dados do catálogo atualizados",
   "componentFormPresetLinked": "{count, plural, =0{Vinculado a {name} · nenhuma regulagem adicionada} =1{Vinculado a {name} · 1 regulagem adicionada} other{Vinculado a {name} · {count} regulagens adicionadas}}",
   "componentFormCatalogUpdateDismissed": "Atualização do catálogo descartada",
   "componentFormPresetUnlinked": "Desvinculado de {name} — valores mantidos",

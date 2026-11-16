@@ -4417,6 +4417,12 @@ abstract class AppLocalizations {
   /// **'Replaced adjustments with {name}'**
   String componentFormPresetReplaced(String name);
 
+  /// Snackbar after other details (such as travel or model year) of the catalog product a component is already linked to were picked. {name} is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: catalog details updated'**
+  String componentFormPresetUpdated(String name);
+
   /// Snackbar after an existing component was linked to a catalog product. {name} is the product name, {count} the number of added adjustments.
   ///
   /// In en, this message translates to:

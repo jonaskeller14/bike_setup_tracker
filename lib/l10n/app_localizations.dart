@@ -16176,6 +16176,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your 500 MB of cloud storage is full. New files stay on this device only.'**
   String get accountSyncStorageFull;
+
+  /// Title of the one-time offer to move the Google Drive data into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to cloud sync'**
+  String get driveMoveOfferTitle;
+
+  /// Text of the offer to move the Google Drive data into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync now keeps your data on all your devices. Bring in the latest copy from Google Drive once, then Google Drive sync turns off. Nothing is deleted from Google Drive.'**
+  String get driveMoveOfferBody;
+
+  /// Button that starts the move from Google Drive into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Move now'**
+  String get driveMoveStart;
+
+  /// Button that closes a Google Drive notice without doing anything.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get driveNotNow;
+
+  /// Shown while the Google Drive data is read and merged into this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving your Google Drive data…'**
+  String get driveMoveRunning;
+
+  /// Title shown when the Google Drive data was moved into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to cloud sync'**
+  String get driveMoveDoneTitle;
+
+  /// Text shown when the Google Drive data was moved into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Google Drive data is on this device and syncs with your account. Google Drive sync is off.'**
+  String get driveMoveDoneBody;
+
+  /// Title shown when Google Drive had no data to move.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to move'**
+  String get driveMoveNothingTitle;
+
+  /// Text shown when Google Drive had no data to move. Google Drive sync was turned off.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive has no data from this app. Google Drive sync is off, and cloud sync keeps your data from now on.'**
+  String get driveMoveNothingBody;
+
+  /// Title shown when the Google sign-in for the move failed or was canceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t sign in to Google'**
+  String get driveMoveSignInFailedTitle;
+
+  /// Text shown when the Google sign-in for the move failed or was canceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Google to bring in your Drive data. Nothing has changed yet.'**
+  String get driveMoveSignInFailedBody;
+
+  /// Title shown when Google Drive could not be reached for the move.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get driveMoveOfflineTitle;
+
+  /// Text shown when Google Drive could not be reached for the move.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet and try again. Nothing has changed yet.'**
+  String get driveMoveOfflineBody;
+
+  /// Title shown when the move from Google Drive failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving didn\'t work'**
+  String get driveMoveFailedTitle;
+
+  /// Text shown when the move from Google Drive failed for another reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive sync stays on. Try again later.'**
+  String get driveMoveFailedBody;
+
+  /// Button that tries the move from Google Drive again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get driveMoveRetry;
+
+  /// Subtitle of the Google Drive sheet entry that opens the move into cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your Google Drive data into cloud sync once'**
+  String get driveMoveTileSubtitle;
+
+  /// Title of the notice for Google Drive users without a subscription: a later update removes Google Drive sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive sync is ending'**
+  String get driveEndingTitle;
+
+  /// Text of the notice for Google Drive users without a subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or subscribe to get cloud sync across your devices.'**
+  String get driveEndingBody;
+
+  /// Button that saves all data as a backup file the user picks a place for.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup file'**
+  String get driveEndingSaveFile;
+
+  /// Button that opens the subscription offer, which includes cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Get cloud sync'**
+  String get driveEndingGetCloudSync;
+
+  /// Subtitle of the Google Drive sheet entry that opens the notice that Google Drive sync is ending.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a backup file or switch to cloud sync'**
+  String get driveEndingTileSubtitle;
+
+  /// Text of the notice that Google Drive sync is ending, for subscribers who haven't turned on cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or turn on cloud sync, which your subscription includes.'**
+  String get driveEndingBodySync;
+
+  /// Button in the notice that Google Drive sync is ending: turns on cloud sync for a subscriber.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on cloud sync'**
+  String get driveEndingTurnOnSync;
+
+  /// Shown after cloud sync was turned on from the notice that Google Drive sync is ending.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud sync is on.'**
+  String get driveEndingSyncTurnedOn;
+
+  /// Text of the notice that Google Drive sync is ending, for subscribers with cloud sync on but no account on this device yet (it comes with the Strava connection).
+  ///
+  /// In en, this message translates to:
+  /// **'A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or connect Strava to start cloud sync, which your subscription includes.'**
+  String get driveEndingBodyConnect;
+
+  /// Button in the notice that Google Drive sync is ending: opens the Strava sheet to connect Strava, which starts cloud sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Strava'**
+  String get driveEndingConnectStrava;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

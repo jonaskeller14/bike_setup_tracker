@@ -19,6 +19,7 @@ import '../utils/backup.dart';
 import '../utils/file_import.dart';
 import '../widgets/app_snackbar.dart';
 import 'data_export_service.dart';
+import 'drive_move.dart';
 
 enum GoogleDriveServiceStatus {
   idle,
@@ -339,13 +340,45 @@ class GoogleDriveService extends ChangeNotifier {
     }
   }
 
+  /// Signs in if needed and reads the Drive copy, for the move into cloud
+  /// sync. Null when Drive has no copy.
+  Future<SelectedData?> readSyncData() async {
+    _setStatus(GoogleDriveServiceStatus.syncing);
+    try {
+      if (_currentUser == null) await interactiveSignIn();
+      if (_currentUser == null) throw const DriveReadException(DriveReadFailure.signIn);
+      if (!_isAuthorized) await _handleAuthorizeScopes();
+      if (!_isAuthorized) throw const DriveReadException(DriveReadFailure.signIn);
+      try {
+        await _initializeDriveApi();
+        return await _readSyncFile();
+      } on DetailedApiRequestError catch (e) {
+        if (e.status != 401) rethrow;
+        await clearToken();
+        throw const DriveReadException(DriveReadFailure.signIn);
+      } on SocketException {
+        throw const DriveReadException(DriveReadFailure.offline);
+      } on http.ClientException {
+        throw const DriveReadException(DriveReadFailure.offline);
+      }
+    } finally {
+      _setStatus(GoogleDriveServiceStatus.idle);
+    }
+  }
+
   Future<void> _download() async {
+    final remoteData = await _readSyncFile();
+    if (remoteData == null) return;
+    await FileImport.merge(remoteData: remoteData, database: appDatabase);
+  }
+
+  Future<SelectedData?> _readSyncFile() async {
     if (_driveApi == null) throw Exception("Drive API not initialized");
 
     final fileId = await _getFileId();
     if (fileId == null) {
       debugPrint("Remote file does not exist. Skipping download.");
-      return; 
+      return null;
     }
 
     final drive.Media media = await _driveApi!.files.get(
@@ -360,8 +393,7 @@ class GoogleDriveService extends ChangeNotifier {
 
     final jsonString = utf8.decode(dataStore);
     final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-    final SelectedData remoteData = SelectedData.fromJson(jsonData);
-    await FileImport.merge(remoteData: remoteData, database: appDatabase);
+    return SelectedData.fromJson(jsonData);
   }
 
   Future<String?> _getFileId() async {

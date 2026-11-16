@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +8,9 @@ import '../../icons/simple_icons.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
+import '../../services/drive_move.dart';
 import '../../services/google_drive_service.dart';
+import '../../utils/drive_move_actions.dart';
 import 'sheet_header.dart';
 
 Future<void> showGoogleDriveSheet({required BuildContext context}) async {
@@ -37,7 +41,7 @@ class GoogleDriveSheet extends StatelessWidget {
             leadingIcon: Icon(SimpleIcons.googledrive, color: Theme.of(context).colorScheme.onSurface),
           ),
           const SizedBox(height: 16),
-          Padding(
+          Flexible(child: Padding(
             padding: const EdgeInsetsGeometry.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -49,6 +53,7 @@ class GoogleDriveSheet extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (selectDriveNotice(context) case final notice?) _DriveNoticeTile(notice: notice),
                         _accountListTile(context),
                         if (isSignedIn)
                           _buildSyncInfoSection(context, googleDriveService),
@@ -111,7 +116,7 @@ class GoogleDriveSheet extends StatelessWidget {
                 ),
               ],
             ),
-          ),
+          )),
         ],
       ),
     );
@@ -200,6 +205,34 @@ class GoogleDriveSheet extends StatelessWidget {
           size: Theme.of(context).textTheme.bodyLarge?.fontSize,
         ),
       ),
+    );
+  }
+}
+
+class _DriveNoticeTile extends StatelessWidget {
+  final DriveNotice notice;
+
+  const _DriveNoticeTile({required this.notice});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final isMove = notice == DriveNotice.move;
+    return ListTile(
+      leading: Icon(
+        isMove ? Icons.drive_file_move_outline : Icons.info_outline,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      title: Text(isMove ? l10n.driveMoveOfferTitle : l10n.driveEndingTitle),
+      subtitle: Text(isMove ? l10n.driveMoveTileSubtitle : l10n.driveEndingTileSubtitle),
+      trailing: const Icon(Icons.chevron_right),
+      contentPadding: EdgeInsets.zero,
+      onTap: () {
+        // The notice replaces this sheet, so it opens from the navigator.
+        final navigatorContext = Navigator.of(context).context;
+        Navigator.pop(context);
+        unawaited(showDriveNotice(navigatorContext, notice));
+      },
     );
   }
 }

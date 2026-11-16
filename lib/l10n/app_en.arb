@@ -13361,5 +13361,113 @@
   "accountSyncStorageFull": "Your 500 MB of cloud storage is full. New files stay on this device only.",
   "@accountSyncStorageFull": {
     "description": "Shown when attachments can't be uploaded because the 500 MB cloud storage is full."
+  },
+  "driveMoveOfferTitle": "Move to cloud sync",
+  "@driveMoveOfferTitle": {
+    "description": "Title of the one-time offer to move the Google Drive data into cloud sync."
+  },
+  "driveMoveOfferBody": "Cloud sync now keeps your data on all your devices. Bring in the latest copy from Google Drive once, then Google Drive sync turns off. Nothing is deleted from Google Drive.",
+  "@driveMoveOfferBody": {
+    "description": "Text of the offer to move the Google Drive data into cloud sync."
+  },
+  "driveMoveStart": "Move now",
+  "@driveMoveStart": {
+    "description": "Button that starts the move from Google Drive into cloud sync."
+  },
+  "driveNotNow": "Not now",
+  "@driveNotNow": {
+    "description": "Button that closes a Google Drive notice without doing anything."
+  },
+  "driveMoveRunning": "Moving your Google Drive data…",
+  "@driveMoveRunning": {
+    "description": "Shown while the Google Drive data is read and merged into this device."
+  },
+  "driveMoveDoneTitle": "Moved to cloud sync",
+  "@driveMoveDoneTitle": {
+    "description": "Title shown when the Google Drive data was moved into cloud sync."
+  },
+  "driveMoveDoneBody": "Your Google Drive data is on this device and syncs with your account. Google Drive sync is off.",
+  "@driveMoveDoneBody": {
+    "description": "Text shown when the Google Drive data was moved into cloud sync."
+  },
+  "driveMoveNothingTitle": "Nothing to move",
+  "@driveMoveNothingTitle": {
+    "description": "Title shown when Google Drive had no data to move."
+  },
+  "driveMoveNothingBody": "Google Drive has no data from this app. Google Drive sync is off, and cloud sync keeps your data from now on.",
+  "@driveMoveNothingBody": {
+    "description": "Text shown when Google Drive had no data to move. Google Drive sync was turned off."
+  },
+  "driveMoveSignInFailedTitle": "Couldn't sign in to Google",
+  "@driveMoveSignInFailedTitle": {
+    "description": "Title shown when the Google sign-in for the move failed or was canceled."
+  },
+  "driveMoveSignInFailedBody": "Sign in to Google to bring in your Drive data. Nothing has changed yet.",
+  "@driveMoveSignInFailedBody": {
+    "description": "Text shown when the Google sign-in for the move failed or was canceled."
+  },
+  "driveMoveOfflineTitle": "You're offline",
+  "@driveMoveOfflineTitle": {
+    "description": "Title shown when Google Drive could not be reached for the move."
+  },
+  "driveMoveOfflineBody": "Connect to the internet and try again. Nothing has changed yet.",
+  "@driveMoveOfflineBody": {
+    "description": "Text shown when Google Drive could not be reached for the move."
+  },
+  "driveMoveFailedTitle": "Moving didn't work",
+  "@driveMoveFailedTitle": {
+    "description": "Title shown when the move from Google Drive failed for another reason."
+  },
+  "driveMoveFailedBody": "Google Drive sync stays on. Try again later.",
+  "@driveMoveFailedBody": {
+    "description": "Text shown when the move from Google Drive failed for another reason."
+  },
+  "driveMoveRetry": "Try again",
+  "@driveMoveRetry": {
+    "description": "Button that tries the move from Google Drive again."
+  },
+  "driveMoveTileSubtitle": "Bring your Google Drive data into cloud sync once",
+  "@driveMoveTileSubtitle": {
+    "description": "Subtitle of the Google Drive sheet entry that opens the move into cloud sync."
+  },
+  "driveEndingTitle": "Google Drive sync is ending",
+  "@driveEndingTitle": {
+    "description": "Title of the notice for Google Drive users without a subscription: a later update removes Google Drive sync."
+  },
+  "driveEndingBody": "A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or subscribe to get cloud sync across your devices.",
+  "@driveEndingBody": {
+    "description": "Text of the notice for Google Drive users without a subscription."
+  },
+  "driveEndingSaveFile": "Save backup file",
+  "@driveEndingSaveFile": {
+    "description": "Button that saves all data as a backup file the user picks a place for."
+  },
+  "driveEndingGetCloudSync": "Get cloud sync",
+  "@driveEndingGetCloudSync": {
+    "description": "Button that opens the subscription offer, which includes cloud sync."
+  },
+  "driveEndingTileSubtitle": "Save a backup file or switch to cloud sync",
+  "@driveEndingTileSubtitle": {
+    "description": "Subtitle of the Google Drive sheet entry that opens the notice that Google Drive sync is ending."
+  },
+  "driveEndingBodySync": "A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or turn on cloud sync, which your subscription includes.",
+  "@driveEndingBodySync": {
+    "description": "Text of the notice that Google Drive sync is ending, for subscribers who haven't turned on cloud sync."
+  },
+  "driveEndingTurnOnSync": "Turn on cloud sync",
+  "@driveEndingTurnOnSync": {
+    "description": "Button in the notice that Google Drive sync is ending: turns on cloud sync for a subscriber."
+  },
+  "driveEndingSyncTurnedOn": "Cloud sync is on.",
+  "@driveEndingSyncTurnedOn": {
+    "description": "Shown after cloud sync was turned on from the notice that Google Drive sync is ending."
+  },
+  "driveEndingBodyConnect": "A coming update removes Google Drive sync. Your data stays on this device. To keep a copy elsewhere, save a backup file, or connect Strava to start cloud sync, which your subscription includes.",
+  "@driveEndingBodyConnect": {
+    "description": "Text of the notice that Google Drive sync is ending, for subscribers with cloud sync on but no account on this device yet (it comes with the Strava connection)."
+  },
+  "driveEndingConnectStrava": "Connect Strava",
+  "@driveEndingConnectStrava": {
+    "description": "Button in the notice that Google Drive sync is ending: opens the Strava sheet to connect Strava, which starts cloud sync."
   }
 }

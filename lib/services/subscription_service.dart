@@ -73,6 +73,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver imp
 
   SubscriptionState _state = const SubscriptionIdle();
   StravaEntitlement? _entitlement;
+  bool _entitlementLoaded = false;
 
   bool get isBusy => switch (_state) {
     SubscriptionIdle() || SubscriptionError() => false,
@@ -113,6 +114,10 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver imp
   bool get hasStravaEntitlement => _entitlement?.isActive ?? false;
   StravaPlan? get activePlan => _entitlement?.plan;
   bool get isRestoring => _isRestoring;
+
+  /// Whether the user has the subscription, or null until the entitlement has
+  /// been read and the launch restore is done.
+  bool? get premiumIfKnown => !_entitlementLoaded || _isRestoring ? null : hasStravaEntitlement;
   bool get offersReady => StravaPlan.values.every(_planOffers.containsKey) && !isBusy;
   StravaStoreOffer? offerFor(StravaPlan plan) => _planOffers[plan];
   String? localizedPrice(StravaPlan plan) => _planOffers[plan]?.localizedRecurringPrice;
@@ -268,6 +273,7 @@ class SubscriptionService extends ChangeNotifier with WidgetsBindingObserver imp
       final entitlementMap = data?[_firestoreField] as Map<String, dynamic>?;
       final stravaMap = entitlementMap?['strava'] as Map<String, dynamic>?;
       _entitlement = StravaEntitlement.fromMap(stravaMap);
+      _entitlementLoaded = true;
       notifyListeners();
 
       // Auto-restore when entitlement lapses while the app is running.

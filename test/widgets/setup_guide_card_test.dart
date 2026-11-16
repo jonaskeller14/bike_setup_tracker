@@ -403,12 +403,12 @@ nodes:
       ),
     );
 
-    expect(find.text('Only used for these recommendations'), findsOneWidget);
+    expect(find.textContaining('Only used for these recommendations', findRichText: true), findsOneWidget);
     await tester.enterText(find.byType(TextField), '82,5');
     await tester.enterText(find.byType(TextField), '');
     expect(weights, [82.5, null]);
 
-    await tester.tap(find.text('Add riding weight to Rider'));
+    await tester.tap(find.textContaining('Add riding weight to Rider', findRichText: true));
     expect(added, 1);
   });
 

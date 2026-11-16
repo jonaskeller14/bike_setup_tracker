@@ -94,6 +94,13 @@ class _Case {
 
   /// No riding weight on the rider: the card asks for one.
   final bool askForWeight;
+
+  /// What the rider has typed into the weight field so far.
+  final double? typedWeight;
+
+  /// The rider has a riding-weight attribute, so the typed weight is saved to
+  /// it; otherwise it is only used on the card and can be added to the rider.
+  final bool riderHasWeightAttribute;
   final double width;
   final double textScale;
 
@@ -104,6 +111,8 @@ class _Case {
     this.current = const {},
     this.expanded = true,
     this.askForWeight = false,
+    this.typedWeight,
+    this.riderHasWeightAttribute = false,
     this.width = _cellWidth,
     this.textScale = 1,
   }) : guided = guided ?? _guided();
@@ -131,12 +140,14 @@ class _Case {
       initiallyExpanded: expanded,
       weightInput: askForWeight
           ? GuideWeightInput(
-              weight: null,
+              weight: typedWeight,
               unit: const GuideInputs().riderWeightUnit,
               onChanged: onWeight ?? (_) {},
-              hint: 'Saved with this setup as myRider\'s riding weight',
-              onAddToRider: () {},
-              addToRiderLabel: 'Add riding weight to myRider',
+              hint: riderHasWeightAttribute
+                  ? 'Saved with this setup as myRider\'s riding weight'
+                  : 'Only used for these recommendations.',
+              onAddToRider: riderHasWeightAttribute ? null : () {},
+              addToRiderLabel: "Save as myRider's weight",
             )
           : null,
     );
@@ -151,7 +162,27 @@ final _cases = [
   _Case('Off: large step down, small step up', current: {'Pressure': 110, 'LSC': 3}),
   _Case("Can't apply: guide beyond the adjuster's maximum", guided: _guided(pressureMax: 70)),
   _Case('Outside the published weights (130 kg)', inputs: const GuideInputs(riderWeight: 130)),
-  _Case('No riding weight yet', inputs: const GuideInputs(), current: {'Pressure': 80}, askForWeight: true),
+  _Case(
+    'No riding weight on the rider',
+    inputs: const GuideInputs(),
+    current: {'Pressure': 80},
+    askForWeight: true,
+  ),
+  _Case(
+    'Rider has a riding-weight attribute, typed on the card, with a riding style',
+    inputs: const GuideInputs(riderWeight: 82.5, ridingStyle: GuideRidingStyle.balanced),
+    current: {'Pressure': 80},
+    askForWeight: true,
+    typedWeight: 82.5,
+    riderHasWeightAttribute: true,
+  ),
+  _Case(
+    'Weight field: narrow screen, text scale 1.5',
+    inputs: const GuideInputs(ridingStyle: GuideRidingStyle.comfort),
+    askForWeight: true,
+    width: 320,
+    textScale: 1.5,
+  ),
   _Case('Collapsed, everything matches', current: {'Pressure': 77, 'LSC': 4}, expanded: false),
   _Case('Collapsed, a value differs', current: {'Pressure': 90, 'LSC': 4}, expanded: false),
   _Case(

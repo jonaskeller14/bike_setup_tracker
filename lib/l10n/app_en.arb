@@ -5519,13 +5519,13 @@
       }
     }
   },
-  "setupFormGuideWeightLocal": "Only used for these recommendations",
+  "setupFormGuideWeightLocal": "Only used for these recommendations.",
   "@setupFormGuideWeightLocal": {
     "description": "Hint under the weight field of the setup guide card when no rider attribute is used."
   },
-  "setupFormGuideAddWeight": "Add riding weight to {name}",
+  "setupFormGuideAddWeight": "Save as {name}'s weight",
   "@setupFormGuideAddWeight": {
-    "description": "Button of the setup guide card that adds a riding weight attribute to the rider.",
+    "description": "Link after the hint under the setup guide card's weight field: adds a riding weight attribute to the rider and saves the typed weight to it.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -10944,9 +10944,9 @@
   "@guideCardRidingWeight": {
     "description": "Label of the riding weight field of the setup guide card."
   },
-  "guideCardAddWeightDefault": "Add riding weight to rider",
+  "guideCardAddWeightDefault": "Save as the rider's weight",
   "@guideCardAddWeightDefault": {
-    "description": "Button that stores the typed riding weight with the rider, used when no rider name is known."
+    "description": "Link that saves the typed riding weight with the rider, used when no rider name is known."
   },
   "guideCardBasedOn": "Based on: {guide}",
   "@guideCardBasedOn": {

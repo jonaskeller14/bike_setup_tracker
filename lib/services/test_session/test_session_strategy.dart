@@ -10,6 +10,7 @@ import '../../models/feedback/test_session_method.dart';
 import '../../models/setup.dart';
 import 'orthogonal_array_strategy.dart';
 import 'pattern_search_strategy.dart';
+import 'session_progress.dart';
 import 'strategy_knob.dart';
 import 'suggestion_result.dart';
 import 'tournament_strategy.dart';
@@ -138,6 +139,22 @@ class TestSessionHistory {
     );
   }
 
+  /// This history as the strategy saw it before the latest run.
+  TestSessionHistory withoutLatest() => _copyWith(runs: runs.sublist(0, runs.length - 1));
+
+  /// This history with the latest run counted as rated.
+  TestSessionHistory withLatestRated() => _copyWith(ratedRunIds: {...ratedRunIds, runs.last.id});
+
+  TestSessionHistory _copyWith({List<Setup>? runs, Set<String>? ratedRunIds}) => TestSessionHistory(
+    session: session,
+    adjustments: adjustments,
+    runs: runs ?? this.runs,
+    ratedRunIds: ratedRunIds ?? this.ratedRunIds,
+    pooledRuns: pooledRuns,
+    comparisons: comparisons,
+    setups: setups,
+  );
+
   static AdjustmentValue? valueOf(Setup setup, String adjustmentId) =>
       setup.bikeAdjustmentValues[adjustmentId] ?? setup.personAdjustmentValues[adjustmentId];
 
@@ -175,6 +192,23 @@ abstract class TestSessionStrategy {
   const TestSessionStrategy();
 
   SuggestionResult propose(TestSessionHistory history);
+
+  /// How far the session is from [Converged]. Null without runs and for data
+  /// [propose] can't use.
+  SessionProgress? progress(TestSessionHistory history) {
+    final latest = history.runs.lastOrNull;
+    if (latest == null) return null;
+    if (history.ratedRunIds.contains(latest.id)) return estimate(history);
+    // The first run is compared with nothing, so its feedback changes nothing.
+    if (history.runs.length == 1) return estimate(history.withLatestRated())?.asPending;
+    // A run that waits for its feedback keeps the estimate it was proposed
+    // with, so the count holds still from "next run" to "add feedback".
+    return progress(history.withoutLatest())?.awaitingFeedback;
+  }
+
+  /// [progress] of a history whose latest run is rated.
+  @protected
+  SessionProgress? estimate(TestSessionHistory history);
 
   /// Null for a free session: nothing is proposed.
   static TestSessionStrategy? of(TestSessionMethod? method) => switch (method) {

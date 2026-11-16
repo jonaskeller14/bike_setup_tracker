@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:bike_setup_tracker/l10n/enum_labels.dart';
 import 'package:bike_setup_tracker/l10n/l10n.dart';
 import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/services/test_session/pattern_search_strategy.dart';
+import 'package:bike_setup_tracker/services/test_session/session_progress.dart';
 import 'package:bike_setup_tracker/services/test_session/suggestion_result.dart';
 import 'package:bike_setup_tracker/services/test_session/test_session_strategy.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -229,6 +232,121 @@ void main() {
       final knob = TestSessionStrategy.movableKnobs(history).knobs.single;
 
       expect(TestSessionStrategy.minNoticeableStep(knob, history), 2);
+    });
+  });
+
+  group('PatternSearchStrategy.progress', () {
+    test('counts down run by run while the first run stays the best', () {
+      final simulation = oneKnob(start: 10, optimum: 10);
+
+      // Polls at 3, 2 and 1 clicks, both ways, then the confirmation.
+      expect(strategy.progress(simulation.history), const SessionProgress(ridden: 1, left: 7, maxLeft: null));
+
+      final steps = simulation.playWithProgress();
+      expect(steps.map((step) => step.before.left), [7, 6, 5, 4, 3, 2, 1]);
+      expect(steps.every((step) => step.actual == step.before.left), isTrue);
+    });
+
+    test('the last run confirms the best one, and nothing is open any more', () {
+      final simulation = oneKnob(start: 10, optimum: 10);
+
+      final last = simulation.playWithProgress().last;
+
+      expect(last.before, const SessionProgress.exact(ridden: 7, left: 1, confirming: true));
+      expect(last.waiting, const SessionProgress(ridden: 8, pending: true, left: 0, maxLeft: 0, confirming: true));
+      expect(strategy.progress(simulation.history), const SessionProgress.exact(ridden: 8, left: 0));
+    });
+
+    test('a better run keeps the count up while the ridden runs keep growing', () {
+      final simulation = oneKnob(start: 5, optimum: 16);
+
+      final steps = simulation.playWithProgress();
+
+      // 5 → 8 → 11 → 14 → 17: every better run moves the polls along.
+      expect(steps.map((step) => step.before.left).take(6), [7, 6, 6, 6, 6, 5]);
+      expect(steps.map((step) => step.before.ridden), [for (var i = 1; i <= steps.length; i++) i]);
+    });
+
+    test('a better run at the smallest step saves the poll on its other side', () {
+      final simulation = oneKnob(start: 10, optimum: 14);
+
+      final steps = simulation.playWithProgress();
+
+      // 14 beats 13 with 13 and 15 ridden already, so 12 is never polled.
+      expect(steps.map((step) => step.before.left), [7, 6, 5, 4, 3, 1]);
+    });
+
+    test('polls every knob at every step size', () {
+      final simulation = Simulation(
+        strategy: strategy,
+        session: testSession(method: const PatternSearch(), knobs: ['a', 'b']),
+        knobs: [stepKnob('a'), stepKnob('b')],
+        start: {'a': const StepValue(10), 'b': const StepValue(10)},
+        preference: (v) => -((stepOf(v, 'a') - 10).abs() + (stepOf(v, 'b') - 10).abs()).toDouble(),
+      );
+
+      expect(strategy.progress(simulation.history), const SessionProgress(ridden: 1, left: 13, maxLeft: null));
+      expect(simulation.playWithProgress().length, 13);
+    });
+
+    test('steps an earlier session could not feel are left out', () {
+      final simulation = oneKnob(start: 10, optimum: 10);
+      final history = TestSessionHistory(
+        session: simulation.session,
+        adjustments: simulation.adjustments,
+        runs: simulation.runs,
+        ratedRunIds: const {'r0'},
+        pooledRuns: [
+          run('p0', {'a': const StepValue(10)}, sessionId: 'old'),
+          run('p1', {'a': const StepValue(11)}, sessionId: 'old', index: 1),
+          run('p2', {'a': const StepValue(12)}, sessionId: 'old', index: 2),
+        ],
+        comparisons: const [
+          RunComparison(ratedId: 'p1', referenceId: 'p0', score: 0),
+          RunComparison(ratedId: 'p2', referenceId: 'p1', score: 0),
+        ],
+      );
+
+      // One click felt the same twice: polls at 3 and 2 clicks only.
+      expect(strategy.progress(history)!.left, 5);
+    });
+
+    test('stays close below the runs really left, for every kind of rider', () {
+      // (clicks felt per click of distance, noise, optimum at the end of the range)
+      const riders = [(1.0, 0.0, false), (1.0, 0.0, true), (1.0, 0.8, false), (0.3, 0.0, false), (0.15, 0.0, false)];
+      final random = math.Random(7);
+      for (final (slope, noise, atEnd) in riders) {
+        for (final ids in [
+          ['a'],
+          ['a', 'b'],
+        ]) {
+          for (var seed = 1; seed <= 30; seed++) {
+            final optimum = [for (final _ in ids) atEnd ? 20 : 4 + random.nextInt(13)];
+            final simulation = Simulation(
+              strategy: strategy,
+              session: testSession(method: const PatternSearch(), knobs: ids),
+              knobs: [for (final id in ids) stepKnob(id)],
+              start: {for (final id in ids) id: StepValue(4 + random.nextInt(13))},
+              preference: (v) => [
+                for (var k = 0; k < ids.length; k++) -slope * (stepOf(v, ids[k]) - optimum[k]).abs(),
+              ].fold(0.0, (a, b) => a + b),
+              noise: noise,
+              seed: seed,
+            );
+            // A rider who feels every click and has room around the optimum
+            // saves at most the one poll of the test above. Steps too fine to
+            // feel and the end of a range save up to two polls per knob.
+            final slack = slope == 1 && noise == 0 && !atEnd ? 1 : 2 * ids.length;
+            for (final (:before, :waiting, :actual) in simulation.playWithProgress()) {
+              final reason = 'slope $slope, noise $noise, at end $atEnd, ${ids.length} knobs, seed $seed, $before';
+              expect(actual, greaterThanOrEqualTo(before.left - slack), reason: reason);
+              expect(waiting, before.awaitingFeedback, reason: reason);
+            }
+            expect(strategy.propose(simulation.history), isA<Converged>());
+            expect(strategy.progress(simulation.history)!.isDone, isTrue);
+          }
+        }
+      }
     });
   });
 }

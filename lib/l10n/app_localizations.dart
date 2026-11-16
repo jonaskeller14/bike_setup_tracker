@@ -13519,6 +13519,30 @@ abstract class AppLocalizations {
   /// **'Needs more information'**
   String get guideIssueNeedsMore;
 
+  /// Link after the reason of a setup guide row that needs a catalog detail of the component, such as its travel; opens a sheet to choose it.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get guideCardChooseDetail;
+
+  /// Title of the sheet that asks for catalog details of a component (such as travel or shock size) that its setup guide needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing catalog details'**
+  String get guideDetailsTitle;
+
+  /// Text at the top of the missing catalog details sheet. {component} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'The recommended values for {component} need these details. They are saved to the component.'**
+  String guideDetailsIntro(String component);
+
+  /// Snackbar after catalog details were saved from the setup guide. {component} is the component name, {details} the chosen details such as "Travel 170 mm".
+  ///
+  /// In en, this message translates to:
+  /// **'{component}: {details} saved'**
+  String guideDetailsSaved(String component, String details);
+
   /// Reason a setup guide row has no value.
   ///
   /// In en, this message translates to:

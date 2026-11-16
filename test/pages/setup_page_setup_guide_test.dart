@@ -80,6 +80,34 @@ nodes:
       - { name: Rebound, type: step, max: 13 }
 ''';
 
+/// Spacers keyed by the travel, an option the fork was linked without.
+const _travelCatalog = '''
+brand: Acme
+component_type: fork
+guides:
+  acme:
+    label: Acme owner's manual (2027)
+    source: https://example.com/acme
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: volume_spacers
+        input: travel_mm
+        rows: { 150: 3, 160: 2 }
+nodes:
+  - label: Guided
+    level: model
+    guide: acme
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: Volume Spacers, type: step, max: 6, visualization: stepper }
+    options:
+      travel_mm: [150, 160]
+''';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -345,6 +373,40 @@ void main() {
 
     expect(find.widgetWithText(TextField, '77.0'), findsNothing);
     expect(find.byTooltip('Not set'), findsNWidgets(2));
+  });
+
+  testWidgets('a row waiting for the travel asks for it and saves it to the fork', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final harness = await open(tester, catalog: _travelCatalog);
+    Component fork() => harness.repository.components.values.single;
+    final card = find.byType(SetupGuideCard);
+
+    expect(find.descendant(of: card, matching: find.text("Needs the component's travel Choose")), findsOneWidget);
+    await tester.tap(find.descendant(of: card, matching: find.text('Volume Spacers')));
+    await _settle(tester);
+    final sheet = find.byType(BottomSheet);
+    expect(find.descendant(of: sheet, matching: find.text('Missing catalog details')), findsOneWidget);
+    await tester.tap(find.descendant(of: sheet, matching: find.text('160 mm')));
+    await tester.pump();
+    await tester.tap(find.descendant(of: sheet, matching: find.text('Save')));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await _settle(tester);
+
+    expect(fork().preset?['travel_mm'], 160);
+    expect(fork().adjustments.whereType<SagAdjustment>().single.referenceTravelMm, 160);
+    expect(find.text('Acme Guided: Travel 160 mm saved'), findsOneWidget);
+    expect(find.descendant(of: card, matching: find.text('160 mm')), findsOneWidget);
+    expect(find.textContaining("Needs the component's travel"), findsNothing);
+
+    await _undo(tester);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await _settle(tester);
+
+    expect(fork().preset?['travel_mm'], isNull);
+    expect(fork().adjustments.whereType<SagAdjustment>().single.referenceTravelMm, isNull);
+    expect(find.descendant(of: card, matching: find.text("Needs the component's travel Choose")), findsOneWidget);
   });
 
   testWidgets('undoing a row restores the value it replaced', (tester) async {

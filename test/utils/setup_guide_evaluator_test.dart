@@ -201,6 +201,51 @@ nodes:
       - { name: Rebound, type: step, max: 13 }
 ''';
 
+/// Rules that only match once travel (and a damper) are chosen.
+const _gated = '''
+brand: DT Swiss
+component_type: fork
+guides:
+  gated:
+    label: Gated manual
+    source: https://example.com/gated
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 120 }
+        rows: { 70-80: 70, 80-90: 80 }
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        when: { travel_mm: 130, damper: a }
+        rows: { 70-80: 75 }
+      - { target: hsc, value: 3 }
+      - { target: hsc, value: 5, when: { travel_mm: 130 } }
+option_values:
+  damper:
+    a:
+      name: A
+      adjustments:
+        - { name: Rebound, type: step, max: 10 }
+    b:
+      name: B
+      adjustments:
+        - { name: Rebound, type: step, max: 12 }
+nodes:
+  - label: F
+    level: model
+    guide: gated
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 150 }
+      - { name: HSC, type: step, max: 10 }
+    options:
+      damper: [a, b]
+      travel_mm: [120, 130]
+''';
+
 /// The product at [trim] of [yaml], with [options] chosen by value id.
 ResolvedPreset _preset(String yaml, String trim, [Map<String, Object> options = const {}]) {
   var preset = catalogProducts(parseCatalogFile(yaml)).firstWhere((preset) => preset.node.id == trim);
@@ -427,6 +472,68 @@ void main() {
       expect(result.band!.min, closeTo(27.27, 0.01));
       expect(result.band!.max, closeTo(30.91, 0.01));
       expect(result.value, const NumericalValue(29.1));
+    });
+  });
+
+  group('missing details', () {
+    test('a spec input names the axis that supplies it', () {
+      final rebound = _of(_evaluate(_preset(_fork, 'rhythm', {'damper': 'grip'})), 'rebound');
+      expect(rebound.issue, GuideIssue.missingInput);
+      expect(rebound.missingAxes, ['travel_mm']);
+    });
+
+    test('a stroke input names the size axis', () {
+      final sag = _of(_evaluate(_preset(_shock, 'air')), 'sag');
+      expect(sag.issue, GuideIssue.missingInput);
+      expect(sag.missingAxes, ['size']);
+    });
+
+    test('a literal axis input names its axis', () {
+      final preload = _of(_evaluate(_preset(_fork, 'factory', {'damper': 'grip_x2', 'travel_mm': 160})), 'preload');
+      expect(preload.issue, GuideIssue.missingInput);
+      expect(preload.missingAxes, ['wheel_size']);
+    });
+
+    test('an input no axis of the product supplies names none', () {
+      final preload = _of(_evaluate(_preset(_fork, 'rhythm', {'damper': 'grip', 'travel_mm': 160})), 'preload');
+      expect(preload.issue, GuideIssue.missingInput);
+      expect(preload.missingAxes, isEmpty);
+    });
+
+    test('rider inputs name no axis', () {
+      expect(_of(_evaluate(factoryX2), 'pressure').missingAxes, isEmpty);
+    });
+
+    test('a target only skipped options keep from matching gets a row', () {
+      final pressure = _of(_evaluate(_preset(_gated, 'f'), inputs: const GuideInputs(riderWeight: 85)), 'pressure');
+      expect(pressure.issue, GuideIssue.missingInput);
+      expect(pressure.value, isNull);
+      expect(pressure.missingAxes, ['damper', 'travel_mm']);
+    });
+
+    test('a rule another value rules out adds no axis', () {
+      final pressure = _of(_evaluate(_preset(_gated, 'f', {'damper': 'b'})), 'pressure');
+      expect(pressure.missingAxes, ['travel_mm']);
+    });
+
+    test('once the option is chosen the rule applies', () {
+      final pressure = _of(
+        _evaluate(_preset(_gated, 'f', {'damper': 'b', 'travel_mm': 120}), inputs: const GuideInputs(riderWeight: 85)),
+        'pressure',
+      );
+      expect(pressure.value, const NumericalValue(80));
+      expect(pressure.missingAxes, isEmpty);
+    });
+
+    test('a target no choice can match stays hidden', () {
+      final results = _evaluate(_preset(_gated, 'f', {'damper': 'b', 'travel_mm': 130}));
+      expect(results.map((result) => result.rule.target), isNot(contains('pressure')));
+    });
+
+    test('a less specific rule that matches gives no hint', () {
+      final hsc = _of(_evaluate(_preset(_gated, 'f', {'damper': 'a'})), 'hsc');
+      expect(hsc.value, const StepValue(3));
+      expect(hsc.missingAxes, isEmpty);
     });
   });
 

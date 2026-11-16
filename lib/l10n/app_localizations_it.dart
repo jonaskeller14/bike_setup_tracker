@@ -8269,6 +8269,22 @@ class AppLocalizationsIt extends AppLocalizations {
   String get guideIssueNeedsMore => 'Servono più informazioni';
 
   @override
+  String get guideCardChooseDetail => 'Scegli';
+
+  @override
+  String get guideDetailsTitle => 'Dettagli del catalogo mancanti';
+
+  @override
+  String guideDetailsIntro(String component) {
+    return 'I valori consigliati per $component richiedono questi dettagli. Vengono salvati nel componente.';
+  }
+
+  @override
+  String guideDetailsSaved(String component, String details) {
+    return '$component: $details salvato';
+  }
+
+  @override
   String get guideIssueOutsideRange => 'Fuori dall’intervallo pubblicato';
 
   @override

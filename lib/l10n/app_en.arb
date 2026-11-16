@@ -11024,6 +11024,35 @@
   "@guideIssueNeedsMore": {
     "description": "Reason a setup guide row has no value."
   },
+  "guideCardChooseDetail": "Choose",
+  "@guideCardChooseDetail": {
+    "description": "Link after the reason of a setup guide row that needs a catalog detail of the component, such as its travel; opens a sheet to choose it."
+  },
+  "guideDetailsTitle": "Missing catalog details",
+  "@guideDetailsTitle": {
+    "description": "Title of the sheet that asks for catalog details of a component (such as travel or shock size) that its setup guide needs."
+  },
+  "guideDetailsIntro": "The recommended values for {component} need these details. They are saved to the component.",
+  "@guideDetailsIntro": {
+    "description": "Text at the top of the missing catalog details sheet. {component} is the component name.",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "guideDetailsSaved": "{component}: {details} saved",
+  "@guideDetailsSaved": {
+    "description": "Snackbar after catalog details were saved from the setup guide. {component} is the component name, {details} the chosen details such as \"Travel 170 mm\".",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
+  },
   "guideIssueOutsideRange": "Outside the published range",
   "@guideIssueOutsideRange": {
     "description": "Reason a setup guide row has no value."

@@ -338,6 +338,11 @@ class GuideRecommendation {
   /// for. An open-ended row makes an end infinite.
   final ({double min, double max})? riderWeightRange;
 
+  /// For [GuideIssue.missingInput]: the option axes of the product, unset so
+  /// far, whose choice would supply the input or let a rule match, in the
+  /// product's axis order. Empty where the catalog can't supply it.
+  final List<String> missingAxes;
+
   const GuideRecommendation({
     required this.guide,
     required this.rule,
@@ -352,6 +357,7 @@ class GuideRecommendation {
     this.interpolated = false,
     this.followsSpring,
     this.riderWeightRange,
+    this.missingAxes = const [],
   });
 
   /// "FOX 38 owner's manual (2027) · 82 kg · interpolated"

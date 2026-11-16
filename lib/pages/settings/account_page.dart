@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +11,7 @@ import '../../services/account_service.dart';
 import '../../services/cloud_sync_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/account_actions.dart';
+import '../../utils/localized_number.dart';
 import '../../widgets/text/section_title.dart';
 
 /// The account this device is signed in to: who it belongs to, its devices,
@@ -52,6 +55,8 @@ class _AccountPageState extends State<AccountPage> {
               if (context.select<AppSettings, bool>((settings) => settings.enableCloudSync)) ...[
                 SectionTitle(title: l10n.accountSectionCloudSync),
                 _CloudSyncTile(enabled: !_busy),
+                if (context.select<CloudSyncService, String?>((sync) => sync.activeUid) case final uid?)
+                  _StorageUsageTile(key: ValueKey(uid), enabled: !_busy),
                 const Divider(),
               ],
               SectionTitle(title: l10n.accountSectionDevices),
@@ -184,6 +189,80 @@ class _CloudSyncTile extends StatelessWidget {
               icon: const Icon(Icons.sync),
               onPressed: enabled && sync.active && !syncing ? () => AccountActions.syncNow(context) : null,
             ),
+    );
+  }
+}
+
+/// How much of the cloud storage quota the account uses. Read once per page
+/// visit (and per account, through the key) instead of listening, since every
+/// snapshot costs a read.
+class _StorageUsageTile extends StatefulWidget {
+  final bool enabled;
+
+  const _StorageUsageTile({super.key, required this.enabled});
+
+  @override
+  State<_StorageUsageTile> createState() => _StorageUsageTileState();
+}
+
+class _StorageUsageTileState extends State<_StorageUsageTile> {
+  static const _megabyte = 1024 * 1024;
+  static const _warnFraction = 0.9;
+
+  late Future<int> _bytes = context.read<CloudSyncService>().readStorageBytes();
+
+  void _reload() => setState(() {
+    _bytes = context.read<CloudSyncService>().readStorageBytes();
+  });
+
+  /// Whole megabytes, with one decimal below 10 MB so a few photos don't read as 0.
+  static String _megabytes(int bytes, String locale) => formatLocalizedDouble(
+    bytes / _megabyte,
+    fractionDigits: bytes > 0 && bytes < 10 * _megabyte ? 1 : 0,
+    locale: locale,
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colorScheme = Theme.of(context).colorScheme;
+    const quota = CloudSyncService.storageQuotaBytes;
+
+    return FutureBuilder<int>(
+      future: _bytes,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return ListTile(
+            enabled: widget.enabled,
+            leading: Icon(Icons.error_outline, color: colorScheme.error),
+            title: Text(l10n.accountStorageTitle),
+            subtitle: Text(l10n.accountStorageLoadFailed),
+            onTap: _reload,
+          );
+        }
+        final bytes = snapshot.data;
+        // The counter is driven by Storage events, so it can drift below zero.
+        final used = bytes == null ? null : math.max(bytes, 0);
+        return ListTile(
+          enabled: widget.enabled,
+          leading: const Icon(Icons.data_usage),
+          title: Text(l10n.accountStorageTitle),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: LinearProgressIndicator(
+                  value: used == null ? null : (used / quota).clamp(0.0, 1.0),
+                  color: used != null && used >= quota * _warnFraction ? colorScheme.error : null,
+                ),
+              ),
+              if (used != null)
+                Text(l10n.accountStorageUsed(_megabytes(used, l10n.localeName), _megabytes(quota, l10n.localeName))),
+            ],
+          ),
+        );
+      },
     );
   }
 }

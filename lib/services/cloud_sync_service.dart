@@ -88,6 +88,9 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
   /// An attachment couldn't be uploaded because the 500 MB quota is full.
   bool get attachmentQuotaFull => _attachments.quotaFull;
 
+  /// The cloud storage each account may use: attachments and backups.
+  static const int storageQuotaBytes = AttachmentSync.quotaBytes;
+
   /// Cloud sync on, premium and an account session.
   bool get isActive => _enabled && _premium && _uid != null && (_account?.isOnAccount ?? false);
 
@@ -203,6 +206,14 @@ class CloudSyncService extends ChangeNotifier with WidgetsBindingObserver implem
     final uid = _uid;
     if (uid == null || !isActive) return Future.value(AttachmentDownloadResult.notSyncing);
     return _attachments.download(uid, attachment, force: force);
+  }
+
+  /// The bytes of [storageQuotaBytes] in use, read from the server on each
+  /// call. A Function counts them after each upload, so they lag by seconds.
+  Future<int> readStorageBytes() {
+    final uid = _uid;
+    if (uid == null || !isActive) return Future.error(StateError('Cloud sync is not active'));
+    return _attachmentRemote.storageBytes(uid);
   }
 
   /// The account's cloud backups, for the restore list. Empty while sync isn't active.

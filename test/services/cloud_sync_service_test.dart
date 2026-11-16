@@ -638,6 +638,16 @@ void main() {
         expect(withFiles.status, CloudSyncStatus.idle);
       });
 
+      test('the storage use is read from the account only while sync is active', () async {
+        files.reportedBytes = 123;
+        await expectLater(withFiles.readStorageBytes(), throwsStateError);
+
+        withFiles.update(enabled: true, premium: true, account: account);
+        await settle();
+
+        expect(await withFiles.readStorageBytes(), 123);
+      });
+
       test('being offline while uploading shows the offline status, not an error', () async {
         withFiles.update(enabled: true, premium: true, account: account);
         await settle();

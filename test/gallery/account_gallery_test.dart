@@ -56,6 +56,8 @@ const _narrow = Size(320, 568);
 const _tablet = Size(800, 1100);
 
 const _thisDevice = 'device-this';
+const _accountUid = 'uid-account';
+const _megabyte = 1024 * 1024;
 final _lastSeen = DateTime(2026, 11, 12, 9, 30);
 
 AccountDevice _device(String id, String platform, String name, {DateTime? lastSeen}) =>
@@ -119,6 +121,15 @@ Stream<List<AccountDevice>> _loaded(List<AccountDevice> devices) => Stream.value
 Stream<List<AccountDevice>> _neverLoads() => StreamController<List<AccountDevice>>().stream;
 
 Stream<List<AccountDevice>> _fails() => Stream.error(StateError('permission-denied'));
+
+typedef _StorageSource = Future<int> Function();
+
+_StorageSource _storage(double megabytes) =>
+    () async => (megabytes * _megabyte).round();
+
+Future<int> _storageNeverLoads() => Completer<int>().future;
+
+Future<int> _storageFails() => Future.error(StateError('unavailable'));
 
 /// [AccountService] with the server calls replaced, so each state can be set
 /// up directly.
@@ -193,22 +204,31 @@ class _World {
     CloudSyncStatus syncStatus = CloudSyncStatus.idle,
     bool neverSynced = false,
     CloudSyncStatus syncNowResult = CloudSyncStatus.idle,
+    int pendingFiles = 0,
+    bool storageFull = false,
+    _StorageSource? storage,
     StravaFailure? stravaFailure,
   }) {
     final repository = _MockAppRepository();
     when(() => repository.stravaAthletes).thenReturn({
       if (hasAthlete) 1: StravaAthlete(id: 1, firstname: firstname, lastname: lastname, profile: null, gears: const {}),
     });
+    final effective = noEntitlement ? null : entitlement ?? _activeEntitlement;
+    // As in CloudSyncService: active only with premium.
+    final syncActive = effective?.isActive ?? false;
     final cloudSyncService = _MockCloudSyncService();
-    when(() => cloudSyncService.isActive).thenReturn(true);
+    when(() => cloudSyncService.isActive).thenReturn(syncActive);
+    when(() => cloudSyncService.activeUid).thenReturn(syncActive ? _accountUid : null);
     when(() => cloudSyncService.status).thenReturn(syncStatus);
     when(() => cloudSyncService.lastSyncAt).thenReturn(neverSynced ? null : DateTime(2026, 11, 12, 9, 41));
     when(() => cloudSyncService.pendingCount).thenReturn(pendingChanges);
+    when(() => cloudSyncService.pendingAttachmentUploads).thenReturn(pendingFiles);
+    when(() => cloudSyncService.attachmentQuotaFull).thenReturn(storageFull);
+    when(cloudSyncService.readStorageBytes).thenAnswer((_) => (storage ?? _storage(123))());
     when(cloudSyncService.pushBeforeSignOut).thenAnswer((_) async => pendingChanges);
     when(cloudSyncService.syncNow).thenAnswer((_) async => syncNowResult);
 
     final subscription = _MockSubscriptionService();
-    final effective = noEntitlement ? null : entitlement ?? _activeEntitlement;
     when(() => subscription.entitlement).thenReturn(effective);
     when(() => subscription.hasStravaEntitlement).thenReturn(effective?.isActive ?? false);
     when(() => subscription.isRestoring).thenReturn(false);
@@ -239,7 +259,13 @@ class _World {
 const _homeKey = ValueKey('home');
 
 /// The app around the account UI, with the page the account page returns to.
-Widget _app(ThemeData theme, _World world, {required Key key, required GlobalKey<NavigatorState> navigator}) {
+Widget _app(
+  ThemeData theme,
+  _World world, {
+  required Key key,
+  required GlobalKey<NavigatorState> navigator,
+  Locale locale = const Locale('en'),
+}) {
   return RepaintBoundary(
     key: key,
     child: MultiProvider(
@@ -255,6 +281,7 @@ Widget _app(ThemeData theme, _World world, {required Key key, required GlobalKey
         debugShowCheckedModeBanner: false,
         navigatorKey: navigator,
         theme: theme,
+        locale: locale,
         builder: (context, child) => AccountNoticeListener(child: child!),
         home: Scaffold(
           key: _homeKey,
@@ -282,6 +309,7 @@ class _Case {
   final Size size;
   final double textScale;
   final TargetPlatform? platform;
+  final Locale locale;
   final bool openPage;
   final _Shot shot;
 
@@ -296,6 +324,7 @@ class _Case {
     this.size = _phone,
     this.textScale = 1,
     this.platform,
+    this.locale = const Locale('en'),
     this.openPage = true,
     this.shot = _Shot.screen,
     this.steps,
@@ -403,7 +432,7 @@ final _cases = <_Case>[
     },
   ),
   // Account page: cloud sync.
-  _Case('page_sync_synced', 'Page · cloud sync, synced', () => _World(cloudSync: true)),
+  _Case('page_sync_synced', 'Page · cloud sync, synced, 123 MB used', () => _World(cloudSync: true)),
   _Case('page_sync_never', 'Page · cloud sync, not synced yet', () => _World(cloudSync: true, neverSynced: true)),
   _Case(
     'page_sync_syncing',
@@ -422,8 +451,93 @@ final _cases = <_Case>[
   ),
   _Case(
     'page_sync_no_premium',
-    'Page · cloud sync on, no subscription, 2 pending',
+    'Page · cloud sync on, no subscription, 2 pending (no storage bar)',
     () => _World(cloudSync: true, noEntitlement: true, pendingChanges: 2),
+  ),
+  _Case(
+    'page_sync_expired',
+    'Page · cloud sync on, subscription expired (no storage bar)',
+    () => _World(cloudSync: true, entitlement: _expiredEntitlement),
+  ),
+  _Case(
+    'page_sync_pending_files',
+    'Page · cloud sync, 4 files not uploaded yet',
+    () => _World(cloudSync: true, pendingFiles: 4),
+  ),
+  // Account page: cloud storage use.
+  _Case(
+    'page_storage_loading',
+    'Page · storage use loading',
+    () => _World(cloudSync: true, storage: _storageNeverLoads),
+  ),
+  _Case(
+    'page_storage_error',
+    'Page · storage use failed to load (tap retries)',
+    () => _World(cloudSync: true, storage: _storageFails),
+  ),
+  _Case('page_storage_empty', 'Page · storage, nothing stored', () => _World(cloudSync: true, storage: _storage(0))),
+  _Case(
+    'page_storage_small',
+    'Page · storage, one photo (0.3 MB)',
+    () => _World(cloudSync: true, storage: _storage(0.3)),
+  ),
+  _Case(
+    'page_storage_below_warning',
+    'Page · storage, 449 MB (just below 90 %)',
+    () => _World(cloudSync: true, storage: _storage(449)),
+  ),
+  _Case(
+    'page_storage_warning',
+    'Page · storage, 450 MB (90 %, error colour)',
+    () => _World(cloudSync: true, storage: _storage(450)),
+  ),
+  _Case(
+    'page_storage_full',
+    'Page · storage full, 3 files blocked',
+    () => _World(cloudSync: true, storage: _storage(500), storageFull: true, pendingFiles: 3),
+  ),
+  _Case(
+    'page_storage_over',
+    'Page · storage over the quota (512 MB, counter drift)',
+    () => _World(cloudSync: true, storage: _storage(512)),
+  ),
+  _Case(
+    'page_storage_negative',
+    'Page · storage counter drifted below zero (shows 0)',
+    () => _World(cloudSync: true, storage: _storage(-2)),
+  ),
+  _Case(
+    'page_storage_german',
+    'Page · storage, German (decimal comma)',
+    () => _World(cloudSync: true, storage: _storage(4.5)),
+    locale: const Locale('de'),
+  ),
+  _Case(
+    'page_storage_french',
+    'Page · storage, French (Mo)',
+    () => _World(cloudSync: true, storage: _storage(450)),
+    locale: const Locale('fr'),
+  ),
+  _Case(
+    'page_storage_large_text',
+    'Page · storage 450 MB and failed sync, large text (200 %)',
+    () => _World(cloudSync: true, syncStatus: CloudSyncStatus.error, storage: _storage(450)),
+    textScale: 2,
+  ),
+  _Case(
+    'page_storage_error_narrow',
+    'Page · storage failed to load, narrow phone (320 pt)',
+    () => _World(cloudSync: true, storage: _storageFails),
+    size: _narrow,
+  ),
+  _Case(
+    'page_storage_busy',
+    'Page · storage while busy (signing out)',
+    () => _World(cloudSync: true),
+    steps: (tester, world) async {
+      world.account.onSignOut = () => Completer<void>().future;
+      await _confirmSignOut(tester, world);
+    },
   ),
   _Case(
     'page_sync_large_text',
@@ -731,6 +845,7 @@ Future<_World> _show(
       w,
       key: key,
       navigator: navigator,
+      locale: c.locale,
     ),
   );
   await _pump(tester);
@@ -853,7 +968,11 @@ void main() {
       await _tapText(tester, 'Cancel');
       expect(world.account.signOutCalls, isEmpty);
       expect(find.byType(AccountPage), findsOneWidget);
-      expect(find.byType(LinearProgressIndicator), findsNothing, reason: 'the page is usable again');
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.byType(LinearProgressIndicator)),
+        findsNothing,
+        reason: 'the page is usable again',
+      );
     });
 
     testWidgets('sign out with cloud sync pushes first and asks nothing once all changes are up', (tester) async {
@@ -872,6 +991,30 @@ void main() {
       await tester.pump(const Duration(seconds: 6));
       await _syncNow(tester, world);
       verify(world.cloudSync.syncNow).called(2);
+    });
+
+    testWidgets('storage use failed to load: tapping the row loads it', (tester) async {
+      final world = await open(tester, _World(cloudSync: true, storage: _storageFails));
+      expect(find.text("Couldn't load your storage use. Tap to try again."), findsOneWidget);
+      when(world.cloudSync.readStorageBytes).thenAnswer((_) => _storage(123)());
+      await _tapText(tester, "Couldn't load your storage use. Tap to try again.");
+      expect(find.text('123 MB of 500 MB used'), findsOneWidget);
+    });
+
+    testWidgets('storage use is read once per page visit, not on every rebuild', (tester) async {
+      final world = await open(tester, _World(cloudSync: true, pendingChanges: 3));
+      // Busy while pushing, idle again after cancelling: two rebuilds.
+      await _confirmSignOut(tester, world);
+      await _tapText(tester, 'Cancel');
+      expect(find.text('123 MB of 500 MB used'), findsOneWidget);
+      verify(world.cloudSync.readStorageBytes).called(1);
+    });
+
+    testWidgets('storage use still loading: signing out still works', (tester) async {
+      final world = await open(tester, _World(cloudSync: true, storage: _storageNeverLoads));
+      await _confirmSignOut(tester, world);
+      expect(world.account.signOutCalls, [true]);
+      expect(find.byType(AccountPage), findsNothing);
     });
 
     for (final kind in [StravaErrorKind.ownedByOtherAccount, StravaErrorKind.limitReached]) {

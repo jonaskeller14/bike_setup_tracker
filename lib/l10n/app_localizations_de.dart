@@ -10109,4 +10109,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get driveEndingConnectStrava => 'Strava verbinden';
+
+  @override
+  String get accountStorageTitle => 'Cloud-Speicher';
+
+  @override
+  String accountStorageUsed(String used, String total) {
+    return '$used MB von $total MB belegt';
+  }
+
+  @override
+  String get accountStorageLoadFailed => 'Speicherbelegung konnte nicht geladen werden. Zum Wiederholen tippen.';
 }

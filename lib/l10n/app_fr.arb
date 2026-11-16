@@ -2705,5 +2705,8 @@
   "driveEndingTurnOnSync": "Activer la synchronisation cloud",
   "driveEndingSyncTurnedOn": "La synchronisation cloud est activée.",
   "driveEndingBodyConnect": "Une prochaine mise à jour supprime la synchronisation Google Drive. Vos données restent sur cet appareil. Pour en garder une copie ailleurs, enregistrez un fichier de sauvegarde, ou connectez Strava pour démarrer la synchronisation cloud, incluse dans votre abonnement.",
-  "driveEndingConnectStrava": "Connecter Strava"
+  "driveEndingConnectStrava": "Connecter Strava",
+  "accountStorageTitle": "Espace cloud",
+  "accountStorageUsed": "{used} Mo sur {total} Mo utilisés",
+  "accountStorageLoadFailed": "Impossible de charger l'espace utilisé. Touche pour réessayer."
 }

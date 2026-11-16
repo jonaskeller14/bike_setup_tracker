@@ -10038,4 +10038,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get driveEndingConnectStrava => 'Connect Strava';
+
+  @override
+  String get accountStorageTitle => 'Cloud storage';
+
+  @override
+  String accountStorageUsed(String used, String total) {
+    return '$used MB of $total MB used';
+  }
+
+  @override
+  String get accountStorageLoadFailed => 'Couldn\'t load your storage use. Tap to try again.';
 }

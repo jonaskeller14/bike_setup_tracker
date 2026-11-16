@@ -11,6 +11,7 @@ import 'package:bike_setup_tracker/models/feedback/feedback_observation.dart';
 import 'package:bike_setup_tracker/models/feedback/feedback_vocabulary.dart';
 import 'package:bike_setup_tracker/models/feedback/ride_feedback.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
+import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/filters/setup_filter.dart';
 import 'package:bike_setup_tracker/models/filters/task_rule_filter.dart';
 import 'package:bike_setup_tracker/models/person.dart';
@@ -21,6 +22,7 @@ import 'package:bike_setup_tracker/models/task/task_entry.dart';
 import 'package:bike_setup_tracker/models/task/task_rule.dart';
 import 'package:bike_setup_tracker/models/task/task_threshold/task_threshold.dart';
 import 'package:bike_setup_tracker/repositories/app_repository.dart';
+import 'package:bike_setup_tracker/services/test_session/session_progress.dart';
 import 'package:bike_setup_tracker/utils/unit_conversion.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
@@ -1636,6 +1638,94 @@ void main() {
 
       expect(repository.setupsInSession(session.id).map((s) => s.id), [run1.id, run2.id]);
       expect(repository.setupsInSession("unknown"), isEmpty);
+    });
+
+    group("progressFor", () {
+      Setup buildRun(TestSession session, int hour, int clicks) => Setup(
+        name: "Run",
+        tags: const {},
+        datetime: DateTime(2026, 6, 1, hour).toUtc(),
+        datetimeLocal: DateTime(2026, 6, 1, hour),
+        bike: bike1.id,
+        person: null,
+        bikeAdjustmentValues: {"dial": StepValue(clicks)},
+        personAdjustmentValues: const {},
+        testSessionId: session.id,
+      );
+
+      TestSession buildMethodSession(TestSessionMethod? method, {DateTime? endedAt}) => TestSession(
+        bike: bike1.id,
+        method: method,
+        adjustmentIds: const ["dial"],
+        startedAtUTC: DateTime(2026, 6, 1).toUtc(),
+        startedAtLocal: DateTime(2026, 6, 1),
+        endedAtUTC: endedAt?.toUtc(),
+        endedAtLocal: endedAt,
+      );
+
+      setUp(() async {
+        await repository.addComponents([
+          Component(
+            name: "Fork",
+            installations: [Installation.sinceBeginning(parent: bike1.id)],
+            componentType: ComponentType.fork,
+            adjustments: [
+              StepAdjustment(
+                id: "dial",
+                name: "Rebound",
+                notes: null,
+                unit: null,
+                min: 0,
+                max: 20,
+                step: 1,
+                visualization: StepAdjustmentVisualization.slider,
+              ),
+            ],
+          ),
+        ]);
+      });
+
+      test("follows the runs and their feedback, and goes with the session", () async {
+        final session = buildMethodSession(const OrthogonalArray());
+        await repository.addTestSessions([session]);
+        final run1 = buildRun(session, 10, 10);
+        await repository.addSetups([run1]);
+        await pumpEventQueue();
+        // One knob: two pattern runs and the confirmation.
+        expect(
+          repository.progressFor(session.id),
+          const SessionProgress(ridden: 1, pending: true, left: 3, maxLeft: 3),
+        );
+
+        await repository.addFeedbacks([buildFeedback(DateTime(2026, 6, 1, 10, 30), setupId: run1.id)]);
+        await pumpEventQueue();
+        expect(repository.progressFor(session.id), const SessionProgress.exact(ridden: 1, left: 3));
+
+        await repository.addSetups([buildRun(session, 11, 15)]);
+        await pumpEventQueue();
+        expect(
+          repository.progressFor(session.id),
+          const SessionProgress(ridden: 2, pending: true, left: 2, maxLeft: 2),
+        );
+
+        await repository.removeTestSessions([session]);
+        await pumpEventQueue();
+        expect(repository.progressFor(session.id), isNull);
+      });
+
+      test("nothing for a free session, an ended session or one without runs", () async {
+        final free = buildMethodSession(null);
+        final ended = buildMethodSession(const PatternSearch(), endedAt: DateTime(2026, 6, 1, 12));
+        final empty = buildMethodSession(const PatternSearch());
+        await repository.addTestSessions([free, ended, empty]);
+        await repository.addSetups([buildRun(free, 10, 10), buildRun(ended, 11, 10)]);
+        await pumpEventQueue();
+
+        expect(repository.progressFor(free.id), isNull);
+        expect(repository.progressFor(ended.id), isNull);
+        expect(repository.progressFor(empty.id), isNull);
+        expect(repository.progressFor("unknown"), isNull);
+      });
     });
 
     test("runningSessionFor returns the latest started session that has not ended", () async {

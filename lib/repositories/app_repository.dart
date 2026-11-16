@@ -43,6 +43,7 @@ import '../services/feedback_ranking_service.dart';
 import '../services/setup_resolution_service.dart';
 import '../services/task_forecast_service.dart';
 import '../services/task_status_service.dart';
+import '../services/test_session/session_progress.dart';
 import '../services/test_session/suggestion_result.dart';
 import '../services/test_session/test_session_strategy.dart';
 import '../services/test_session_service.dart';
@@ -499,6 +500,7 @@ class AppRepository extends ChangeNotifier {
     _customIssues = null;
     _feedbackActivityIds = null;
     _suggestions.clear();
+    _progress.clear();
     _strategyReferences.clear();
 
     final result = SetupResolutionService.resolveSetups(
@@ -1090,9 +1092,10 @@ class AppRepository extends ChangeNotifier {
       _setups.values.where((setup) => setup.testSessionId == sessionId).toList()
         ..sort((a, b) => a.datetime.compareTo(b.datetime));
 
-  /// Lazily built caches behind [suggestionFor] and [strategyReferenceFor],
-  /// dropped on every data change.
+  /// Lazily built caches behind [suggestionFor], [progressFor] and
+  /// [strategyReferenceFor], dropped on every data change.
   final Map<String, SuggestionResult?> _suggestions = {};
+  final Map<String, SessionProgress?> _progress = {};
   final Map<String, String?> _strategyReferences = {};
 
   /// What the strategy of the session proposes next; null for a free session.
@@ -1100,6 +1103,14 @@ class AppRepository extends ChangeNotifier {
     final session = _testSessions[sessionId];
     if (session == null) return null;
     return TestSessionStrategy.of(session.method)?.propose(_historyOf(session));
+  });
+
+  /// How far a running session is from its result; null for a free or ended
+  /// session and where the strategy has nothing to go on.
+  SessionProgress? progressFor(String sessionId) => _progress.putIfAbsent(sessionId, () {
+    final session = _testSessions[sessionId];
+    if (session == null || !session.isRunning) return null;
+    return TestSessionStrategy.of(session.method)?.progress(_historyOf(session));
   });
 
   /// The run the strategy asked [run] to be compared with, replayed from the

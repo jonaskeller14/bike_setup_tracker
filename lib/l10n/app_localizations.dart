@@ -7354,13 +7354,13 @@ abstract class AppLocalizations {
   /// Hint under the weight field of the setup guide card when no rider attribute is used.
   ///
   /// In en, this message translates to:
-  /// **'Only used for these recommendations'**
+  /// **'Only used for these recommendations.'**
   String get setupFormGuideWeightLocal;
 
-  /// Button of the setup guide card that adds a riding weight attribute to the rider.
+  /// Link after the hint under the setup guide card's weight field: adds a riding weight attribute to the rider and saves the typed weight to it.
   ///
   /// In en, this message translates to:
-  /// **'Add riding weight to {name}'**
+  /// **'Save as {name}\'s weight'**
   String setupFormGuideAddWeight(String name);
 
   /// Snackbar after a riding weight attribute was added to the rider.
@@ -13441,10 +13441,10 @@ abstract class AppLocalizations {
   /// **'Riding weight'**
   String get guideCardRidingWeight;
 
-  /// Button that stores the typed riding weight with the rider, used when no rider name is known.
+  /// Link that saves the typed riding weight with the rider, used when no rider name is known.
   ///
   /// In en, this message translates to:
-  /// **'Add riding weight to rider'**
+  /// **'Save as the rider\'s weight'**
   String get guideCardAddWeightDefault;
 
   /// Line under a component name in the setup guide card. {guide} is the name of the guide.

@@ -279,47 +279,60 @@ class _WeightFieldState extends State<_WeightField> {
     final textTheme = Theme.of(context).textTheme;
     final input = widget.input;
     final onAddToRider = input.onAddToRider;
+    final hintStyle = textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 8),
         Row(
-          spacing: 8,
+          spacing: 12,
           children: [
-            Flexible(
+            Expanded(
               child: Text(
                 [
                   context.l10n.guideCardRidingWeight,
                   if (widget.ridingStyle case final style?) style.label(context.l10n),
                 ].join(" · "),
                 style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 64, maxWidth: 96),
+            SizedBox(
+              width: 150,
               child: Semantics(
                 identifier: AutomationIds.setupGuideWeight,
                 child: TextField(
                   controller: _controller,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  textAlign: TextAlign.end,
                   style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
                   cursorColor: hint.accent,
                   decoration: InputDecoration(
                     isDense: true,
-                    suffix: InkWell(
-                      borderRadius: BorderRadius.circular(4),
-                      onTap: _toggleUnit,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                        child: Text(_displayUnit.label, style: textTheme.bodyMedium?.copyWith(color: hint.onContainer)),
+                    hintText: context.l10n.setNumericalHint,
+                    hintStyle: TextStyle(color: hint.onContainer.withValues(alpha: 0.6)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    // Always shown, unlike `suffix`, so the empty field already says what it takes.
+                    suffixIcon: Align(
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(4),
+                        onTap: _toggleUnit,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4, right: 12, top: 4, bottom: 4),
+                          child: Text(
+                            _displayUnit.label,
+                            style: TextStyle(color: hint.onContainer.withValues(alpha: 0.8)),
+                          ),
+                        ),
                       ),
                     ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+                    suffixIconConstraints: const BoxConstraints(minHeight: 40, minWidth: 0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: hint.onContainer.withValues(alpha: 0.5)),
                     ),
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
+                    focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
                   ),
                   // The iOS number pad has no Done key and would keep covering Apply all.
                   onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
@@ -333,13 +346,14 @@ class _WeightFieldState extends State<_WeightField> {
           ],
         ),
         const SizedBox(height: 2),
-        Text(input.hint, style: textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75))),
-        if (onAddToRider != null)
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: hint.accent, padding: EdgeInsets.zero),
-            onPressed: onAddToRider,
-            icon: const Icon(Icons.person_add_alt_outlined, size: 18),
-            label: Text(input.addToRiderLabel ?? context.l10n.guideCardAddWeightDefault),
+        if (onAddToRider == null)
+          Text(input.hint, style: hintStyle)
+        else
+          HintLearnMoreText(
+            text: input.hint,
+            linkText: input.addToRiderLabel ?? context.l10n.guideCardAddWeightDefault,
+            style: hintStyle,
+            onLearnMore: onAddToRider,
           ),
       ],
     );

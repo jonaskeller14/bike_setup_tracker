@@ -238,8 +238,8 @@ void main() {
     testWidgets('only drives the recommendations while persons are off', (tester) async {
       await open(tester, weightRecorded: false, enablePerson: false);
 
-      expect(find.text('Only used for these recommendations'), findsOneWidget);
-      expect(find.textContaining('Add riding weight'), findsNothing);
+      expect(find.text('Only used for these recommendations.'), findsOneWidget);
+      expect(find.textContaining('Save as', findRichText: true), findsNothing);
       await tester.enterText(cardField(), '92');
       await _settle(tester);
       expect(find.text('87 psi'), findsOneWidget);
@@ -255,9 +255,10 @@ void main() {
       tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
       await _settle(tester);
       // Centered, so the pinned tab bar doesn't cover it.
-      await Scrollable.ensureVisible(tester.element(find.text('Add riding weight to Rider')), alignment: 0.5);
+      final addToRider = find.textContaining("Save as Rider's weight", findRichText: true);
+      await Scrollable.ensureVisible(tester.element(addToRider), alignment: 0.5);
       await tester.pump();
-      await tester.tap(find.text('Add riding weight to Rider'));
+      await tester.tap(addToRider);
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
       await _settle(tester);
 

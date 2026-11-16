@@ -4337,11 +4337,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get setupFormGuideWeightLocal => 'Wird nur für diese Empfehlungen verwendet';
+  String get setupFormGuideWeightLocal => 'Wird nur für diese Empfehlungen verwendet.';
 
   @override
   String setupFormGuideAddWeight(String name) {
-    return 'Fahrergewicht zu $name hinzufügen';
+    return 'Als Gewicht von $name speichern';
   }
 
   @override
@@ -8230,7 +8230,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get guideCardRidingWeight => 'Fahrergewicht';
 
   @override
-  String get guideCardAddWeightDefault => 'Fahrergewicht zum Rider hinzufügen';
+  String get guideCardAddWeightDefault => 'Als Gewicht des Riders speichern';
 
   @override
   String guideCardBasedOn(String guide) {

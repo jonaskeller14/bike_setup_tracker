@@ -2174,7 +2174,6 @@
   "pressureCheckSetNow": "Enchido",
   "pressureCheckSetNowSemantics": "Marcar {name} como enchido",
   "pressureCheckSetNowMarked": "{name} marcado como enchido",
-  "pressureCheckSetNowUnmarked": "{name} não está mais marcado como enchido",
   "pressureCheckSetNowDone": "Enchido agora há pouco",
   "pressureCheckSetNowHint": "Encheu de novo até o valor “Definido”? Toque na pressão.",
   "pressureCheckNoConditionsOn": "Nenhuma condição registrada em {date}",

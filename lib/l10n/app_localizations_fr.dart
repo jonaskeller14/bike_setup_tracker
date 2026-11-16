@@ -8057,11 +8057,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name n’est plus marqué comme regonflé';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Regonflé à l’instant';
 
   @override

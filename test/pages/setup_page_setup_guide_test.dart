@@ -366,6 +366,75 @@ void main() {
     expect(find.widgetWithText(TextField, '77.0'), findsNothing);
   });
 
+  group('tapping an applied row again', () {
+    Finder pressureRow() => find.descendant(of: find.byType(SetupGuideCard), matching: find.text('Pressure'));
+
+    Future<void> openExpanded(WidgetTester tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await open(tester, forkHasValues: true);
+      tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+      await tester.tap(find.text('SETUP GUIDE'));
+      await _settle(tester);
+    }
+
+    testWidgets('restores the value it replaced and hides the applied snackbar', (tester) async {
+      await openExpanded(tester);
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+      expect(find.text('Pressure set to 77 psi'), findsOneWidget);
+
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      expect(find.widgetWithText(TextField, '70.0'), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('also undoes a value set by Apply all', (tester) async {
+      await openExpanded(tester);
+      await tester.tap(find.text('Apply all'));
+      await _settle(tester);
+      expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      expect(find.widgetWithText(TextField, '70.0'), findsOneWidget);
+    });
+
+    testWidgets('applies the guide again once the rider changed the value', (tester) async {
+      await openExpanded(tester);
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      await tester.enterText(find.widgetWithText(TextField, '77.0'), '80');
+      await _settle(tester);
+
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      expect(find.text('Pressure set to 77 psi'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '77.0'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '70.0'), findsNothing);
+    });
+
+    testWidgets('does nothing once the rider changed the value back by hand', (tester) async {
+      await openExpanded(tester);
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      await tester.enterText(find.widgetWithText(TextField, '77.0'), '80');
+      await _settle(tester);
+      await tester.enterText(find.widgetWithText(TextField, '80'), '77');
+      await _settle(tester);
+      tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+      await _settle(tester);
+
+      await tester.tap(pressureRow());
+      await _settle(tester);
+      expect(find.widgetWithText(TextField, '77'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '70.0'), findsNothing);
+    });
+  });
+
   testWidgets('after Apply all, the rebound follows an edited pressure', (tester) async {
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1;

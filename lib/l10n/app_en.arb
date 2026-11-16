@@ -10705,15 +10705,6 @@
       }
     }
   },
-  "pressureCheckSetNowUnmarked": "{name} no longer marked as pumped",
-  "@pressureCheckSetNowUnmarked": {
-    "description": "Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "pressureCheckSetNowDone": "Pumped just now",
   "@pressureCheckSetNowDone": {
     "description": "Replaces the set-on line under a pressure name once the row is marked as pumped."

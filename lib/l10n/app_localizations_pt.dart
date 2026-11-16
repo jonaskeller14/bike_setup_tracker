@@ -8033,11 +8033,6 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name não está mais marcado como enchido';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Enchido agora há pouco';
 
   @override

@@ -2174,7 +2174,6 @@
   "pressureCheckSetNow": "Aufgepumpt",
   "pressureCheckSetNowSemantics": "{name} als aufgepumpt markieren",
   "pressureCheckSetNowMarked": "{name} als aufgepumpt markiert",
-  "pressureCheckSetNowUnmarked": "{name} nicht mehr als aufgepumpt markiert",
   "pressureCheckSetNowDone": "Gerade aufgepumpt",
   "pressureCheckSetNowHint": "Wieder auf „Eingestellt“ aufgepumpt? Tippe auf den Druck.",
   "pressureCheckNoConditionsOn": "Keine Bedingungen am {date} erfasst",

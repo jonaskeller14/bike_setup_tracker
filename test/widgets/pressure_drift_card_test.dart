@@ -5,6 +5,7 @@ import 'package:bike_setup_tracker/models/setup.dart';
 import 'package:bike_setup_tracker/services/pressure_drift_service.dart';
 import 'package:bike_setup_tracker/theme.dart';
 import 'package:bike_setup_tracker/widgets/pressure_drift_card.dart';
+import 'package:bike_setup_tracker/widgets/rolling_value_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -200,7 +201,7 @@ void main() {
         expect(find.byType(PressureDriftIcon), findsOneWidget);
       });
 
-      testWidgets('tapping a marked row unmarks it, with a snackbar whose undo marks again', (tester) async {
+      testWidgets('tapping a marked row unmarks it without a snackbar', (tester) async {
         final calls = await pumpMarkable(tester, [_drift('a')], marked: {'a'});
         await tester.tap(find.text('PRESSURE CHECK'));
         await tester.pumpAndSettle();
@@ -211,12 +212,33 @@ void main() {
 
         expect(calls, [('a', false)]);
         expect(find.byType(PressureDriftIcon), findsOneWidget);
-        expect(find.text('Fork · Air a no longer marked as pumped'), findsOneWidget);
+        expect(find.byType(SnackBar), findsNothing);
+      });
 
-        await tester.tap(find.text('UNDO'));
+      testWidgets('tapping a row again hides the marked snackbar', (tester) async {
+        await pumpMarkable(tester, [_drift('a')]);
+
+        await tester.tap(find.text('Fork · Air a'));
+        await tester.pumpAndSettle();
+        expect(find.text('Fork · Air a marked as pumped'), findsOneWidget);
+
+        await tester.tap(find.text('Fork · Air a'));
+        await tester.pumpAndSettle();
+        expect(find.byType(SnackBar), findsNothing);
+      });
+
+      testWidgets('marking a row counts its reading up to the set value', (tester) async {
+        await pumpMarkable(tester, [_drift('a')]);
+        expect(find.text('77.2 psi'), findsOneWidget);
+
+        await tester.tap(find.text('Fork · Air a'));
         await tester.pump();
+        await tester.pump(const Duration(milliseconds: 200));
+        expect(find.text('77.2 psi'), findsNothing);
+        expect(find.byType(RollingValueText), findsOneWidget);
 
-        expect(calls, [('a', false), ('a', true)]);
+        await tester.pumpAndSettle();
+        expect(find.text('80.0 psi'), findsNWidgets(2));
       });
 
       testWidgets('a marked row says it was just pumped and reads its set value now', (tester) async {

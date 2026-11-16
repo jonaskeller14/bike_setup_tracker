@@ -8058,11 +8058,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name nicht mehr als aufgepumpt markiert';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Gerade aufgepumpt';
 
   @override

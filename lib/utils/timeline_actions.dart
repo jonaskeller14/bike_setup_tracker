@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
@@ -44,6 +47,7 @@ class TimelineActions {
     final total = setups.length + taskEntries.length + feedbacks.length + sessions.length;
     if (total == 0) return;
 
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeSetups(setups);
     await appRepository.removeTaskEntries(taskEntries);
     await appRepository.removeFeedbacks(feedbacks);

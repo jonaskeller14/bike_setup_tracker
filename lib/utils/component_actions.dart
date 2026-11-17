@@ -491,6 +491,7 @@ class ComponentActions {
         .where((entry) => selectedRuleIds.contains(entry.taskRule))
         .toList();
 
+    unawaited(HapticFeedback.mediumImpact());
     if (detached.isNotEmpty) await appRepository.editComponents(detached);
     await appRepository.removeComponents(removed);
     await appRepository.removeTaskRules(selectedTaskRules);

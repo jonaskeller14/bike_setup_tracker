@@ -212,6 +212,7 @@ class SetupActions {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
 
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeSetups([setup]);
 
     if (!context.mounted) return;

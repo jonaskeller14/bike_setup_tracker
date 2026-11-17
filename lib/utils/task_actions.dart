@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/enum_labels.dart';
@@ -216,6 +219,7 @@ class TaskActions {
         .where((entry) => taskRuleIdsToRemove.contains(entry.taskRule))
         .toList();
 
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeTaskRules(taskRules);
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
@@ -277,6 +281,7 @@ class TaskActions {
     if (newEntry == null) return;
 
     await appRepository.addTaskEntries([newEntry]);
+    unawaited(HapticFeedback.successNotification());
   }
 
   static Future<void> addDefaultTaskEntries(BuildContext context, {required Iterable<String> taskRuleIds}) async {
@@ -311,6 +316,7 @@ class TaskActions {
     );
 
     await appRepository.addTaskEntries(taskEntries);
+    unawaited(HapticFeedback.successNotification());
 
     if (!context.mounted) return;
     messenger.showSnackBar(
@@ -374,6 +380,7 @@ class TaskActions {
   static Future<void> removeTaskEntry(BuildContext context, {required TaskEntry taskEntry}) async {
     final appRepository = context.read<AppRepository>();
     final messenger = ScaffoldMessenger.of(context);
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeTaskEntries([taskEntry]);
 
     if (!context.mounted) return;
@@ -396,6 +403,7 @@ class TaskActions {
 
     final taskEntries = taskEntryIds.map((teId) => appRepository.taskEntries[teId]).whereType<TaskEntry>().toList();
     if (taskEntries.isEmpty) return;
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeTaskEntries(taskEntries);
 
     if (!context.mounted) return;

@@ -234,8 +234,8 @@ class TestSessionActions {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
 
-    unawaited(HapticFeedback.mediumImpact());
     await appRepository.endTestSession(session);
+    unawaited(HapticFeedback.successNotification());
 
     if (!context.mounted) return;
     messenger.showSnackBar(

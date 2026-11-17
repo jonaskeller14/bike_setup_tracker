@@ -63,9 +63,9 @@ build.
 - **Numbers are real.** A value on an asset comes from the sample dataset or a real screenshot,
   never invented. Default pair: Lyrik pressure 84 → 85 psi, LSC 7 → 8, rebound 9 → 10
   ("Hometrails – angleset test").
-- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R22, R26–R27, C5–C10, C12, S4–S9, D4, D5) open Shorts and
+- **Questions are hooks, statements are headlines.** Question lines (R3, R9–R14, R16–R22, R26–R27, R29, C5–C10, C12, S4–S9, D4, D5) open Shorts and
   posts; store assets use statements. Two Shorts formats (`brand.md`, Formats) have their own hook
-  shape, which opens the same loop: **How to** hooks start "How to …" (R23–R25, C11), **For riders
+  shape, which opens the same loop: **How to** hooks start "How to …" (R23–R25, R30, C11), **For riders
   who…** hooks are "Why every <rider> needs …" (R28, C13, S10). The bike context stays in the line.
 - **Variety over one slogan.** Pick from the whole bank instead of repeating one line. R7
   ("sweet spot", the v1 headline) is a good line, but goes on one store surface at most.
@@ -85,6 +85,7 @@ build.
 - **Numbers:** one per sentence, with what it is said before it ("rebound, nine clicks"), and the unit named on first
   mention ("three degrees Celsius", "seventy-eight kilos"). Introduce examples with "say" ("Say you weigh
   seventy-eight kilos."). Spell numbers out for the voice.
+- **Units in the batch text:** write PSI in capitals; speechma reads "psi" as "pi". Captions and posts keep "psi".
 - **Flow:** each sentence picks up where the last stopped (so, because, but, then). It must make sense with the screen
   off, so no "like this", "here" or "this one".
 - **Ending:** the last sentence says what the rider gets next time, in everyday words ("so next time it rains, you
@@ -140,6 +141,8 @@ German riders, not translated word for word.
 | R26 | You set your fork pressure on a warm evening. Is it still right on a cold morning? | Gabeldruck an einem warmen Abend eingestellt. Stimmt er an einem kalten Morgen noch? |
 | R27 | Still looking up your fork's starting values in the manual? | Suchst du die Startwerte deiner Gabel immer noch im Handbuch? |
 | R28 | Why every racer needs a fork setup history | Warum jeder Racer eine Gabel-Setup-Historie braucht |
+| R29 | Still converting your tire pressure from bar to psi in your head? | Rechnest du deinen Reifendruck immer noch im Kopf von bar in psi um? |
+| R30 | How to measure your fork sag in ten seconds | So misst du den Sag deiner Gabel in zehn Sekunden |
 
 ### C — See what changed
 

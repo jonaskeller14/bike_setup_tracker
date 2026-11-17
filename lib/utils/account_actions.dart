@@ -69,12 +69,14 @@ class AccountActions {
     final storageFull = AppSnackBar.error(context, l10n.accountSyncStorageFull);
     final sync = context.read<CloudSyncService>();
     final status = await sync.syncNow();
-    messenger.showSnackBar(switch (status) {
+    final snackBar = switch (status) {
       CloudSyncStatus.offline => offline,
       CloudSyncStatus.error => failed,
       CloudSyncStatus.idle when sync.attachmentQuotaFull => storageFull,
       CloudSyncStatus.idle || CloudSyncStatus.syncing => done,
-    });
+    };
+    if (snackBar == done) unawaited(HapticFeedback.successNotification());
+    messenger.showSnackBar(snackBar);
   }
 
   static Future<void> signOutDevice(BuildContext context, AccountDevice device, {required String deviceLabel}) async {

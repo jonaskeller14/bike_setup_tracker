@@ -16,6 +16,11 @@
 // TestSessionNextStep), and for a converged session also without the bar, to
 // compare the two ways of ending a session.
 //
+// The bar states are shown at rest: after the fill-in on first show, at the
+// still point of the pulse. The "Motion" shots are single frames of a change,
+// of the pulse and of the finish flourish, titled with the time since the
+// change in milliseconds.
+//
 // Besides the pictures, the second test checks that no state breaks: every
 // state says how many runs are left, in every language, on a narrow screen
 // with large text, without overflowing.
@@ -196,7 +201,95 @@ AppRepository _repository({required bool rated}) {
   return repository;
 }
 
+/// Frames of the bar on its way from [from] to [to]; without [from], of the
+/// fill-in on first show.
+class _Motion {
+  final String slug;
+  final String title;
+  final SessionProgress? from;
+  final SessionProgress to;
+
+  /// Milliseconds since the change.
+  final List<int> frames;
+
+  const _Motion(this.slug, this.title, {this.from, required this.to, this.frames = const [250, 400, 550, 800]});
+}
+
+const _motions = [
+  _Motion(
+    'open',
+    'Motion: fill in on open',
+    to: SessionProgress(ridden: 4, pending: true, left: 3, maxLeft: null),
+    frames: [0, 250, 400, 550, 800],
+  ),
+  _Motion(
+    'feedback',
+    'Motion: feedback added',
+    from: SessionProgress(ridden: 3, pending: true, left: 3, maxLeft: 4),
+    to: SessionProgress(ridden: 3, left: 3, maxLeft: 4),
+  ),
+  _Motion(
+    'next_run',
+    'Motion: next run recorded',
+    from: SessionProgress(ridden: 3, left: 3, maxLeft: 4),
+    to: SessionProgress(ridden: 4, pending: true, left: 2, maxLeft: 3),
+  ),
+  _Motion(
+    'better',
+    'Motion: Fine-tune, a better run adds two',
+    from: SessionProgress(ridden: 3, pending: true, left: 4, maxLeft: null),
+    to: SessionProgress(ridden: 3, left: 6, maxLeft: null),
+  ),
+  _Motion(
+    'resolved',
+    'Motion: Explore, estimated best not needed',
+    from: SessionProgress(ridden: 5, pending: true, left: 1, maxLeft: 2),
+    to: SessionProgress.exact(ridden: 5, left: 1, confirming: true),
+  ),
+  _Motion(
+    'to_bar',
+    'Motion: segments get too thin',
+    from: SessionProgress(ridden: 10, pending: true, left: 12, maxLeft: null),
+    to: SessionProgress(ridden: 10, left: 14, maxLeft: null),
+  ),
+  _Motion(
+    'finish',
+    'Motion: the result is in',
+    from: SessionProgress(ridden: 7, pending: true, left: 0, maxLeft: 0, confirming: true),
+    to: SessionProgress.exact(ridden: 7, left: 0),
+    frames: [400, 800, 950, 1100, 1250, 1500],
+  ),
+  _Motion(
+    'pulse',
+    'Motion: the latest run breathes',
+    from: SessionProgress(ridden: 3, left: 3, maxLeft: 4),
+    to: SessionProgress(ridden: 3, left: 3, maxLeft: 4),
+    frames: [0, 450, 900],
+  ),
+  _Motion(
+    'pulse_waiting',
+    'Motion: the run that waits breathes',
+    from: SessionProgress(ridden: 4, pending: true, left: 3, maxLeft: null),
+    to: SessionProgress(ridden: 4, pending: true, left: 3, maxLeft: null),
+    frames: [0, 450, 900],
+  ),
+  _Motion(
+    'pulse_bar',
+    'Motion: the end of the single bar breathes',
+    from: SessionProgress(ridden: 14, left: 19, maxLeft: null),
+    to: SessionProgress(ridden: 14, left: 19, maxLeft: null),
+    frames: [0, 450, 900],
+  ),
+];
+
+/// Past the fill-in on first show, at the still point of the pulse.
+Future<void> _rest(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 1800));
+}
+
 const _galleryKey = ValueKey('bar-gallery');
+const _motionKey = ValueKey('motion');
 const _pinnedKey = ValueKey('pinned');
 
 Widget _scaled(double textScale, Locale locale, Widget child) => Builder(
@@ -243,6 +336,32 @@ Widget _galleryApp(ThemeData theme) => localizedTestApp(
                     ),
                   ),
               ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  ),
+);
+
+Widget _motionApp(ThemeData theme, ValueNotifier<SessionProgress> shown) => localizedTestApp(
+  debugShowCheckedModeBanner: false,
+  theme: theme,
+  home: Scaffold(
+    body: Align(
+      alignment: Alignment.topLeft,
+      child: RepaintBoundary(
+        key: _motionKey,
+        child: ColoredBox(
+          color: theme.colorScheme.surface,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: _cellWidth,
+              child: ValueListenableBuilder(
+                valueListenable: shown,
+                builder: (context, progress, _) => TestSessionProgress(progress: progress),
+              ),
             ),
           ),
         ),
@@ -303,14 +422,38 @@ void main() {
 
       tester.view.physicalSize = const Size(3 * _cellWidth + 2 * 32 + 32, 3000);
       await tester.pumpWidget(_galleryApp(theme));
-      await tester.pump();
+      await _rest(tester);
       await session.add('bars', 'Bar states', tester.renderObject(find.byKey(_galleryKey)));
+
+      tester.view.physicalSize = const Size(360, 200);
+      for (final motion in _motions) {
+        final shown = ValueNotifier(motion.from ?? motion.to);
+        await tester.pumpWidget(const SizedBox());
+        await tester.pumpWidget(_motionApp(theme, shown));
+        if (motion.from != null) {
+          await _rest(tester);
+          shown.value = motion.to;
+          await tester.pump();
+        }
+        await tester.pump();
+        var at = 0;
+        for (final frame in motion.frames) {
+          await tester.pump(Duration(milliseconds: frame - at));
+          at = frame;
+          await session.add(
+            'motion_${motion.slug}_$frame',
+            '${motion.title} · $frame ms',
+            tester.renderObject(find.byKey(_motionKey)),
+          );
+        }
+        shown.dispose();
+      }
 
       for (final pinned in _pinned) {
         tester.view.physicalSize = Size(pinned.width, 600);
         await tester.pumpWidget(const SizedBox());
         await tester.pumpWidget(_pinnedApp(theme, pinned));
-        await tester.pump();
+        await _rest(tester);
         await session.add(pinned.slug, pinned.title, tester.renderObject(find.byKey(_pinnedKey)));
         expect(tester.takeException(), isNull, reason: '"${pinned.title}" overflows or throws');
       }
@@ -339,7 +482,7 @@ void main() {
             ),
           ),
         );
-        await tester.pump();
+        await _rest(tester);
 
         final reason = '"${c.label}" in ${locale.languageCode}';
         final text = tester.widget<Text>(find.byType(Text)).data!;

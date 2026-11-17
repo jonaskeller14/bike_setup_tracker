@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -82,6 +84,7 @@ class _TextAdjustmentPageState extends State<TextAdjustmentPage> {
 
   void _saveTextAdjustment() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

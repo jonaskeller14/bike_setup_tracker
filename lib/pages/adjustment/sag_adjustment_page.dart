@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -122,6 +124,7 @@ class _SagAdjustmentPageState extends State<SagAdjustmentPage> {
 
   Future<void> _saveSagAdjustment() async {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

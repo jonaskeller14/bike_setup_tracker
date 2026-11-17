@@ -880,6 +880,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       _revealFirstInvalidField();
       return;
     }

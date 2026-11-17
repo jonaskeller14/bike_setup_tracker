@@ -85,6 +85,7 @@ class _BooleanAdjustmentPageState extends State<BooleanAdjustmentPage> {
 
   void _saveBooleanAdjustment() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/l10n.dart';
@@ -115,7 +117,10 @@ class _InstallationSheetState extends State<InstallationSheet> {
   }
 
   void _onConfirm() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final updatedComponent = widget.component.copyWith(
       installations: _installations,

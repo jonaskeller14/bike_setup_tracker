@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
@@ -106,6 +108,7 @@ class _DurationAdjustmentPageState extends State<DurationAdjustmentPage> {
 
   Future<void> _saveDurationAdjustment() async {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

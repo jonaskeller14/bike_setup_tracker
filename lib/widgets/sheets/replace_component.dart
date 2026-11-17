@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -113,7 +114,10 @@ class _ReplaceComponentSheetState extends State<_ReplaceComponentSheet> {
   }
 
   void _onContinue() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final appRepository = context.read<AppRepository>();
     final subcomponents = _subcomponents(appRepository);

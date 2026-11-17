@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/enum_labels.dart';
@@ -107,7 +109,10 @@ class _SetWeatherSheetContentState extends State<SetWeatherSheetContent> {
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
     Navigator.of(context).pop(_currentWeather);
   }
 

@@ -13,8 +13,8 @@ import '../../models/bike.dart';
 import '../../models/component/component.dart';
 import '../../models/feedback/ride_feedback.dart';
 import '../../models/setup.dart';
+import '../../models/strava/activity_timeline.dart';
 import '../../models/strava/strava_activity.dart';
-import '../../models/timeline_entry.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/strava_service.dart';
 import '../../utils/automation_ids.dart';
@@ -27,9 +27,8 @@ import '../../widgets/empty_state_placeholder.dart';
 import '../../widgets/empty_state_placeholder2.dart';
 import '../../widgets/feedback/strava_feedback_prompt.dart';
 import '../../widgets/items/component_list_card.dart';
-import '../../widgets/items/feedback_list_tile.dart';
-import '../../widgets/items/setup_tile.dart';
 import '../../widgets/sheets/sheet.dart';
+import '../../widgets/strava_activity_timeline.dart';
 import '../forms/setup_page.dart';
 
 class StravaActivityDetailsPage extends StatefulWidget {
@@ -398,49 +397,14 @@ class StravaActivityPageContent extends StatelessWidget {
             // Add Setups related to this activity
             Builder(
               builder: (context) {
-                final allSetupsForGear = appRepository.setups.values
-                    .where((s) => appRepository.bikes[s.bike]?.stravaGear == stravaGear.id)
-                    .toList();
-                
-                // Setups added after activity started, but before it ended
-                final activityEnd = stravaActivity.startDateLocal.add(stravaActivity.elapsedTime);
-                final setupsDuringActivity = allSetupsForGear
-                    .where(
-                      (s) =>
-                  s.datetimeLocal.isAfter(stravaActivity.startDateLocal) &&
-                          s.datetimeLocal.isBefore(activityEnd),
-                    )
-                    .toList();
-
-                // Setup active at the start of the activity (latest one before/on start)
-                final setupsBeforeOrOnStart = allSetupsForGear
-                    .where(
-                      (s) =>
-                  s.datetimeLocal.isBefore(stravaActivity.startDateLocal) || 
-                          s.datetimeLocal.isAtSameMomentAs(stravaActivity.startDateLocal),
-                    )
-                    .toList();
-                setupsBeforeOrOnStart.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
-                
-                final List<Setup> relevantSetups = [];
-                if (setupsBeforeOrOnStart.isNotEmpty) {
-                  relevantSetups.add(setupsBeforeOrOnStart.first); // active setup
-                }
-                relevantSetups.addAll(setupsDuringActivity);
-
-                // Filter out duplicates (just in case) and sort chronologically
-                final uniqueSetups = relevantSetups.toSet().toList();
-                uniqueSetups.sort((a, b) => b.datetimeLocal.compareTo(a.datetimeLocal));
-
-                // The ride's feedbacks, as cards of their own between the setups, newest first and
-                // ordered like the setup list, so a feedback stays above the setup it shares a time with.
                 final feedbacks = appSettings.enableRating
                     ? appRepository.feedbacksForActivity(stravaActivity)
                     : const <RideFeedback>[];
-                final entries = <TimelineEntry>[
-                  ...uniqueSetups.map(SetupEntry.new),
-                  ...feedbacks.map(FeedbackTimelineEntry.new),
-                ]..sort((a, b) => compareTimelineEntries(b, a));
+                final timeline = ActivityTimeline.of(
+                  stravaActivity,
+                  setups: appRepository.setups.values.where((s) => appRepository.bikes[s.bike]?.stravaGear == stravaGear.id),
+                  feedbacks: feedbacks,
+                );
 
                 // A setup recorded now would land between the runs of a session.
                 final linkedBike = appRepository.bikes.values.where((b) => b.stravaGear == stravaGear.id).firstOrNull;
@@ -454,11 +418,11 @@ class StravaActivityPageContent extends StatelessWidget {
                   leading: const Icon(Setup.iconData),
                   shape: const Border(),
                   collapsedShape: const Border(),
-                  initiallyExpanded: false,
+                  initiallyExpanded: true,
                   title: Semantics(
                     identifier: AutomationIds.stravaActivitySetups,
                     child: Text(
-                      context.l10n.stravaActivitySetupsTitle(uniqueSetups.length),
+                      context.l10n.stravaActivitySetupsTitle(timeline.setupCount),
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -467,42 +431,11 @@ class StravaActivityPageContent extends StatelessWidget {
                       : Text(context.l10n.stravaActivityFeedbackCount(feedbacks.length)),
                   childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
-                    if (uniqueSetups.isEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: EmptyStatePlaceholder2(
-                          iconData: Setup.iconData,
-                          title: context.l10n.stravaActivityNoSetupsTitle,
-                          subtitle: runningHint ?? context.l10n.stravaActivityNoSetupsSubtitle,
-                          onTap: addSetup,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: addSetup,
-                            icon: const Icon(Icons.add),
-                            label: Text(context.l10n.homeAddSetup),
-                          ),
-                        ),
-                      ),
-                    ],
-                    for (final entry in entries)
-                      Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        // Rounds the InkWell and the current-setup bar.
-                        clipBehavior: Clip.antiAlias,
-                        child: switch (entry) {
-                          SetupEntry(:final setup) => SetupTile(setupId: setup.id, onTap: null, stravaActivity: stravaActivity),
-                          FeedbackTimelineEntry(:final feedback) => FeedbackListTile(feedback: feedback, showBike: false),
-                          _ => const SizedBox.shrink(),
-                        },
-                      ),
-                    if (uniqueSetups.isNotEmpty)
-                      Wrap(
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16, top: 8),
+                      child: StravaActivityTimeline(timeline: timeline, onAddSetup: addSetup, addSetupHint: runningHint),
+                    ),
+                    Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 8,
                         children: [
@@ -521,7 +454,7 @@ class StravaActivityPageContent extends StatelessWidget {
                             ),
                         ],
                       ),
-                    if (uniqueSetups.isNotEmpty && runningHint != null)
+                    if (runningHint != null)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(

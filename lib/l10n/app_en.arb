@@ -9491,13 +9491,21 @@
       }
     }
   },
-  "stravaActivityNoSetupsTitle": "No setups for this activity",
-  "@stravaActivityNoSetupsTitle": {
-    "description": "Title when no setup belongs to an activity."
-  },
   "stravaActivityNoSetupsSubtitle": "Add a setup to record your bike configuration",
   "@stravaActivityNoSetupsSubtitle": {
     "description": "Hint when no setup belongs to an activity."
+  },
+  "stravaActivityNoSetupBeforeTitle": "No setup before this activity",
+  "@stravaActivityNoSetupBeforeTitle": {
+    "description": "Placeholder on the activity timeline when no setup was recorded before the activity."
+  },
+  "stravaActivityTimelineStart": "Start",
+  "@stravaActivityTimelineStart": {
+    "description": "Timeline node where the Strava activity started."
+  },
+  "stravaActivityTimelineEnd": "End",
+  "@stravaActivityTimelineEnd": {
+    "description": "Timeline node where the Strava activity ended."
   },
   "stravaActivitySessionRunning": "Test session '{name}' is running on this bike. End it to add a setup.",
   "@stravaActivitySessionRunning": {

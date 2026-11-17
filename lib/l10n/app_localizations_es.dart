@@ -7192,10 +7192,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get stravaActivityNoSetupsTitle => 'Ningún setup para esta actividad';
+  String get stravaActivityNoSetupsSubtitle => 'Añade un setup para guardar la configuración de tu bici';
 
   @override
-  String get stravaActivityNoSetupsSubtitle => 'Añade un setup para guardar la configuración de tu bici';
+  String get stravaActivityNoSetupBeforeTitle => 'Ningún setup antes de esta actividad';
+
+  @override
+  String get stravaActivityTimelineStart => 'Inicio';
+
+  @override
+  String get stravaActivityTimelineEnd => 'Fin';
 
   @override
   String stravaActivitySessionRunning(String name) {

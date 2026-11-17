@@ -9007,7 +9007,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get catalogCardDismiss => 'Verwerfen';
 
   @override
-  String get catalogCardReview => 'Prüfen';
+  String get catalogCardApply => 'Anwenden';
 
   @override
   String get subcomponentsSheetIntro =>

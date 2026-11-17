@@ -8981,7 +8981,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get catalogCardDismiss => 'Dispensar';
 
   @override
-  String get catalogCardReview => 'Revisar';
+  String get catalogCardApply => 'Aplicar';
 
   @override
   String get subcomponentsSheetIntro =>

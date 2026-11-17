@@ -2381,7 +2381,7 @@
   "catalogCardUnlinkTooltip": "Verknüpfung mit Vorlage aufheben (Werte bleiben)",
   "catalogCardUpdateAvailable": "Aktualisierung verfügbar",
   "catalogCardDismiss": "Verwerfen",
-  "catalogCardReview": "Prüfen",
+  "catalogCardApply": "Anwenden",
   "subcomponentsSheetIntro": "Verbaue Komponenten an anderen Komponenten, z. B. einen Reifen und eine Bremsscheibe an einem Laufrad. In der Garage werden sie mit ihrer übergeordneten Komponente gruppiert.",
   "subcomponentsSheetWithout": "Ohne Unterkomponenten",
   "subcomponentsSheetWith": "Mit Unterkomponenten",

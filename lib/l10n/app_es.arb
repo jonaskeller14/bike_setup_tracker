@@ -2381,7 +2381,7 @@
   "catalogCardUnlinkTooltip": "Desvincular la plantilla (conserva los valores)",
   "catalogCardUpdateAvailable": "Actualización disponible",
   "catalogCardDismiss": "Descartar",
-  "catalogCardReview": "Revisar",
+  "catalogCardApply": "Aplicar",
   "subcomponentsSheetIntro": "Monta componentes sobre otros componentes, por ejemplo un neumático y un disco de freno sobre una rueda. En el garaje se agrupan con su componente principal.",
   "subcomponentsSheetWithout": "Sin subcomponentes",
   "subcomponentsSheetWith": "Con subcomponentes",

@@ -2381,7 +2381,7 @@
   "catalogCardUnlinkTooltip": "Desvincular o modelo (mantém os valores)",
   "catalogCardUpdateAvailable": "Atualização disponível",
   "catalogCardDismiss": "Dispensar",
-  "catalogCardReview": "Revisar",
+  "catalogCardApply": "Aplicar",
   "subcomponentsSheetIntro": "Monte componentes em outros componentes, por exemplo um pneu e um disco de freio em uma roda. Na garagem, eles ficam agrupados com o componente principal.",
   "subcomponentsSheetWithout": "Sem subcomponentes",
   "subcomponentsSheetWith": "Com subcomponentes",

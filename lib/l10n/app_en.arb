@@ -12002,9 +12002,9 @@
   "@catalogCardDismiss": {
     "description": "Button that dismisses a catalog update."
   },
-  "catalogCardReview": "Review",
-  "@catalogCardReview": {
-    "description": "Button that reviews a catalog update."
+  "catalogCardApply": "Apply",
+  "@catalogCardApply": {
+    "description": "Button that applies a catalog update to the component; opens the merge sheet."
   },
   "subcomponentsSheetIntro": "Install components on other components, e.g. a tire and a brake disc on a wheel. In the Garage, they are grouped with their parent.",
   "@subcomponentsSheetIntro": {

@@ -2381,7 +2381,7 @@
   "catalogCardUnlinkTooltip": "Scollega il modello (mantiene i valori)",
   "catalogCardUpdateAvailable": "Aggiornamento disponibile",
   "catalogCardDismiss": "Ignora",
-  "catalogCardReview": "Verifica",
+  "catalogCardApply": "Applica",
   "subcomponentsSheetIntro": "Monta dei componenti su altri componenti, ad esempio un copertone e un disco freno su una ruota. Nel garage vengono raggruppati con il loro componente principale.",
   "subcomponentsSheetWithout": "Senza sottocomponenti",
   "subcomponentsSheetWith": "Con sottocomponenti",

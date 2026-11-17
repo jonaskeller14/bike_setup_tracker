@@ -183,26 +183,13 @@ class _CatalogUpdate extends StatelessWidget {
         children: [
           const Divider(height: 1),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Icon(Icons.update, size: 20, color: colors.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  context.l10n.catalogCardUpdateAvailable,
-                  style: theme.textTheme.titleSmall?.copyWith(color: colors.primary),
-                ),
-              ),
-            ],
-          ),
+          Text(context.l10n.catalogCardUpdateAvailable, style: theme.textTheme.titleSmall),
           const SizedBox(height: 4),
           for (final update in updates)
             Padding(
               padding: const EdgeInsets.only(right: 8, bottom: 4),
               child: Text(
                 update.summary,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
               ),
             ),
@@ -211,7 +198,7 @@ class _CatalogUpdate extends StatelessWidget {
             spacing: 8,
             children: [
               TextButton(onPressed: onDismiss, child: Text(context.l10n.catalogCardDismiss)),
-              TextButton(onPressed: onReview, child: Text(context.l10n.catalogCardReview)),
+              FilledButton.tonal(onPressed: onReview, child: Text(context.l10n.catalogCardApply)),
             ],
           ),
         ],

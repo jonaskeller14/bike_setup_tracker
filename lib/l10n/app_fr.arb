@@ -2381,7 +2381,7 @@
   "catalogCardUnlinkTooltip": "Dissocier le modèle (conserve les valeurs)",
   "catalogCardUpdateAvailable": "Mise à jour disponible",
   "catalogCardDismiss": "Ignorer",
-  "catalogCardReview": "Vérifier",
+  "catalogCardApply": "Appliquer",
   "subcomponentsSheetIntro": "Montez des composants sur d’autres composants, par exemple un pneu et un disque de frein sur une roue. Dans le garage, ils sont regroupés avec leur composant parent.",
   "subcomponentsSheetWithout": "Sans sous-composants",
   "subcomponentsSheetWith": "Avec sous-composants",

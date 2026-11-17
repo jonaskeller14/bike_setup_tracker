@@ -782,7 +782,7 @@ nodes:
     testWidgets('reviewing merges the new adjuster and stores the revision', (WidgetTester tester) async {
       final saved = await openOutdated(tester);
 
-      await tester.tap(find.widgetWithText(TextButton, 'Review'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Apply'));
       await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Merge'));
       await tester.pumpAndSettle();

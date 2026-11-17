@@ -31,6 +31,7 @@ REPO_ROOT = render_images.REPO_ROOT
 KITS = REPO_ROOT / "docs/marketing/kits"
 RAW = "build/marketing/raw"  # Default "recordings" folder of a kit.
 MUSIC = REPO_ROOT / "tool/marketing/assets/music"
+SFX = REPO_ROOT / "tool/marketing/assets/sfx"  # Unpacked sound packs; sfx/README.md says where from.
 TEMPLATES = "docs/marketing/templates"
 MOTION = REPO_ROOT / "docs/marketing/motion"
 STANDARD_MOTION = "standard.html"
@@ -153,6 +154,20 @@ class Kit:
                                    if path else "No music bed set in the kit, so the videos have a silent track.")
         return self._music
 
+    def sfx(self, name, short):
+        """(sound, at, gain) of a Short's "sfx": [[second, sound name], …], the names from the kit's "sounds"."""
+        cues = []
+        for at, sound in short.get("sfx", []):
+            spec = self.spec.get("sounds", {}).get(sound)
+            if spec is None:
+                raise SystemExit(f"short '{name}': sound '{sound}' isn't in the kit's sounds")
+            path = SFX / spec["file"]
+            if not path.is_file():
+                self.problems.append(f"short '{name}': `{rel(path)}` is missing; unpack the packs (sfx/README.md)")
+                continue
+            cues.append((path, at, spec.get("gain", 0.25)))
+        return cues
+
     def params(self):
         """URL parameters every template of the kit gets: the device (iphone or android)."""
         return {"device": self.spec["device"]} if "device" in self.spec else {}
@@ -259,7 +274,8 @@ class Kit:
                            lifts=edit.callout_spans("lift"))
                 segments.append(segment)
             out = self.out / "shorts" / f"{name}_9x16.mp4"
-            rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE, voice=lines)
+            rv.assemble(segments, out, end_card=card, music=self.music(), fade=rv.JOIN_FADE, voice=lines,
+                        sfx=self.sfx(name, short))
             self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
     def motion_short(self, name, short, size):
@@ -318,7 +334,7 @@ class Kit:
         segment.parent.mkdir(parents=True, exist_ok=True)
         self.problems += [f"short '{name}': {problem}" for problem in rv.motion(self.chrome, page, clip, size, segment, fill)]
         out = self.out / "shorts" / f"{name}_9x16.mp4"
-        rv.assemble([segment], out, end_card=card, music=self.music(), voice=lines)
+        rv.assemble([segment], out, end_card=card, music=self.music(), voice=lines, sfx=self.sfx(name, short))
         self.shorts.append((out, short["title"], self.check(out, size, (0, SHORT_MAX), audio=True)))
 
     def preview(self, name=None):

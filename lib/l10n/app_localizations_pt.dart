@@ -514,6 +514,23 @@ class AppLocalizationsPt extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Último backup e anexos em um arquivo ZIP';
 
   @override
+  String get updateRequiredTitle => 'Atualização necessária';
+
+  @override
+  String get updateRequiredMessage =>
+      'Esta versão do app não é mais compatível. Atualize para continuar usando. Seus dados continuam neste dispositivo.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'Se nenhuma atualização aparecer neste dispositivo, exporte um backup para manter seus dados seguros.';
+
+  @override
+  String get updateRequiredUpdate => 'Atualizar';
+
+  @override
+  String get updateRequiredExportBackup => 'Exportar backup';
+
+  @override
   String get onboardingSkip => 'Pular';
 
   @override

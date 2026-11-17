@@ -513,6 +513,23 @@ class AppLocalizationsFr extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Dernière sauvegarde et pièces jointes dans un fichier ZIP';
 
   @override
+  String get updateRequiredTitle => 'Mise à jour requise';
+
+  @override
+  String get updateRequiredMessage =>
+      'Cette version de l’app n’est plus prise en charge. Mettez-la à jour pour continuer à l’utiliser. Vos données restent sur cet appareil.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'Si aucune mise à jour n’est proposée sur cet appareil, exportez une sauvegarde pour garder vos données en sécurité.';
+
+  @override
+  String get updateRequiredUpdate => 'Mettre à jour';
+
+  @override
+  String get updateRequiredExportBackup => 'Exporter une sauvegarde';
+
+  @override
   String get onboardingSkip => 'Passer';
 
   @override

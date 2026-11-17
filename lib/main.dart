@@ -21,11 +21,13 @@ import 'models/app_settings.dart';
 import 'pages/home_page.dart';
 import 'pages/loading_error_page.dart';
 import 'pages/onboarding_page.dart';
+import 'pages/update_required_page.dart';
 import 'repositories/app_repository.dart';
 import 'repositories/component_catalog_repository.dart';
 import 'repositories/filter_persistence.dart';
 import 'services/account_service.dart';
 import 'services/app_hint_service.dart';
+import 'services/app_version_config.dart';
 import 'services/attachment_storage_service.dart';
 import 'services/backup_service.dart';
 import 'services/catalog_migration_service.dart';
@@ -43,6 +45,7 @@ import 'services/subscription_service.dart';
 import 'services/task_trigger_service.dart';
 import 'services/tip_service.dart';
 import 'theme.dart';
+import 'utils/app_info.dart';
 import 'utils/regional_defaults.dart';
 import 'widgets/account_notice_listener.dart';
 
@@ -123,6 +126,7 @@ class LoadingGate extends StatefulWidget {
   final AppHintService appHintService;
   final SubscriptionService Function() createSubscriptionService;
   final StravaService Function(AppRepository, AppSettings) createStravaService;
+  final AppVersionConfig Function() createAppVersionConfig;
   final bool enablePushNotifications;
 
   const LoadingGate({
@@ -132,6 +136,7 @@ class LoadingGate extends StatefulWidget {
     required this.appHintService,
     this.createSubscriptionService = SubscriptionService.new,
     this.createStravaService = StravaService.new,
+    this.createAppVersionConfig = AppVersionConfig.new,
     this.enablePushNotifications = true,
   });
 
@@ -144,6 +149,8 @@ class _LoadingGateState extends State<LoadingGate> {
   late final _catalogRepository = ComponentCatalogRepository(
     languageCode: () => appLocaleOf(widget.appSettings).languageCode,
   );
+  late final _appVersionConfig = widget.createAppVersionConfig();
+  int _minSupportedBuild = 0;
 
   @override
   void initState() {
@@ -172,15 +179,37 @@ class _LoadingGateState extends State<LoadingGate> {
         widget.appHintService.load().catchError(
           (Object e, StackTrace s) => recordBootError(e, s, reason: 'App hints failed to load'),
         ),
+        _loadMinSupportedBuild(),
       ]);
-      await _restoreFilters();
-      if (widget.appSettings.enableComponentPresets) {
-        unawaited(CatalogMigrationService.run(widget.appRepository, _catalogRepository));
-      }
+      // A blocked build only offers the store and a backup, so it writes nothing.
+      if (!_isBlocked) await _startApp();
+      _appVersionConfig.refreshInBackground();
     } catch (e, s) {
       if (!kDebugMode) unawaited(FirebaseAnalytics.instance.logEvent(name: 'app_init_failed'));
       recordBootError(e, s, reason: 'App initialization failed');
       rethrow;
+    }
+  }
+
+  /// Reads only the value cached on the device, so startup never waits on the
+  /// network. An unreadable minimum must not gate.
+  Future<void> _loadMinSupportedBuild() async {
+    _minSupportedBuild = await _appVersionConfig.loadMinSupportedBuild().catchError((Object e, StackTrace s) {
+      recordBootError(e, s, reason: 'Minimum supported build failed to load');
+      return 0;
+    });
+  }
+
+  bool get _isBlocked => isAppBlocked(
+    build: AppInfo.buildNumber,
+    minSupportedBuild: _minSupportedBuild,
+    supportedPlatform: _appVersionConfig.supportedPlatform,
+  );
+
+  Future<void> _startApp() async {
+    await _restoreFilters();
+    if (widget.appSettings.enableComponentPresets) {
+      unawaited(CatalogMigrationService.run(widget.appRepository, _catalogRepository));
     }
   }
 
@@ -255,6 +284,21 @@ class _LoadingGateState extends State<LoadingGate> {
             localizationsDelegates: appLocalizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: const LoadingErrorPage(),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.done && _isBlocked) {
+          // No MultiProvider, so no Strava, subscription, sync or push service starts.
+          return MaterialApp(
+            theme: materialAppTheme,
+            darkTheme: materialAppDarkTheme,
+            themeMode: widget.appSettings.themeMode,
+            locale: appLocaleOf(widget.appSettings),
+            localeResolutionCallback: keepRegionLocale,
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: UpdateRequiredPage(database: widget.appRepository.database),
+            debugShowCheckedModeBanner: false,
           );
         }
 

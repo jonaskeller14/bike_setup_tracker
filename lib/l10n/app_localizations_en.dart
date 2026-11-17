@@ -512,6 +512,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Latest backup and attachment files as ZIP bundle';
 
   @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredMessage =>
+      'This version of the app is no longer supported. Update to keep using it. Your data stays on this device.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'If no update is offered on this device, export a backup to keep your data safe.';
+
+  @override
+  String get updateRequiredUpdate => 'Update';
+
+  @override
+  String get updateRequiredExportBackup => 'Export backup';
+
+  @override
   String get onboardingSkip => 'Skip';
 
   @override

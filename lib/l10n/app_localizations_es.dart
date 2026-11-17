@@ -513,6 +513,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Última copia de seguridad y adjuntos en un archivo ZIP';
 
   @override
+  String get updateRequiredTitle => 'Actualización necesaria';
+
+  @override
+  String get updateRequiredMessage =>
+      'Esta versión de la app ya no es compatible. Actualízala para seguir usándola. Tus datos se quedan en este dispositivo.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'Si este dispositivo no ofrece ninguna actualización, exporta una copia de seguridad para no perder tus datos.';
+
+  @override
+  String get updateRequiredUpdate => 'Actualizar';
+
+  @override
+  String get updateRequiredExportBackup => 'Exportar copia de seguridad';
+
+  @override
   String get onboardingSkip => 'Omitir';
 
   @override

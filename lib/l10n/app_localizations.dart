@@ -1099,6 +1099,36 @@ abstract class AppLocalizations {
   /// **'Latest backup and attachment files as ZIP bundle'**
   String get loadingErrorDownloadBundleSubtitle;
 
+  /// Title of the full-screen page shown when this app build is below the minimum supported build.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get updateRequiredTitle;
+
+  /// Body of the update required page. The app is blocked until the user updates; their local data is kept.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app is no longer supported. Update to keep using it. Your data stays on this device.'**
+  String get updateRequiredMessage;
+
+  /// Hint on the update required page for devices where the store offers no update (e.g. the OS is too old).
+  ///
+  /// In en, this message translates to:
+  /// **'If no update is offered on this device, export a backup to keep your data safe.'**
+  String get updateRequiredNoUpdateHint;
+
+  /// Primary button on the update required page that opens the app's store page.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateRequiredUpdate;
+
+  /// Secondary button on the update required page that saves a backup of all data with attachments as a ZIP file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup'**
+  String get updateRequiredExportBackup;
+
   /// App bar button that skips the onboarding.
   ///
   /// In en, this message translates to:

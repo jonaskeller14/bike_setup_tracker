@@ -36,11 +36,10 @@ class _FakeRemoteConfigSource implements RemoteConfigSource {
 
 void main() {
   group('isAppBlocked', () {
-    bool blocked(int minimum, {bool supportedPlatform = true, bool simulate = false}) => isAppBlocked(
+    bool blocked(int minimum, {bool supportedPlatform = true}) => isAppBlocked(
       build: 50,
       minSupportedBuild: minimum,
       supportedPlatform: supportedPlatform,
-      simulateOutdatedBuild: simulate,
     );
 
     test('blocks only a build below the minimum', () {
@@ -56,12 +55,6 @@ void main() {
 
     test('an unsupported platform never blocks', () {
       expect(blocked(51, supportedPlatform: false), isFalse);
-      expect(blocked(0, supportedPlatform: false, simulate: true), isFalse);
-    });
-
-    test('a simulated outdated build blocks whatever the minimum', () {
-      expect(blocked(0, simulate: true), isTrue);
-      expect(blocked(49, simulate: true), isTrue);
     });
   });
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bike_setup_tracker/database/app_database.dart';
@@ -199,6 +200,76 @@ void main() {
 
       expect(find.byType(TestSessionProgress), findsNothing);
       expect(find.byType(TestSessionNextStep), findsOneWidget);
+    });
+
+    testWidgets('a run recorded on another page shows once that page has left', (tester) async {
+      await seed(tester, session(method: const OrthogonalArray()), rated: 1);
+      tester.view.physicalSize = const Size(400, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: appSettings),
+            ChangeNotifierProvider.value(value: appRepository),
+          ],
+          child: localizedTestApp(
+            theme: materialAppTheme,
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () => showTestSessionSheet(context: context, sessionId: 'ts'),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('3 more runs'), findsOneWidget);
+
+      final navigator = Navigator.of(tester.element(find.byType(TestSessionSheetContent)));
+      unawaited(navigator.push(MaterialPageRoute<void>(builder: (context) => const Scaffold(body: Text('next run')))));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.runAsync(() async {
+        await appRepository.addSetups([
+          Setup(
+            id: 'run1',
+            name: 'Run 2',
+            datetime: DateTime(2026, 5, 2, 11).toUtc(),
+            datetimeLocal: DateTime(2026, 5, 2, 11),
+            tags: const {},
+            bike: 'bike',
+            person: null,
+            bikeAdjustmentValues: const {'dial': StepValue(15)},
+            personAdjustmentValues: const {},
+            testSessionId: 'ts',
+          ),
+        ]);
+        for (var attempt = 0; attempt < 100 && appRepository.setups.length < 2; attempt++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+      });
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1000));
+      // Covered by the page: the bar still shows what the rider last saw.
+      expect(find.text('3 more runs', skipOffstage: false), findsOneWidget);
+      expect(find.text('2 more runs', skipOffstage: false), findsNothing);
+
+      navigator.pop();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('2 more runs'), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('2 more runs'), findsOneWidget);
+      expect(find.text('3 more runs'), findsNothing);
     });
 
     for (final (name, theme) in [('light', materialAppTheme), ('dark', materialAppDarkTheme)]) {

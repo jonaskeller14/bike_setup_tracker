@@ -223,6 +223,8 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_wet_dry` | `wet_dry` | The history with the ground per setup, then the comparison: Wet and Dry above the two tire pressures |
 | `demo_part_km` | `part_km` | The garage with the pedals among the parts, their km and rides, and the History of the move |
 | `demo_rides_per_value` | `rides_per_value` | The rides between the setups in the history, then the newest setup's Rebound name with its histogram of rides per value |
+| `demo_unit_pressure` | `units` | A new setup's front tire at 1.5 bar, its unit tapped to psi (via kPa), then 22 psi typed: "= 1.52 bar" below the field |
+| `demo_sag` | `units` | The Lyrik's SAG with its 160 mm travel, then a new setup's sag switched from % to mm: 32 mm shows "= 20 %", saved |
 | `demo_forecast_weekly`, `demo_forecast_more`, `demo_forecast_often` | `forecast_*` | The calendar's month view from today to where the fork service's prediction lands at that pace of riding |
 | `demo_setup_guide` | `one_bike_no_components` | Settings → Features → Setup Guides on, the Lyrik from the catalog, then a new setup: riding weight 78 kg and Apply all |
 | `demo_pressure_check` | `pressure_check` | Settings → Features → Pressure Check on, then a new setup on a 3 °C morning at the hometrails: the fork's row marked pumped, saved as "Cold morning" |

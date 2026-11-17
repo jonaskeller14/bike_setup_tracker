@@ -106,7 +106,12 @@ enum DemoScenario {
 
   /// The Hightower with five setups, three of them the same fork baseline, and
   /// the front tire moved to the rear wheel halfway, ridden at 1.6 bar on both.
-  componentCharts('component_charts');
+  componentCharts('component_charts'),
+
+  /// The Hightower without rides or tasks, its newest setup with the front tire
+  /// on 1.5 bar, and a SAG on the Lyrik whose travel is set, so sag can be typed
+  /// in mm.
+  units('units');
 
   const DemoScenario(this.id);
 
@@ -177,6 +182,7 @@ enum DemoScenario {
     forecastMore => _forecast(json, gapDays: 7, idleDays: 2, moreRides: 2),
     forecastOften => _forecast(json, gapDays: 3),
     componentCharts => _componentCharts(json),
+    units => _units(json),
   };
 }
 
@@ -414,6 +420,52 @@ _Json _oneClick(_Json json) {
     _where(_dropTaskRules(hightower, _ids(hightower, 'taskRules')), 'stravaActivities', (_) => false),
     (s) => const {_steepChuteSetupId, _backToNeutralSetupId}.contains(s['id']),
   );
+}
+
+const String _lyrikSagId = 'c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01';
+
+_Json _units(_Json json) {
+  final base = _pressureCheck(json);
+  final newest = _list(base, 'setups').reduce((a, b) => (a['datetime'] as String).compareTo(b['datetime'] as String) >= 0 ? a : b);
+  return {
+    ...base,
+    'setups': [
+      for (final setup in _list(base, 'setups'))
+        identical(setup, newest)
+            ? {
+                ...setup,
+                'bikeAdjustmentValues': {...setup['bikeAdjustmentValues'] as _Json, _frontTirePressureId: 1.5},
+              }
+            : setup,
+    ],
+    'components': [
+      for (final component in _list(base, 'components'))
+        component['id'] == _lyrikId
+            ? {
+                ...component,
+                'adjustments': [
+                  for (final adjustment in _list(component, 'adjustments')) ...[
+                    adjustment,
+                    if (adjustment['id'] == _lyrikPressureId)
+                      {
+                        'version': 2,
+                        'id': _lyrikSagId,
+                        'name': 'SAG',
+                        'notes': 'Travel used with you and your gear on the bike in riding position. Targets: XC 15%, Trail 15-20%, Enduro 20%, DH 20-25%',
+                        'type': 'numerical',
+                        'unit': '%',
+                        'presetKey': 'fork:sag',
+                        'min': 0.0,
+                        'max': 100.0,
+                        'subtype': 'sag',
+                        'referenceTravelMm': 160.0,
+                      },
+                  ],
+                ],
+              }
+            : component,
+    ],
+  };
 }
 
 _Json _pressureCheck(_Json json) {

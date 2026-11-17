@@ -163,18 +163,22 @@ class _SetNumericalAdjustmentWidgetState extends State<SetNumericalAdjustmentWid
       children: [
         if (label != null)
           _toggleEnabled
-              ? InkWell(
-                  borderRadius: BorderRadius.circular(4),
-                  onTap: _cycleUnit,
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 2,
-                      children: [
-                        Flexible(child: Text(label, style: TextStyle(color: suffixColor))),
-                        // Icon(Icons.unfold_more, size: 16, color: suffixColor),
-                      ],
+              ? Semantics(
+                  container: true,
+                  identifier: AutomationIds.setAdjustmentUnit(widget.adjustment.id),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(4),
+                    onTap: _cycleUnit,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 4, right: _resetWouldChange ? 4 : 12, top: 4, bottom: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 2,
+                        children: [
+                          Flexible(child: Text(label, style: TextStyle(color: suffixColor))),
+                          // Icon(Icons.unfold_more, size: 16, color: suffixColor),
+                        ],
+                      ),
                     ),
                   ),
                 )

@@ -12,7 +12,7 @@ id from [`links.md`](../links.md); `<label>` is kebab-case.
 ```markdown
 # <channel> · <label>
 
-- Status: planned | scheduled | live | unlisted | deleted
+- Status: planned | draft | scheduled | live | unlisted | deleted
 - URL: <post URL, or — before it's up>
 - Posted: YYYY-MM-DD (the planned or scheduled date before it's up; add HH:MM once a time is set)
 - App version: X.Y.Z

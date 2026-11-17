@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -621,6 +622,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   void _saveFeedback() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       ScaffoldMessenger.of(context).showSnackBar(
         AppSnackBar.error(
           context,

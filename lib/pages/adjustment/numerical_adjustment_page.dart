@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
@@ -220,6 +222,7 @@ class _NumericalAdjustmentPageState extends State<NumericalAdjustmentPage> {
 
   Future<void> _saveNumericalAdjustment() async {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

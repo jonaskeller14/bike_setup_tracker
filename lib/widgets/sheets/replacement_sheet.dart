@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/enum_labels.dart';
@@ -68,7 +70,10 @@ class _ReplacementSheetState extends State<ReplacementSheet> {
       !listEquals(_installedInstallations, widget.installed.component.installations);
 
   void _onConfirm() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final appRepository = context.read<AppRepository>();
     await appRepository.editComponents([

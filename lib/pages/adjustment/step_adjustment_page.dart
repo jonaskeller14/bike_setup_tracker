@@ -134,6 +134,7 @@ class _StepAdjustmentPageState extends State<StepAdjustmentPage> {
 
   Future<void> _saveStepAdjustment() async {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }

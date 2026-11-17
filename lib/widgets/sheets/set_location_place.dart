@@ -224,7 +224,10 @@ class _SetLocationPlaceSheetContentState extends State<SetLocationPlaceSheetCont
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
     Navigator.of(context).pop(LocationAndPlace(location: _currentLocation, place: _currentPlace));
   }
 

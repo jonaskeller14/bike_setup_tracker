@@ -95,7 +95,10 @@ class _RiderNameFormState extends State<RiderNameForm> {
 
   Future<void> _create() async {
     if (_saving) return;
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final name = _controller.text.trim();
     final bikeId = widget.bikeId;

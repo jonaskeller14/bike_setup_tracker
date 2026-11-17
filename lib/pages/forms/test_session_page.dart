@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/entity_names.dart';
@@ -188,7 +190,10 @@ class _TestSessionPageState extends State<TestSessionPage> {
       return;
     }
     // The empty adjustment and setup placeholders show their own error.
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final appRepository = context.read<AppRepository>();
     String? error;

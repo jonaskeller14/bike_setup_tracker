@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../l10n/l10n.dart';
 import '../../models/person.dart';
@@ -75,7 +77,10 @@ class _OnboardingSlide5State extends State<OnboardingSlide5> {
 
   Future<void> _save() async {
     if (_saving) return;
-    if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final name = widget.controller.text.trim();
     _focusNode.unfocus();

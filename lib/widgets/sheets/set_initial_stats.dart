@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -122,7 +123,10 @@ class _SetInitialStatsSheetContentState extends State<SetInitialStatsSheetConten
   bool get _hasChanges => _readStats(context.read<AppSettings>()) != _initialParsedStats;
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
     Navigator.of(context).pop(_readStats(context.read<AppSettings>()));
   }
 

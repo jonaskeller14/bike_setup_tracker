@@ -11755,17 +11755,29 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 feedback} other{{count} feedback}}'**
   String stravaActivityFeedbackCount(int count);
 
-  /// Title when no setup belongs to an activity.
-  ///
-  /// In en, this message translates to:
-  /// **'No setups for this activity'**
-  String get stravaActivityNoSetupsTitle;
-
   /// Hint when no setup belongs to an activity.
   ///
   /// In en, this message translates to:
   /// **'Add a setup to record your bike configuration'**
   String get stravaActivityNoSetupsSubtitle;
+
+  /// Placeholder on the activity timeline when no setup was recorded before the activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup before this activity'**
+  String get stravaActivityNoSetupBeforeTitle;
+
+  /// Timeline node where the Strava activity started.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get stravaActivityTimelineStart;
+
+  /// Timeline node where the Strava activity ended.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get stravaActivityTimelineEnd;
 
   /// Hint that no setup can be added while a test session runs. {name} is the session name.
   ///

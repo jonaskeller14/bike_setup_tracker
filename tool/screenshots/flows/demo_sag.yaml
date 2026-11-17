@@ -1,0 +1,121 @@
+# scenario: units
+# Demo: sag in mm. The Lyrik's SAG has its 160 mm travel set (its edit page
+# shows it), then a new setup switches the sag from % to mm, 32 mm shows
+# "= 20 %", and the setup is saved. Short: 07_v1.8.0 kit, howto-sag.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- tapOn:
+    id: nav.bikes
+- waitForAnimationToEnd:
+    timeout: 5000
+- startRecording: demo_sag
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+
+# RockShox Lyrik Ultimate: a double tap opens its details.
+- doubleTapOn:
+    id: garage.component.e47480ee-0f71-453e-bb97-61d2041d05f5
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1200
+- tapOn:
+    id: componentDetails.edit
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- scrollUntilVisible:
+    element:
+      id: adjustment.actions.c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01
+    direction: DOWN
+- tapOn:
+    id: adjustment.actions.c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01
+- tapOn:
+    id: adjustment.actions.edit
+# Fork Travel: 160 mm
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3500
+
+# Back to the setups, nothing changed.
+- runFlow: _back.yaml
+- runFlow: _back.yaml
+- runFlow: _back.yaml
+- tapOn:
+    id: nav.setups
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: setups.add
+- runFlow:
+    when:
+      platform: Android
+    file: _accept_location_accuracy.yaml
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+
+# SAG
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setAdjustment.unit.c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+- tapOn:
+    id: setAdjustment.c3a1f6d2-8b4e-4f7a-9d15-2e6b7c8a9f01
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: '32'
+- runFlow: _hide_keyboard_android.yaml
+# The keyboard covers "= 20 %" below the field; a short swipe lifts it into view.
+- swipe:
+    start: 50%,45%
+    end: 50%,33%
+    duration: 600
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+
+- scrollUntilVisible:
+    element:
+      id: setupForm.name
+    direction: UP
+- tapOn:
+    id: setupForm.name
+- waitForAnimationToEnd:
+    timeout: 3000
+- inputText: Hometrails - sag check
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 800
+
+# Saving returns to the history with the new setup on top.
+- tapOn:
+    id: setupForm.save
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 2500

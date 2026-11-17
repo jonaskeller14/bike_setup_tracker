@@ -319,6 +319,24 @@ void main() {
       expect((setups.last['bikeAdjustmentValues'] as Map)['aefea436-580a-479b-bcd4-943a93c8e2fb'], 9);
     });
 
+    test('units starts the front tire from 1.5 bar and gives the Lyrik a SAG with its 160 mm travel', () async {
+      await seed(DemoScenario.units);
+      expect(repository.bikes.values.map((b) => b.name), ['Santa Cruz Hightower']);
+      final setups = (seedJson(DemoScenario.units)['setups'] as List).cast<Map<String, dynamic>>()
+        ..sort((a, b) => (a['datetime'] as String).compareTo(b['datetime'] as String));
+      final frontTire = repository.components.values.firstWhere((c) => c.name == 'Front Tire');
+      final pressure = frontTire.adjustments.whereType<NumericalAdjustment>().firstWhere((a) => a.name == 'Pressure');
+      expect(pressure.unit?.label, 'bar');
+      expect((setups.last['bikeAdjustmentValues'] as Map)[pressure.id], 1.5);
+
+      final lyrik = repository.components.values.firstWhere((c) => c.name == 'RockShox Lyrik Ultimate');
+      final names = lyrik.adjustments.map((a) => a.name).toList();
+      expect(names.indexOf('SAG'), names.indexOf('Pressure') + 1);
+      final sag = lyrik.adjustments.whereType<SagAdjustment>().single;
+      expect(sag.referenceTravelMm, 160);
+      expect(sag.presetKey, 'fork:sag');
+    });
+
     test('pressure_check checks the Hightower at its hometrails, 3 °C against a mild evening', () async {
       await seed(DemoScenario.pressureCheck);
       expect(repository.bikes.values.map((b) => b.name), ['Santa Cruz Hightower']);

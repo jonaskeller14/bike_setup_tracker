@@ -1,5 +1,5 @@
 // Renders every state of the catalog update notice on PresetCatalogCard and of
-// the merge sheet that "Review" opens to PNGs in build/gallery/catalog_update/
+// the merge sheet that "Apply" opens to PNGs in build/gallery/catalog_update/
 // (git-ignored), for a quick visual check after changing either widget. Skipped
 // by default (see dart_test.yaml); run it on demand with:
 //

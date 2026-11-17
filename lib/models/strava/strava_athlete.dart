@@ -33,7 +33,7 @@ class StravaAthlete {
     switch (version) {
       case null:
         return StravaAthlete(
-          id: json["id"] as int,
+          id: _parseId(json["id"]),
           lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           firstname: json['firstname'] as String?,
           lastname: json['lastname'] as String?,
@@ -49,7 +49,7 @@ class StravaAthlete {
     switch (version) {
       case null:
         return StravaAthlete(
-          id: json["id"] as int,
+          id: _parseId(json["id"]),
           lastModified: (json["lastModified"] as Timestamp?)?.toDate().toUtc(),
           firstname: json['firstname'] as String?,
           lastname: json['lastname'] as String?,
@@ -59,6 +59,9 @@ class StravaAthlete {
       default: throw Exception("Json Version $version of StravaAthlete incompatible.");
     }
   }
+
+  /// The backend may store IDs as decimal strings later (#112).
+  static int _parseId(Object? value) => value is String ? int.parse(value) : value as int;
 
   @override
   bool operator ==(Object other) {

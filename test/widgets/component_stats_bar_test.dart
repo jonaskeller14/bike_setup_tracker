@@ -17,13 +17,14 @@ void main() {
   });
 
   group('ComponentStatsBar.formatAmount', () {
-    test('uses grouped digits below 100,000', () {
+    test('uses grouped digits', () {
       expect(ComponentStatsBar.formatAmount(99999.4, fmt), '99,999');
+      expect(ComponentStatsBar.formatAmount(123456, fmt), '123,456');
+      expect(ComponentStatsBar.formatAmount(1234567, fmt), '1,234,567');
     });
 
-    test('compacts from 100,000 on', () {
-      expect(ComponentStatsBar.formatAmount(100000, fmt), '100K');
-      expect(ComponentStatsBar.formatAmount(123456, fmt), '123K');
+    test('groups six-digit numbers in German', () {
+      expect(ComponentStatsBar.formatAmount(123456, NumberFormat.decimalPattern('de')), '123.456');
     });
   });
 }

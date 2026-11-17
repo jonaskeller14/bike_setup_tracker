@@ -40,12 +40,10 @@ class ComponentStatsBar extends StatelessWidget {
     return '$hours ${duration.inMinutes.remainder(60)}m';
   }
 
-  /// Switches to a compact form (e.g. 123K) from 100,000 on to keep the bar narrow.
+  /// Always full grouped digits: a compact form like "123K" reads as a rounded
+  /// guess and some locales (e.g. de) render it without any separator.
   @visibleForTesting
-  static String formatAmount(num value, NumberFormat fmt) {
-    final rounded = value.round();
-    return rounded.abs() >= 100000 ? NumberFormat.compact(locale: fmt.locale).format(rounded) : fmt.format(rounded);
-  }
+  static String formatAmount(num value, NumberFormat fmt) => fmt.format(value.round());
 
   @override
   Widget build(BuildContext context) {

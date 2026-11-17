@@ -8949,7 +8949,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catalogCardDismiss => 'Dismiss';
 
   @override
-  String get catalogCardReview => 'Review';
+  String get catalogCardApply => 'Apply';
 
   @override
   String get subcomponentsSheetIntro =>

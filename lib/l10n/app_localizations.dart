@@ -14389,11 +14389,11 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get catalogCardDismiss;
 
-  /// Button that reviews a catalog update.
+  /// Button that applies a catalog update to the component; opens the merge sheet.
   ///
   /// In en, this message translates to:
-  /// **'Review'**
-  String get catalogCardReview;
+  /// **'Apply'**
+  String get catalogCardApply;
 
   /// Introduction of the subcomponents sheet.
   ///

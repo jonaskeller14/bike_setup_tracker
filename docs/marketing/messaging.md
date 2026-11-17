@@ -183,6 +183,7 @@ German riders, not translated word for word.
 | D3 | Export every bike setup: Excel, CSV, JSON. | Jedes Bike-Setup exportieren: Excel, CSV, JSON. |
 | D4 | Your riding buddy wants your fork settings? | Dein Kumpel fragt nach deinen Gabel-Einstellungen? |
 | D5 | Want all your bike setups in a spreadsheet? | Alle deine Bike-Setups in einer Tabelle? |
+| D6 | Unlimited bikes and setups. Free. | Unbegrenzt viele Bikes und Setups. Kostenlos. |
 
 ### R2, R4 and C3 in French, Italian, Spanish and Portuguese
 
@@ -214,6 +215,7 @@ context; not a standalone headline.
 | OG image (website) | R4 | Outside the store funnel; the same promise as the search asset |
 | Website hero | R4 | Matches the OG image a shared link shows |
 | Website sections 01–04 | R8, C4, S1, D2 | One per pillar, in pillar order; none repeats a store-funnel headline |
+| Website section 05 (Free to use) | D6 | Above the Free vs Pro table: the free app has no limits, Pro is optional |
 | Website end card (download section) | Signature | Next to the mark, like the social end card |
 | End card (Shorts, walkthrough) | Signature | Next to the icon; the name is the hero (brand.md) |
 | Short hooks | R3, R9, R10, C5–C7, S4–S6 | Questions; one per Short, from the pillar the Short shows (`02_showcase` kit) |

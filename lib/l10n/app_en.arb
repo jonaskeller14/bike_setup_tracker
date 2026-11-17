@@ -674,6 +674,26 @@
   "@loadingErrorDownloadBundleSubtitle": {
     "description": "Subtitle of the entry that exports the latest backup with attachments on the load error page."
   },
+  "updateRequiredTitle": "Update required",
+  "@updateRequiredTitle": {
+    "description": "Title of the full-screen page shown when this app build is below the minimum supported build."
+  },
+  "updateRequiredMessage": "This version of the app is no longer supported. Update to keep using it. Your data stays on this device.",
+  "@updateRequiredMessage": {
+    "description": "Body of the update required page. The app is blocked until the user updates; their local data is kept."
+  },
+  "updateRequiredNoUpdateHint": "If no update is offered on this device, export a backup to keep your data safe.",
+  "@updateRequiredNoUpdateHint": {
+    "description": "Hint on the update required page for devices where the store offers no update (e.g. the OS is too old)."
+  },
+  "updateRequiredUpdate": "Update",
+  "@updateRequiredUpdate": {
+    "description": "Primary button on the update required page that opens the app's store page."
+  },
+  "updateRequiredExportBackup": "Export backup",
+  "@updateRequiredExportBackup": {
+    "description": "Secondary button on the update required page that saves a backup of all data with attachments as a ZIP file."
+  },
   "onboardingSkip": "Skip",
   "@onboardingSkip": {
     "description": "App bar button that skips the onboarding."

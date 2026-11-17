@@ -10,6 +10,7 @@ import '../l10n/l10n.dart';
 import '../models/app_settings.dart';
 import '../models/selected_data.dart';
 import '../services/attachment_storage_service.dart';
+import '../services/backup_service.dart';
 import '../services/data_export_service.dart';
 import '../services/file_save_service.dart';
 import '../services/share_service.dart';
@@ -105,6 +106,31 @@ class FileExport {
         }
 
         final file = await AttachmentStorageService().exportRecoveryBundle(latestBackup);
+        final bytes = await file.readAsBytes();
+
+        return (fileSaveService ?? FileSaveService()).saveFile(
+          fileName: file.uri.pathSegments.last,
+          bytes: bytes,
+          extension: 'zip',
+        );
+      },
+    );
+  }
+
+  /// Like [exportLatestBackupBundle], but backs up the database first, so the
+  /// bundle holds today's data instead of the last daily backup.
+  static Future<void> exportFreshBackupBundle(
+    BuildContext context, {
+    required AppDatabase database,
+    FileSaveService? fileSaveService,
+  }) async {
+    await _runSave(
+      context: context,
+      save: () async {
+        final backup = await BackupService.saveBackup(database: database, force: true);
+        if (backup == null) throw StateError('Backup could not be written');
+
+        final file = await AttachmentStorageService().exportRecoveryBundle(backup);
         final bytes = await file.readAsBytes();
 
         return (fileSaveService ?? FileSaveService()).saveFile(

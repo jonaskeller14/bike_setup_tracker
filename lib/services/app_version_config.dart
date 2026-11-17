@@ -11,10 +11,8 @@ bool isAppBlocked({
   required int build,
   required int minSupportedBuild,
   required bool supportedPlatform,
-  bool simulateOutdatedBuild = false,
 }) {
   if (!supportedPlatform) return false;
-  if (simulateOutdatedBuild) return true;
   return minSupportedBuild > 0 && build < minSupportedBuild;
 }
 

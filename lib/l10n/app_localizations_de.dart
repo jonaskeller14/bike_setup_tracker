@@ -513,6 +513,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Neuestes Backup und Anhänge als ZIP-Paket';
 
   @override
+  String get updateRequiredTitle => 'Update erforderlich';
+
+  @override
+  String get updateRequiredMessage =>
+      'Diese Version der App wird nicht mehr unterstützt. Aktualisiere sie, um sie weiter zu nutzen. Deine Daten bleiben auf diesem Gerät.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'Wird auf diesem Gerät kein Update angeboten, exportiere ein Backup, damit deine Daten sicher sind.';
+
+  @override
+  String get updateRequiredUpdate => 'Aktualisieren';
+
+  @override
+  String get updateRequiredExportBackup => 'Backup exportieren';
+
+  @override
   String get onboardingSkip => 'Überspringen';
 
   @override

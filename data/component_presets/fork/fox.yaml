@@ -20,6 +20,7 @@ sources:
   - https://ridefox.com/pages/fox-38
   - https://ridefox.com/pages/fox-34
   - https://ridefox.com/pages/fox-40
+  - https://ridefox.com/pages/fox-34-step-cast
   - https://ridefox.com/pages/fox-34-sl
   - https://ridefox.com/pages/fox-36-sl
   - https://ridefox.com/pages/fox-32-step-cast
@@ -31,6 +32,7 @@ sources:
   - https://tech.ridefox.com/bike/list/spec-sheets
   - https://tech.ridefox.com/bike/list/owners-manuals
   - https://tech.ridefox.com/bike/owners-manuals/3104/fork--2026-32mm--or-34mm-(including-32-step-cast-and-32-taper-cast)
+  - https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
   - https://tech.ridefox.com/bike/owners-manuals/3087/fork--2026-34sl
   - https://tech.ridefox.com/bike/owners-manuals/3089/fork--2026-36mm
   - https://tech.ridefox.com/bike/owners-manuals/3088/fork--2026-36sl
@@ -42,10 +44,13 @@ sources:
   - https://tech.ridefox.com/bike/owners-manuals/1082/fork--2021-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2930/fork--2024-36mm-or-38mm
   - https://tech.ridefox.com/bike/owners-manuals/2979/fork--2025-36mm-or-38mm
+  - https://tech.ridefox.com/bike/owners-manuals/2978/fork--2025-32mm--or-34mm-(including-step-cast-and-taper-cast)
+  - https://tech.ridefox.com/bike/owners-manuals/1083/fork--2021-40mm
+  - https://tech.ridefox.com/bike/owners-manuals/2929/fork--2024-40mm
   # Staff-written articles — the GRIP2 VVC rebound click totals the manuals never state
   - https://www.ambmag.com.au/?p=27317
   - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
-updated: 2026-10-29
+updated: 2026-11-17
 # Current-lineup click ranges were taken from the per-model spec tables on the
 # official FOX product pages (ridefox.com/pages/fox-<model>). Clicks are counted
 # from fully closed (firmest); an adjuster with "18 clicks" has range 0..18
@@ -96,7 +101,15 @@ option_values:
         - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 16, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue, dialSize: small }
         - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 17, notes: FOX labels this "low-speed rebound"; single rebound knob, notes_de: FOX bezeichnet dies als „Low-Speed-Zugstufe“; einzelnes Zugstufenrad, notes_fr: FOX appelle cela « détente basse vitesse » ; une seule molette de détente, notes_it: FOX la chiama «ritorno a bassa velocità»; una sola manopola del ritorno, notes_es: FOX lo llama «rebote de baja velocidad»; una sola rueda de rebote, notes_pt: A FOX chama isso de “retorno de baixa velocidade”; um único seletor de retorno, dialColor: red }
       firm_mode: at final HSC click
-      source: https://ridefox.com/pages/fox-34
+      source:
+        - https://ridefox.com/pages/fox-34
+        - https://ridefox.com/pages/fox-34-sl
+        - https://tech.ridefox.com/bike/owners-manuals/3163/fork--2027-34sl
+      note: >-
+        The 34 SL Factory lists "GRIP SL or GRIP X" on its product page and the
+        2027 34SL manual gives GRIP X separate HSC and LSC adjusters; the 34 SL
+        page's own GRIP X spec cell repeats the GRIP text (3-position, 10
+        clicks), so the click counts stay those of the 34 and 36 pages.
 
     grip_sl:
       name: GRIP SL
@@ -1307,6 +1320,45 @@ nodes:
               travel_mm: [100]
               wheel_size: [29]
 
+  - label: "34 Step-Cast"
+    level: model
+    category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    tasks: *fox_service
+    children:
+      - label: "2025"
+        level: generation
+        years: "2025"
+        url: https://ridefox.com/pages/fox-34-step-cast
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2978/fork--2025-32mm--or-34mm-(including-step-cast-and-taper-cast)
+        # Travels, spacer maximums and the GRIP rebound table: 2025 32/34mm owner's
+        # manual (2978); trims and dampers: the product page. The manual gives no
+        # maximum air pressure for this fork and neither it nor the page states a
+        # wheel size, so Pressure has no max and wheel_size is left out.
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments:
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 100mm, 4 at 110mm, 3 at 120mm", notes_de: "Max. je Federweg: 5 bei 100mm, 4 bei 110mm, 3 bei 120mm", notes_fr: "Max. par débattement : 5 à 100 mm, 4 à 110 mm, 3 à 120 mm", notes_it: "Max. per escursione: 5 a 100 mm, 4 a 110 mm, 3 a 120 mm", notes_es: "Máx. por recorrido: 5 con 100 mm, 4 con 110 mm, 3 con 120 mm", notes_pt: "Máx. por curso: 5 com 100 mm, 4 com 110 mm, 3 com 120 mm" }
+            options:
+              damper: [grip_sl]
+              travel_mm: [100, 110, 120]
+          - label: Performance
+            level: trim
+            specs: { stanchion: "7000-series alloy, black anodized", stanchion_de: "Aluminium der 7000er-Serie, schwarz eloxiert", stanchion_fr: "Alliage de la série 7000, anodisé noir", stanchion_it: "Lega della serie 7000, anodizzato nero", stanchion_es: "Aleación de la serie 7000, anodizado negro", stanchion_pt: "Liga da série 7000, anodizado preto", spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments:
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, visualization: stepper, notes: "Maximum 3 at 120mm travel", notes_de: Maximal 3 bei 120mm Federweg, notes_fr: Maximum 3 à 120 mm de débattement, notes_it: Massimo 3 a 120 mm di escursione, notes_es: Máximo 3 con 120 mm de recorrido, notes_pt: Máximo de 3 com 120 mm de curso }
+            options:
+              damper: [grip]
+              travel_mm: [120]
+
   - label: "34 SL"
     level: model
     category: Downcountry
@@ -1332,7 +1384,7 @@ nodes:
               - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
               - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 120mm, 4 at 130mm", notes_de: "Max. je Federweg: 5 bei 120mm, 4 bei 130mm", notes_fr: "Max. par débattement : 5 à 120 mm, 4 à 130 mm", notes_it: "Max. per escursione: 5 a 120 mm, 4 a 130 mm", notes_es: "Máx. por recorrido: 5 con 120 mm, 4 con 130 mm", notes_pt: "Máx. por curso: 5 com 120 mm, 4 com 130 mm" }
             options:
-              damper: [grip_sl]
+              damper: [grip_sl, grip_x]   # buyer-selectable damper
               travel_mm: [120, 130]
               wheel_size: [29]
           - label: Performance Elite
@@ -1881,6 +1933,33 @@ nodes:
               damper: [grip_x2]
               travel_mm: [203]
               wheel_size: [29, 27.5]
+      - label: "2021–2024"
+        level: generation
+        id: "2021"
+        years: "2021-2024"
+        url: https://tech.ridefox.com/bike/owners-manuals/1083/fork--2021-40mm
+        setup_guide: https://tech.ridefox.com/bike/owners-manuals/2929/fork--2024-40mm
+        # Factory series only, GRIP2 with VVC, 203mm, 29 and 27.5: Flow Mountain
+        # Bike's 2021 launch article. Pressure limit and spacer maximums are the
+        # same in the 2021, 2022, 2023 and 2024 40mm manuals (1083, 1145, 2831,
+        # 2929); 190mm appears there as a spacer row only, so it is not offered.
+        children:
+          - label: Factory
+            level: trim
+            specs: { stanchion: Kashima, stanchion_de: Kashima, stanchion_fr: Kashima, stanchion_it: Kashima, stanchion_es: Kashima, stanchion_pt: Kashima, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments:
+              - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+              - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 5, visualization: stepper, notes: "Max per travel: 5 at 203mm, 7 at 190mm", notes_de: "Max. je Federweg: 5 bei 203mm, 7 bei 190mm", notes_fr: "Max. par débattement : 5 à 203 mm, 7 à 190 mm", notes_it: "Max. per escursione: 5 a 203 mm, 7 a 190 mm", notes_es: "Máx. por recorrido: 5 con 203 mm, 7 con 190 mm", notes_pt: "Máx. por curso: 5 com 203 mm, 7 com 190 mm" }
+            options:
+              damper: [grip2_vvc_2021]
+              travel_mm: [203]
+              wheel_size: [29, 27.5]
+            note: Chassis with the floating axle and bleed buttons; GRIP2 gained Variable Valve Control in 2021.
+            note_de: Chassis mit schwimmender Achse und Entlüftungsknöpfen; GRIP2 erhielt 2021 die Variable Valve Control.
+            note_fr: Châssis avec axe flottant et boutons de purge ; la GRIP2 a reçu le Variable Valve Control en 2021.
+            note_it: Telaio con perno flottante e pulsanti di sfiato; la GRIP2 ha ricevuto il Variable Valve Control nel 2021.
+            note_es: Chasis con eje flotante y botones de purga; la GRIP2 incorporó el Variable Valve Control en 2021.
+            note_pt: Chassi com eixo flutuante e botões de sangria; a GRIP2 ganhou o Variable Valve Control em 2021.
 
   - label: "Podium"
     level: model
@@ -2011,14 +2090,32 @@ nodes:
 #   - E-Bike+ / E-Optimized chassis variants have their own factory-installed
 #     and maximum spacer counts. They are not modelled as separate trims yet;
 #     the maximums recorded here are the non-e figures.
-#   - AWL Sport and AWL HD Sport are separate FOX SKUs (34mm and 36mm). They
-#     share the AWL/AWL HD spacer tables but their damper spec was not found,
-#     so only the Standard and HD trims are listed.
-#   - Pre-2025 generations of the 32, 34 and 40 (FIT4, GRIP2 on the 40, RC2,
-#     CTD) are not covered. They can be added as older siblings of the
-#     existing generations. The 2018-2024 40mm manuals publish spacer tables
-#     and GRIP2/FIT4 starting-point tables, the 2014-2017 archive only spec
-#     drawings.
+#   - AWL Sport and AWL HD Sport are separate FOX SKUs (34mm and 36mm). The
+#     2025-2027 AWL manual (and spec sheet 2972) covers them together with
+#     AWL / AWL HD, but neither it nor the AWL product page names a damper or
+#     any difference for the Sport trims, so only the Standard and HD trims
+#     are listed (re-checked 2026-11-17).
+#   - Pre-2025 generations of the 32 and 34 (FIT4, GRIP2, RC2, CTD) and the
+#     40 before 2021 are not covered. The 40 2021-2024 generation (Factory
+#     only, GRIP2 VVC) is: its LSC/LSR 16 clicks are the shared GRIP2 VVC
+#     cartridge's figures from the 36/38 manuals, the 40 manuals print only
+#     the starting points (the 2021-2024 40mm manuals also mention a GRIP-only
+#     "Performance Elite LSC" column, but no 40 Performance Elite could be
+#     sourced, so no such trim). The 2014-2017 archive only has spec drawings.
+#   - 34 Step-Cast (2025 only): the 2025 32/34mm manual lists it (GRIP
+#     rebound column, 100/110/120mm, spacer maxima 5/4/3); the 2026 and 2027
+#     manuals drop it. Its product page names Factory (GRIP SL, 100-120mm) and
+#     Performance (GRIP, 120mm). No source states a maximum air pressure or a
+#     wheel size (retailer listings say 29in), so Pressure has no max and
+#     wheel_size is left out.
+#   - 34 SL Factory also lists GRIP X next to GRIP SL on its product page; the
+#     2027 34SL manual gives it separate HSC/LSC adjusters (5 clicks base tune
+#     in 2027, 10 in 2026). The page's own GRIP X spec cell repeats GRIP's
+#     text, so the damper keeps the 34/36 page click counts. No 34 SL guide
+#     rule encodes its HSC/LSC base tune yet.
+#   - FOX's 2027 product pages brand the OEM-only tier "Welcome Aboard" (the
+#     image badge still says Rhythm); the owner's manuals keep Rhythm, so the
+#     trim labels stay.
 #   - Rebound maxima of grip, grip_tc, rail and rail_hd are the highest values
 #     of the owner's manuals' setup tables (the product pages state 10 and 9).
 #     A physical dial count would settle them.
@@ -2036,6 +2133,6 @@ nodes:
 #     (2021-2022 list the 36 Rhythm only), hence `years: "2023-2024"`.
 #   - Model-year coverage was checked against every FOX fork manual from 2018
 #     to 2027 (tech.ridefox.com/bike/list/owners-manuals): 2023 and 2024 36/38
-#     are identical, 2025 and 2026 differ only by dropped columns, and the 2025
-#     manual's 34 Step-Cast tables have no catalog node.
+#     are identical, and 2025 and 2026 differ only by dropped columns (the
+#     2025 manual's 34 Step-Cast tables became the 34 Step-Cast 2025 node).
 # --------------------------------------------------------------------------

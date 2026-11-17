@@ -418,7 +418,7 @@ class StravaActivityPageContent extends StatelessWidget {
                   leading: const Icon(Setup.iconData),
                   shape: const Border(),
                   collapsedShape: const Border(),
-                  initiallyExpanded: true,
+                  initiallyExpanded: false,
                   title: Semantics(
                     identifier: AutomationIds.stravaActivitySetups,
                     child: Text(
@@ -432,7 +432,7 @@ class StravaActivityPageContent extends StatelessWidget {
                   childrenPadding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 16, top: 8),
+                      padding: const EdgeInsets.only(left: 16),
                       child: StravaActivityTimeline(timeline: timeline, onAddSetup: addSetup, addSetupHint: runningHint),
                     ),
                     Wrap(

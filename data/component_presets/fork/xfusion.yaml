@@ -1,0 +1,793 @@
+# X-Fusion mountain-bike forks — adjustment preset database
+#
+# Same design as fork/suntour.yaml, fork/rst.yaml: click ranges belong to the
+# DAMPER cartridge, defined once under `option_values.damper` and referenced by id
+# from each fork's trims. See SCHEMA.md in this folder.
+#
+# X-Fusion Shox (Taiwan) writes its name "XFUSION" on its own site; the brand
+# id is the slug of `brand` (`x-fusion`), the file is named `xfusion` like
+# canecreek / dtswiss.
+#
+# X-Fusion publishes no model years, and the site shows only the current
+# lineup, so no `years` is set and there is no generation level.
+#
+# Click counts come from the 2025 set-up guides for the 32/34/36/38mm forks
+# (xfusionshox.com help page "SETUP GUIDE – FORK"). They are stated as
+# "about" or "approximately" figures and count from fully closed, so they are
+# declared as published rather than estimated. Dial colors: the guides name
+# the rebound knob red and the low-speed compression knob blue; the
+# high-speed knob is gold, which the catalog palette lacks, so it has none.
+#
+# Left out: OEM forks (Migo 9mm / 32mm / 34mm, Bruno 30, Bruno Cargo 32 / 34 —
+# coil or air, steel or aluminium stanchions, no set-up guide) and forks named
+# only in the owner's manual (Metric, Mcqueen, E-Sweep, E-Slide). See the
+# Follow-ups footer.
+
+brand: X-Fusion
+component_type: fork
+sources:
+  - https://www.xfusionshox.com/products/21.htm
+  - https://www.xfusionshox.com/help_detail/15.htm
+  - https://www.xfusionshox.com/help_detail/5.htm
+  - https://www.xfusionshox.com/upload/files/Air%20%26%20Coil%20Spring%20Rate-v2.pdf
+  - https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+  - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+  - https://www.xfusionshox.com/upload/files/36mm%20Fork%20Set%20Up%20Guide%202025.pdf
+  - https://www.xfusionshox.com/upload/files/38mm%20Fork%20Set%20Up%20Guide%202025.pdf
+  - https://www.xfusionshox.com/upload/files/Owner's%20Manual-English(1).pdf
+  - https://www.xfusionshox.com/products_detail/108.htm
+  - https://www.xfusionshox.com/products_detail/109.htm
+  - https://www.xfusionshox.com/products_detail/60.htm
+  - https://www.xfusionshox.com/products_detail/56.htm
+  - https://www.xfusionshox.com/products_detail/62.htm
+  - https://www.xfusionshox.com/products_detail/63.htm
+  - https://www.xfusionshox.com/products_detail/64.htm
+  - https://www.xfusionshox.com/products_detail/81.htm
+  - https://www.xfusionshox.com/products_detail/82.htm
+  - https://www.xfusionshox.com/products_detail/83.htm
+  - https://www.xfusionshox.com/products_detail/70.htm
+  - https://www.xfusionshox.com/products_detail/71.htm
+  - https://www.xfusionshox.com/products_detail/72.htm
+  - https://www.xfusionshox.com/products_detail/114.htm
+  - https://www.xfusionshox.com/products_detail/115.htm
+  - https://www.xfusionshox.com/products_detail/123.htm
+  - https://www.xfusionshox.com/products_detail/124.htm
+  - https://www.xfusionshox.com/products_detail/77.htm
+  - https://www.xfusionshox.com/products_detail/78.htm
+  - https://www.xfusionshox.com/products_detail/79.htm
+  - https://www.xfusionshox.com/products_detail/80.htm
+  - https://www.xfusionshox.com/products_detail/127.htm
+  - https://www.xfusionshox.com/products_detail/128.htm
+  - https://www.xfusionshox.com/products_detail/129.htm
+updated: 2026-11-17
+# Service interval (`tasks`) from the 2025 set-up guides: damper and lower-leg
+# service every 80 hours of ride time or annually. The owner's manual's service
+# table is ride-based instead (oil and seals every 100 rides or yearly), see
+# the Follow-ups footer. The G.E.T. 30 and Roamin have no set-up guide, so
+# they carry no `tasks`.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+option_values:
+  damper:
+    finecut_hlr_38:
+      name: Finecut HLR
+      description: Damper with external high-speed and low-speed compression adjusters and a rebound adjuster. Used on the Vengeance 38 and RV1 38 DH.
+      description_de: Dämpfer mit externen Einstellern für High-Speed- und Low-Speed-Druckstufe sowie einem Zugstufenversteller. Verbaut an Vengeance 38 und RV1 38 DH.
+      description_fr: Amortisseur avec réglages externes de la compression haute et basse vitesse et réglage de détente. Utilisé sur les Vengeance 38 et RV1 38 DH.
+      description_it: Ammortizzatore con regolazioni esterne della compressione ad alta e bassa velocità e regolazione del ritorno. Usato su Vengeance 38 e RV1 38 DH.
+      description_es: Amortiguador con ajustes externos de la compresión de alta y baja velocidad y ajuste de rebote. Se usa en las Vengeance 38 y RV1 38 DH.
+      description_pt: Amortecedor com ajustes externos da compressão de alta e baixa velocidade e ajuste de retorno. Usado nas Vengeance 38 e RV1 38 DH.
+      adjustments:
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 7, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 25, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/upload/files/38mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: Click counts (about 7 HSC, 14 LSC, 25 rebound, counted from fully closed) read from the 38mm Fork Set Up Guide 2025, p. 2-4. The guide states them as approximate. The high-speed knob is gold, so no dialColor is set for it.
+
+    roughcut_hlr:
+      name: Roughcut HLR
+      description: Bladder cartridge damper with external high-speed and low-speed compression adjusters and a rebound adjuster. Used on the Trace 36, Sweep, Slide and Slant HLR.
+      description_de: Bladder-Kartuschendämpfer mit externen Einstellern für High-Speed- und Low-Speed-Druckstufe sowie einem Zugstufenversteller. Verbaut an Trace 36, Sweep, Slide und Slant HLR.
+      description_fr: Amortisseur à cartouche avec bladder, réglages externes de la compression haute et basse vitesse et réglage de détente. Utilisé sur les Trace 36, Sweep, Slide et Slant HLR.
+      description_it: Ammortizzatore a cartuccia con bladder, regolazioni esterne della compressione ad alta e bassa velocità e regolazione del ritorno. Usato su Trace 36, Sweep, Slide e Slant HLR.
+      description_es: Amortiguador de cartucho con bladder, ajustes externos de la compresión de alta y baja velocidad y ajuste de rebote. Se usa en las Trace 36, Sweep, Slide y Slant HLR.
+      description_pt: Amortecedor de cartucho com bladder, ajustes externos da compressão de alta e baixa velocidade e ajuste de retorno. Usado nas Trace 36, Sweep, Slide e Slant HLR.
+      adjustments:
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 15, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 13, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+        - https://www.xfusionshox.com/upload/files/36mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: Click counts (about 15 HSC, 13 LSC, 16 rebound, counted from fully closed) read from the 34mm and 36mm Fork Set Up Guides 2025, which print the same numbers (p. 2-4). The guides state them as approximate. The high-speed knob is gold, so no dialColor is set for it.
+
+    roughcut_rcp:
+      name: Roughcut RCP
+      description: Bladder cartridge damper with a 3-position platform switch and a rebound adjuster. Used on the Sweep, Slide and Slant RCP.
+      description_de: Bladder-Kartuschendämpfer mit 3-Positionen-Plattformschalter und Zugstufenversteller. Verbaut an Sweep, Slide und Slant RCP.
+      description_fr: Amortisseur à cartouche avec bladder, commutateur de plateforme à 3 positions et réglage de détente. Utilisé sur les Sweep, Slide et Slant RCP.
+      description_it: Ammortizzatore a cartuccia con bladder, selettore di piattaforma a 3 posizioni e regolazione del ritorno. Usato su Sweep, Slide e Slant RCP.
+      description_es: Amortiguador de cartucho con bladder, selector de plataforma de 3 posiciones y ajuste de rebote. Se usa en las Sweep, Slide y Slant RCP.
+      description_pt: Amortecedor de cartucho com bladder, seletor de plataforma de 3 posições e ajuste de retorno. Usado nas Sweep, Slide e Slant RCP.
+      missing_adjustments: [Platform switch]
+      missing_adjustments_de: [Plattformschalter]
+      missing_adjustments_fr: [Commutateur de plateforme]
+      missing_adjustments_it: [Selettore di piattaforma]
+      missing_adjustments_es: [Selector de plataforma]
+      missing_adjustments_pt: [Seletor de plataforma]
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/63.htm
+        - https://www.xfusionshox.com/products_detail/71.htm
+        - https://www.xfusionshox.com/products_detail/82.htm
+        - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: Product pages list a 3-position platform low-speed compression control but do not name the positions, so it is a missing adjuster. Rebound count from the 34mm Fork Set Up Guide 2025.
+
+    rc_cartridge:
+      name: RC
+      description: Cartridge damper with an external low-speed compression adjuster and a rebound adjuster. Used on the Trace 36, Sweep, Slide and Slant RC.
+      description_de: Kartuschendämpfer mit externem Einsteller für die Low-Speed-Druckstufe und Zugstufenversteller. Verbaut an Trace 36, Sweep, Slide und Slant RC.
+      description_fr: Amortisseur à cartouche avec réglage externe de la compression basse vitesse et réglage de détente. Utilisé sur les Trace 36, Sweep, Slide et Slant RC.
+      description_it: Ammortizzatore a cartuccia con regolazione esterna della compressione a bassa velocità e regolazione del ritorno. Usato su Trace 36, Sweep, Slide e Slant RC.
+      description_es: Amortiguador de cartucho con ajuste externo de la compresión de baja velocidad y ajuste de rebote. Se usa en las Trace 36, Sweep, Slide y Slant RC.
+      description_pt: Amortecedor de cartucho com ajuste externo da compressão de baixa velocidade e ajuste de retorno. Usado nas Trace 36, Sweep, Slide e Slant RC.
+      adjustments:
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: 13, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+        - https://www.xfusionshox.com/upload/files/36mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: "Click counts (about 13 low-speed compression, 16 rebound, counted from fully closed) read from the 34mm and 36mm Fork Set Up Guides 2025 (RC knobs: blue low-speed compression). The guides state them as approximate."
+
+    rc32:
+      name: RC (32mm)
+      description: Cartridge damper with a compression adjuster from open to near-lockout firmness and a rebound adjuster. Used on the RC32.
+      description_de: Kartuschendämpfer mit Druckstufenversteller von offen bis nahezu Lockout-Härte und Zugstufenversteller. Verbaut an der RC32.
+      description_fr: Amortisseur à cartouche avec réglage de compression de l’ouvert à une fermeté proche du lockout et réglage de détente. Utilisé sur la RC32.
+      description_it: Ammortizzatore a cartuccia con regolazione della compressione da aperto a una rigidità quasi da lockout e regolazione del ritorno. Usato sulla RC32.
+      description_es: Amortiguador de cartucho con ajuste de compresión desde abierto hasta una firmeza cercana al lockout y ajuste de rebote. Se usa en la RC32.
+      description_pt: Amortecedor de cartucho com ajuste de compressão de aberto até uma firmeza próxima do lockout e ajuste de retorno. Usado na RC32.
+      missing_adjustments: [Compression]
+      missing_adjustments_de: [Druckstufe]
+      missing_adjustments_fr: [Compression]
+      missing_adjustments_it: [Compressione]
+      missing_adjustments_es: [Compresión]
+      missing_adjustments_pt: [Compressão]
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/77.htm
+        - https://www.xfusionshox.com/products_detail/78.htm
+        - https://www.xfusionshox.com/products_detail/79.htm
+        - https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: Product pages say compression runs open to firm but give no clicks, and the 32mm Fork Set Up Guide 2025 only describes the RL2 knobs, so compression is a missing adjuster. Rebound count (about 16) from that guide.
+
+    rl2:
+      name: RL2
+      description: RL2 cartridge damper with a rebound adjuster and an on/off lockout switch. Used on the Velvet RL.
+      description_de: RL2-Kartuschendämpfer mit Zugstufenversteller und Lockout-Schalter (an/aus). Verbaut an der Velvet RL.
+      description_fr: Amortisseur à cartouche RL2 avec réglage de détente et interrupteur de lockout (on/off). Utilisé sur la Velvet RL.
+      description_it: Ammortizzatore a cartuccia RL2 con regolazione del ritorno e interruttore di lockout (on/off). Usato sulla Velvet RL.
+      description_es: Amortiguador de cartucho RL2 con ajuste de rebote e interruptor de lockout (on/off). Se usa en la Velvet RL.
+      description_pt: Amortecedor de cartucho RL2 com ajuste de retorno e interruptor de lockout (on/off). Usado na Velvet RL.
+      adjustments:
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: On/off lockout switch, notes_de: Lockout-Schalter (an/aus), notes_fr: Interrupteur de lockout (on/off), notes_it: Interruttore di lockout (on/off), notes_es: Interruptor de lockout (on/off), notes_pt: Interruptor de lockout (on/off) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/80.htm
+        - https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: Lockout (open and lockout positions only) and rebound (about 16 clicks, counted from fully closed) read from the 32mm Fork Set Up Guide 2025, p. 2-3.
+
+    finecut_rl2:
+      name: Finecut RL2
+      description: Finecut RL2 cartridge damper with a rebound adjuster and an on/off lockout switch. Used on the Rezza RL2.
+      description_de: Finecut-RL2-Kartuschendämpfer mit Zugstufenversteller und Lockout-Schalter (an/aus). Verbaut an der Rezza RL2.
+      description_fr: Amortisseur à cartouche Finecut RL2 avec réglage de détente et interrupteur de lockout (on/off). Utilisé sur la Rezza RL2.
+      description_it: Ammortizzatore a cartuccia Finecut RL2 con regolazione del ritorno e interruttore di lockout (on/off). Usato sulla Rezza RL2.
+      description_es: Amortiguador de cartucho Finecut RL2 con ajuste de rebote e interruptor de lockout (on/off). Se usa en la Rezza RL2.
+      description_pt: Amortecedor de cartucho Finecut RL2 com ajuste de retorno e interruptor de lockout (on/off). Usado na Rezza RL2.
+      adjustments:
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: On/off lockout switch, notes_de: Lockout-Schalter (an/aus), notes_fr: Interrupteur de lockout (on/off), notes_it: Interruttore di lockout (on/off), notes_es: Interruptor de lockout (on/off), notes_pt: Interruptor de lockout (on/off) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/114.htm
+        - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: "Lockout from the product page (Lockout, Rebound, Air Spring) and the 34mm Fork Set Up Guide 2025 (RL2 knob: open and lockout only). Rebound count (about 16 clicks, counted from fully closed) is the guide's figure for all 34mm forks; it does not name the Finecut damper."
+
+    finecut_rl2_gravel:
+      name: Finecut RL2 (gravel)
+      description: Finecut RL2 sealed cartridge damper with a rebound adjuster and an on/off lockout switch. Used on the G.E.T. 30.
+      description_de: Finecut-RL2-Kartuschendämpfer (geschlossen) mit Zugstufenversteller und Lockout-Schalter (an/aus). Verbaut an der G.E.T. 30.
+      description_fr: Amortisseur à cartouche scellée Finecut RL2 avec réglage de détente et interrupteur de lockout (on/off). Utilisé sur la G.E.T. 30.
+      description_it: Ammortizzatore a cartuccia sigillata Finecut RL2 con regolazione del ritorno e interruttore di lockout (on/off). Usato sulla G.E.T. 30.
+      description_es: Amortiguador de cartucho sellado Finecut RL2 con ajuste de rebote e interruptor de lockout (on/off). Se usa en la G.E.T. 30.
+      description_pt: Amortecedor de cartucho selado Finecut RL2 com ajuste de retorno e interruptor de lockout (on/off). Usado na G.E.T. 30.
+      adjustments:
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: On/off lockout switch, notes_de: Lockout-Schalter (an/aus), notes_fr: Interrupteur de lockout (on/off), notes_it: Interruttore di lockout (on/off), notes_es: Interruptor de lockout (on/off), notes_pt: Interruptor de lockout (on/off) }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/products_detail/127.htm
+      note: Product page lists Lockout, Rebound and Air Spring but no click count. X-Fusion's guides cover 32 to 38mm forks only, so the rebound range is unknown; the guides' red rebound knob counted from fully clockwise is taken as the brand convention.
+
+    finecut_rcp:
+      name: Finecut RCP
+      description: Finecut RCP cartridge damper with a 3-position platform switch and a rebound adjuster. Used on the Rezza RCP, RLR and RCPR.
+      description_de: Finecut-RCP-Kartuschendämpfer mit 3-Positionen-Plattformschalter und Zugstufenversteller. Verbaut an Rezza RCP, RLR und RCPR.
+      description_fr: Amortisseur à cartouche Finecut RCP avec commutateur de plateforme à 3 positions et réglage de détente. Utilisé sur les Rezza RCP, RLR et RCPR.
+      description_it: Ammortizzatore a cartuccia Finecut RCP con selettore di piattaforma a 3 posizioni e regolazione del ritorno. Usato su Rezza RCP, RLR e RCPR.
+      description_es: Amortiguador de cartucho Finecut RCP con selector de plataforma de 3 posiciones y ajuste de rebote. Se usa en las Rezza RCP, RLR y RCPR.
+      description_pt: Amortecedor de cartucho Finecut RCP com seletor de plataforma de 3 posições e ajuste de retorno. Usado nas Rezza RCP, RLR e RCPR.
+      missing_adjustments: [Platform switch]
+      missing_adjustments_de: [Plattformschalter]
+      missing_adjustments_fr: [Commutateur de plateforme]
+      missing_adjustments_it: [Selettore di piattaforma]
+      missing_adjustments_es: [Selector de plataforma]
+      missing_adjustments_pt: [Seletor de plataforma]
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 16, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/115.htm
+        - https://www.xfusionshox.com/products_detail/123.htm
+        - https://www.xfusionshox.com/products_detail/124.htm
+        - https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      note: "The three product pages share one spec list: Finecut RCP damper, 3-position platform, rebound, air spring. Their feature text also mentions high- and low-speed compression adjusters, and the positions of the platform switch are not named, so it is a missing adjuster. Rebound count (about 16, from fully closed) is the 34mm guide's figure for all 34mm forks."
+
+    roamin_rc:
+      name: RC (Roamin)
+      description: RC cartridge damper with external compression and rebound adjusters, tuned for lighter youth riders. Used on the Roamin 20 and 24.
+      description_de: RC-Kartuschendämpfer mit externen Einstellern für Druckstufe und Zugstufe, abgestimmt auf leichtere Jugendliche. Verbaut an Roamin 20 und 24.
+      description_fr: Amortisseur à cartouche RC avec réglages externes de la compression et de la détente, adapté aux jeunes pilotes plus légers. Utilisé sur les Roamin 20 et 24.
+      description_it: Ammortizzatore a cartuccia RC con regolazioni esterne di compressione e ritorno, tarato per giovani rider più leggeri. Usato su Roamin 20 e 24.
+      description_es: Amortiguador de cartucho RC con ajustes externos de compresión y rebote, calibrado para jóvenes ciclistas más ligeros. Se usa en las Roamin 20 y 24.
+      description_pt: Amortecedor de cartucho RC com ajustes externos de compressão e retorno, calibrado para jovens ciclistas mais leves. Usado nas Roamin 20 e 24.
+      missing_adjustments: [Compression, Rebound]
+      missing_adjustments_de: [Druckstufe, Zugstufe]
+      missing_adjustments_fr: [Compression, Détente]
+      missing_adjustments_it: [Compressione, Ritorno]
+      missing_adjustments_es: [Compresión, Rebote]
+      missing_adjustments_pt: [Compressão, Retorno]
+      adjustments: []
+      source: https://www.xfusionshox.com/products_detail/129.htm
+      note: Product page lists compression and rebound adjusters with no click counts, no counting direction and no setup guide for the youth forks.
+
+# --------------------------------------------------------------------------
+# Setup guides — transcribed from docs/research/setup_guides/xfusion.md.
+#   * Pressure: the fork pressure chart / 2025 set-up guide tables, rider weight
+#     (lb) → psi, one rule per printed column. The printed `220+` row is the
+#     point 220: the rows are points, and a heavier rider is outside the table.
+#     The set-up guides head their table "Spring / Coil", but the chart prints the
+#     same 32/34/36mm values as "Air Pressure".
+#   * SAG: the guides' recommended 25-30 %.
+#   * Rebound: the guides' base setting, counted from fully closed.
+# --------------------------------------------------------------------------
+guides:
+  xfusion_forks_2025:
+    label: X-Fusion fork pressure chart and set-up guides (2025)
+    label_de: X-Fusion Gabel-Druckdiagramm und Setup-Anleitungen (2025)
+    label_fr: Tableau de pressions et guides de réglage des fourches X-Fusion (2025)
+    label_it: Tabella delle pressioni e guide al setup delle forcelle X-Fusion (2025)
+    label_es: Tabla de presiones y guías de ajuste de las horquillas X-Fusion (2025)
+    label_pt: Tabela de pressões e guias de ajuste dos garfos X-Fusion (2025)
+    source: https://www.xfusionshox.com/upload/files/Air%20%26%20Coil%20Spring%20Rate-v2.pdf
+    rules:
+      # The chart's 32/34mm (RC/RL) column: the 32mm forks, and the 34mm RC trims.
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: [velvet, rc32] }
+        rows: &xfusion_rcrl { 100: 55, 110: 57.5, 120: 60, 130: 65, 140: 70, 150: 75, 160: 80, 170: 85, 180: 90, 190: 95, 200: 100, 220: 110 }
+        source: https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: [sweep-boost, slide-boost, slant], trim: rc }
+        rows: *xfusion_rcrl
+      # The 34mm RoughCut column (the 34mm guide's own table).
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: [sweep-boost, slide-boost, slant], trim: [hlr, rcp] }
+        rows: { 100: 47.5, 110: 50, 120: 55, 130: 60, 140: 65, 150: 70, 160: 75, 170: 80, 180: 85, 190: 90, 200: 95, 220: 110 }
+        source: https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: trace-36 }
+        rows: { 100: 45, 110: 47.5, 120: 50, 130: 52.5, 140: 55, 150: 57.5, 160: 60, 170: 65, 180: 70, 190: 75, 200: 80, 220: 85 }
+        source: https://www.xfusionshox.com/upload/files/36mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: lb
+        when: { model: [vengeance-38, rv1-38-dh] }
+        rows: { 100: 55, 110: 60, 120: 65, 130: 70, 140: 75, 150: 80, 160: 85, 170: 90, 180: 95, 190: 100, 200: 105, 220: 110 }
+        source: https://www.xfusionshox.com/upload/files/38mm%20Fork%20Set%20Up%20Guide%202025.pdf
+      - { target: sag, range: [25, 30], comfort_at: max }
+      - target: rebound
+        value: 8
+        when: { model: [velvet, rc32, rezza, sweep-boost, slide-boost, slant, trace-36] }
+        note: Starting point; adjust in steps of 2 clicks
+        note_de: Ausgangspunkt; in 2-Klick-Schritten anpassen
+        note_fr: Point de départ ; ajuster par pas de 2 clics
+        note_it: Punto di partenza; regolare a passi di 2 scatti
+        note_es: Punto de partida; ajustar en pasos de 2 clics
+        note_pt: Ponto de partida; ajustar em passos de 2 cliques
+      - target: rebound
+        value: 12
+        when: { model: [vengeance-38, rv1-38-dh] }
+        note: Starting point; adjust in steps of 2 clicks
+        note_de: Ausgangspunkt; in 2-Klick-Schritten anpassen
+        note_fr: Point de départ ; ajuster par pas de 2 clics
+        note_it: Punto di partenza; regolare a passi di 2 scatti
+        note_es: Punto de partida; ajustar en pasos de 2 clics
+        note_pt: Ponto de partida; ajustar em passos de 2 cliques
+
+# --------------------------------------------------------------------------
+# Forks — X-Fusion's current website lineup (2026). No model years are
+# published, so there is no generation level. One trim per product page,
+# because the damper (and so the adjusters) differs per page.
+# --------------------------------------------------------------------------
+nodes:
+  - label: "Vengeance 38"
+    level: model
+    category: Enduro / Freeride
+    category_de: Enduro / Freeride
+    category_fr: Enduro / Freeride
+    category_it: Enduro / Freeride
+    category_es: Enduro / Freeride
+    category_pt: Enduro / Freeride
+    setup_guide: https://www.xfusionshox.com/upload/files/38mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: &xfusion_air_140
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 140 }
+    tasks: &xfusion_service
+      fork:full_service: { interval: { moving_time_h: 80 }, fallback: { days: 365 }, source: X-Fusion fork set-up guide, source_de: X-Fusion-Gabel-Setup-Anleitung, source_fr: Guide de réglage de la fourche X-Fusion, source_it: Guida al setup della forcella X-Fusion, source_es: Guía de ajuste de la horquilla X-Fusion, source_pt: Guia de ajuste do garfo X-Fusion }
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/108.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [finecut_hlr_38]
+          travel_mm: [160, 170, 180]
+          wheel_size: [29]
+
+  - label: "RV1 38 DH"
+    level: model
+    id: rv1-38-dh
+    category: Downhill
+    category_de: Downhill
+    category_fr: Downhill
+    category_it: Downhill
+    category_es: Downhill
+    category_pt: Downhill
+    setup_guide: https://www.xfusionshox.com/upload/files/38mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 38mm Aluminum, stanchion_de: 38mm Aluminium, stanchion_fr: 38mm aluminium, stanchion_it: 38mm alluminio, stanchion_es: 38mm aluminio, stanchion_pt: 38mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: &xfusion_air_120
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 120 }
+    tasks: *xfusion_service
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/109.htm
+        offset_mm: 46/56
+        axle: 110x20mm Boost bolt-on
+        options:
+          damper: [finecut_hlr_38]
+          travel_mm: [200]
+          wheel_size: [29, 27.5]
+        note: Dual-crown downhill chassis
+        note_de: Downhill-Chassis mit Doppelbrücke
+        note_fr: Châssis descente à double té
+        note_it: Telaio da downhill a doppia piastra
+        note_es: Chasis de descenso de doble corona
+        note_pt: Chassi de downhill de dupla coroa
+
+  - label: "Trace 36"
+    level: model
+    category: Enduro / Freeride
+    category_de: Enduro / Freeride
+    category_fr: Enduro / Freeride
+    category_it: Enduro / Freeride
+    category_es: Enduro / Freeride
+    category_pt: Enduro / Freeride
+    setup_guide: https://www.xfusionshox.com/upload/files/36mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 36mm Aluminum, stanchion_de: 36mm Aluminium, stanchion_fr: 36mm aluminium, stanchion_it: 36mm alluminio, stanchion_es: 36mm aluminio, stanchion_pt: 36mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_120
+    tasks: *xfusion_service
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/60.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [roughcut_hlr]
+          travel_mm: [140, 160, 170]
+          wheel_size: [29]
+      - label: RC
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/56.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [rc_cartridge]
+          travel_mm: [140, 160, 170]
+          wheel_size: [29]
+
+  - label: "Sweep Boost"
+    level: model
+    category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    setup_guide: https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/62.htm
+        offset_mm: 46
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [roughcut_hlr]
+          travel_mm: [120, 140, 160]
+          wheel_size: [27.5]
+      - label: RCP
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/63.htm
+        offset_mm: 46
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [roughcut_rcp]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [27.5]
+      - label: RC
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/64.htm
+        offset_mm: 46
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [rc_cartridge]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [27.5]
+
+  - label: "Slide Boost"
+    level: model
+    category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    setup_guide: https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/81.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [roughcut_hlr]
+          travel_mm: [100, 120, 140]
+          wheel_size: [29]
+      - label: RCP
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/82.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [roughcut_rcp]
+          travel_mm: [100, 120, 140]
+          wheel_size: [29]
+      - label: RC
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/83.htm
+        offset_mm: 44/51
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [rc_cartridge]
+          travel_mm: [100, 120, 140]
+          wheel_size: [29]
+
+  - label: "Slant"
+    level: model
+    category: Trail / All-Mountain
+    category_de: Trail / All-Mountain
+    category_fr: Trail / All-Mountain
+    category_it: Trail / All-Mountain
+    category_es: Trail / All-Mountain
+    category_pt: Trail / All-Mountain
+    setup_guide: https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/70.htm
+        offset_mm: 40
+        axle: Lock-X 15x100mm
+        options:
+          damper: [roughcut_hlr]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [26]
+      - label: RCP
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/71.htm
+        offset_mm: 40
+        axle: Lock-X 15x100mm
+        options:
+          damper: [roughcut_rcp]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [26]
+      - label: RC
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/72.htm
+        offset_mm: 40
+        axle: Lock-X 15x100mm
+        options:
+          damper: [rc_cartridge]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [26]
+
+  - label: "Rezza"
+    level: model
+    category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    setup_guide: https://www.xfusionshox.com/upload/files/34mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: RL2
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/114.htm
+        offset_mm: 44
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [finecut_rl2]
+          travel_mm: [100, 110, 120, 130]
+          wheel_size: [29]
+      - label: RCP
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/115.htm
+        offset_mm: 44
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [finecut_rcp]
+          travel_mm: [100, 110, 120, 130]
+          wheel_size: [29]
+      - label: RLR
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/123.htm
+        offset_mm: 44
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [finecut_rcp]
+          travel_mm: [100, 110, 120, 130]
+          wheel_size: [29]
+      - label: RCPR
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/124.htm
+        offset_mm: 44
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [finecut_rcp]
+          travel_mm: [100, 110, 120, 130]
+          wheel_size: [29]
+
+  - label: "RC32"
+    level: model
+    draft: true
+    category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    setup_guide: https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: "27.5 (9mm)"
+        level: trim
+        id: "27-5-9mm"
+        url: https://www.xfusionshox.com/products_detail/77.htm
+        offset_mm: 46
+        axle: 9mm quick release
+        options:
+          damper: [rc32]
+          travel_mm: [80, 100, 130]
+          wheel_size: [27.5]
+      - label: "27.5 Boost"
+        level: trim
+        id: "27-5-boost"
+        url: https://www.xfusionshox.com/products_detail/78.htm
+        offset_mm: 46
+        axle: 110x15mm Boost thru axle
+        options:
+          damper: [rc32]
+          travel_mm: [80, 100, 120, 130]
+          wheel_size: [27.5]
+      - label: "29 Boost"
+        level: trim
+        id: "29-boost"
+        url: https://www.xfusionshox.com/products_detail/79.htm
+        offset_mm: 51
+        axle: 110x15mm Boost bolt-on
+        options:
+          damper: [rc32]
+          travel_mm: [80, 100, 120, 130]
+          wheel_size: [29]
+
+  - label: "Velvet"
+    level: model
+    category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    setup_guide: https://www.xfusionshox.com/upload/files/32mm%20Fork%20Set%20Up%20Guide%202025.pdf
+    guide: xfusion_forks_2025
+    specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air_140
+    tasks: *xfusion_service
+    children:
+      - label: RL
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/80.htm
+        offset_mm: 41
+        axle: Lock-X 15x100mm or 9mm
+        options:
+          damper: [rl2]
+          travel_mm: [80, 100, 120, 140]
+          wheel_size: [27.5]
+
+  - label: "G.E.T. 30"
+    level: model
+    id: get-30
+    category: Gravel
+    category_de: Gravel
+    category_fr: Gravel
+    category_it: Gravel
+    category_es: Gravel
+    category_pt: Gravel
+    specs: { stanchion: 30mm, stanchion_de: 30mm, stanchion_fr: 30mm, stanchion_it: 30mm, stanchion_es: 30mm, stanchion_pt: 30mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: &xfusion_air
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0 }
+    children:
+      - label: RL2
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/127.htm
+        offset_mm: 45/51
+        axle: 12x100mm thru axle
+        options:
+          damper: [finecut_rl2_gravel]
+          travel_mm: [30, 40, 50]
+          wheel_size: [700c]
+        note: Works with the X-Fusion Q-Flip two-lever remote (fork lockout and dropper control)
+        note_de: Kompatibel mit der X-Fusion-Q-Flip-Zweihebel-Fernbedienung (Gabel-Lockout und Sattelstütze)
+        note_fr: Compatible avec la commande déportée à deux leviers X-Fusion Q-Flip (lockout de la fourche et tige de selle)
+        note_it: Compatibile con il comando remoto a due leve X-Fusion Q-Flip (lockout della forcella e reggisella)
+        note_es: Compatible con el mando remoto de dos palancas X-Fusion Q-Flip (lockout de la horquilla y tija telescópica)
+        note_pt: Compatível com o comando remoto de duas alavancas X-Fusion Q-Flip (lockout do garfo e canote)
+
+  - label: Roamin
+    level: model
+    draft: true
+    category: Junior
+    category_de: Junior
+    category_fr: Junior
+    category_it: Junior
+    category_es: Júnior
+    category_pt: Júnior
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air
+    children:
+      - label: "20"
+        level: trim
+        id: "20"
+        url: https://www.xfusionshox.com/products_detail/129.htm
+        specs: { stanchion: 32mm Aluminum, stanchion_de: 32mm Aluminium, stanchion_fr: 32mm aluminium, stanchion_it: 32mm alluminio, stanchion_es: 32mm aluminio, stanchion_pt: 32mm alumínio }
+        offset_mm: 40
+        axle: 15x110mm thru axle
+        options:
+          damper: [roamin_rc]
+          travel_mm: [80, 100, 120]
+          wheel_size: [20]
+      - label: "24"
+        level: trim
+        id: "24"
+        url: https://www.xfusionshox.com/products_detail/128.htm
+        specs: { stanchion: 34mm Aluminum, stanchion_de: 34mm Aluminium, stanchion_fr: 34mm aluminium, stanchion_it: 34mm alluminio, stanchion_es: 34mm aluminio, stanchion_pt: 34mm alumínio }
+        offset_mm: 41
+        axle: 15x110mm thru axle
+        options:
+          damper: [roamin_rc]
+          travel_mm: [100, 120, 140, 160]
+          wheel_size: [24]
+
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Model years: none published; no generation level.
+#   - Draft trims and their missing datum:
+#       * Sweep Boost / Slide Boost / Slant RCP: the 3-position platform
+#         control's positions are not named anywhere.
+#       * Rezza RCP, RLR, RCPR: the three pages share one spec list (Finecut RCP
+#         damper, 3-position platform); the feature text also mentions high- and
+#         low-speed compression adjusters, and what the "R" of RLR / RCPR adds
+#         is not stated. Treated as the same damper until X-Fusion says more.
+#       * RC32 (all three): compression "open to firm", no clicks and the 32mm
+#         set-up guide only covers the RL2 knobs.
+#       * Roamin 20 / 24: compression and rebound adjusters with no counts,
+#         direction or set-up guide.
+#   - Click counts are "about" figures from the 32 / 34 / 36 / 38mm set-up
+#     guides, which name the knob colors per damper family but not the damper
+#     generation: the Finecut RL2 / RCP on the Rezza take the 34mm guide's 16
+#     rebound clicks ("all 34mm forks"), the Vengeance 38 and RV1 38 DH take the
+#     38mm guide's 7 HSC / 14 LSC / 25 rebound. The G.E.T. 30 (30mm, Finecut RL2)
+#     has no guide, so its rebound is `max: ~`.
+#   - Pressure: the owner's manual lists a minimum of 50 psi for every fork and
+#     a maximum of 140 psi (Velvet, Slant, Sweep, Slide, RC32, Vengeance 38,
+#     Rezza 29 Boost) or 120 psi (Trace 36, RV1 38). The 36mm chart starts at
+#     45 psi, below that minimum, so `min` stays 0. The G.E.T. 30 and Roamin
+#     appear in no pressure list, so `max` is unset. Rezza has no pressure rule:
+#     the chart names the 32/34mm RC/RL and 34mm RoughCut columns but not the
+#     Finecut dampers.
+#   - Service: the owner's manual service table says dust seals, oil seals and
+#     damper oil every 100 rides or every year; the set-up guides say damper and
+#     lower-leg service every 80 hours or annually. The guides' figure is used.
+#   - Volume spacers: no fork page, manual or guide publishes a count, so none
+#     is declared. The "Oil & Air Value" chart (help_detail/6.htm) gives oil
+#     volumes only.
+#   - RV1 38 DH: the pressure chart also has an "RV-1 (Coil Spring)" column
+#     (spring color by rider weight) while the product page says air spring;
+#     only the air version is modelled.
+#   - Travel conflicts on the product pages: Rezza text says 100/110/120 mm,
+#     the spec list adds 130 mm (the list is used); RC32 (27.5) text says up to
+#     120 mm, the spec list says 130 mm (the list is used). Travel options read
+#     from the "ITA" (internal travel adjust) values; the Velvet's wheel size is
+#     27.5 on its page, the navigation also says 26.
+#   - Not modelled: OEM forks (Migo 9mm / 32mm / 34mm, Bruno 30, Bruno Cargo 32 /
+#     34 with coil or air and STKM or aluminium variants), Metric / Mcqueen /
+#     E-Sweep / E-Slide (named only in the owner's manual) and the Vengeance /
+#     Trace "Standard HLR" the 36mm guide mentions next to Roughcut HLR.
+#   - Remote lockout: the Rezza and RC32 pages mention remote-lockout options;
+#     no remote adjuster is declared.
+# --------------------------------------------------------------------------

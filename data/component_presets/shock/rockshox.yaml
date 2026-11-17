@@ -37,6 +37,13 @@ sources:
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/2024-vivid-service-manual.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/2025-vivid-coil-service-manual.pdf
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/2023-super-deluxe-coil-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/deluxe-coil-select-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/2024-sidluxe-service-manual-english.pdf
+  - https://docs.sram.com/en-US/publications/SDeEaE3Z7bqwvSyNI6M7K/SM-2027%2B%20Super%20Deluxe%20D1
+  # Primary — SRAM product pages and stories
+  - https://www.sram.com/en/rockshox/models/rs-dlxc-sel-b1
+  - https://www.sram.com/de/life/stories/our-development-story-rear-shock-lineup-2023
+  - https://www.sram.com/en/rockshox/series/sidluxe
   # Primary — RockShox rider-support knowledge base (sizes, tokens, pressure)
   - https://support.rockshox.com/hc/en-us/articles/48153960157723-How-many-internal-token-positions-does-the-Super-Deluxe-D1-have
   - https://support.rockshox.com/hc/en-us/articles/48154037771163-What-is-the-maximum-air-pressure-of-the-Super-Deluxe-D1
@@ -56,7 +63,8 @@ sources:
   - https://flowmountainbike.com/features/rockshox-shock-setup/
   - https://www.pinkbike.com/news/first-ride-the-new-rockshox-vivid-ultimate.html
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-10-13
+  - https://flowmountainbike.com/tests/rockshox-super-deluxe-ultimate-shock-review-first-ride-2027/
+updated: 2026-11-17
 # Counting conventions, verified per damper against SRAM material:
 #   * RC2T compression counts from the MIDDLE — SRAM: "5 positions for both HSC
 #     and LSC ... the base tune is in the middle, with two positions to increase
@@ -75,7 +83,7 @@ updated: 2026-10-13
 # chart (GEN.0000000005593 Rev H); "1 year" is the spare-parts catalog's
 # "200 HOUR/1 YEAR SERVICE KIT":
 #   * Deluxe, Super Deluxe (2017-2026), SIDLuxe: 50 h air can, 200 h damper.
-#   * Super Deluxe Coil, Vivid Coil (2025+): 200 h damper.
+#   * Super Deluxe Coil, Deluxe Coil, Vivid Coil (2025+): 200 h damper.
 #   * Vivid (2024+): 100 h air can, 200 h damper.
 #   * Monarch, Monarch Plus, Vivid Air (2011-2022): 50 h air can, 100 h damper.
 
@@ -158,6 +166,11 @@ option_values:
         SRAM publishes 15 clicks of rebound for the D1. The HSC / LSC adjusters
         (Ultimate) are described only as "refer to the graphics on the shock", so
         no ranges are declared, and the lockout exists in two positions only.
+        The 2027+ Super Deluxe service manual only has the mechanic count
+        "detent clicks" to the full open position before service, with no total.
+        Flow's first ride names the two threshold positions Open and Firm and
+        calls the compression dials numbered around a marked middle (the
+        reviewer moved two clicks either way); no total is given.
 
     rc2:
       name: RC2
@@ -391,6 +404,30 @@ option_values:
       note: >-
         The classic Vivid Air (pre-2017). SRAM's current documentation no longer
         publishes its click counts, so both rebound adjusters carry `max: ~`.
+
+    deluxe_coil:
+      name: Deluxe Coil
+      description: Coil damper of the Deluxe Coil with a single rebound dial and no compression adjuster.
+      description_de: Dämpfer des Deluxe Coil mit einem einzelnen Zugstufenrad und ohne Druckstufenversteller.
+      description_fr: Amortisseur à ressort du Deluxe Coil avec une seule molette de détente et sans réglage de compression.
+      description_it: Ammortizzatore a molla del Deluxe Coil con un’unica manopola del ritorno e senza regolatore di compressione.
+      description_es: Amortiguador de muelle del Deluxe Coil con una única rueda de rebote y sin ajuste de compresión.
+      description_pt: Amortecedor de mola do Deluxe Coil com um único seletor de retorno e sem ajuste de compressão.
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 20, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida) }
+      source:
+        - https://www.sram.com/en/rockshox/models/rs-dlxc-sel-b1
+        - https://www.sram.com/de/life/stories/our-development-story-rear-shock-lineup-2023
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/rear-suspension/deluxe-coil-select-service-manual.pdf
+      note: >-
+        The Deluxe Coil Select page (German) states a 20-fold rebound adjustment
+        ("Die 20-fache Einstellung der Zugstufe"), read as 20 clicks. SRAM's 2023
+        development story calls the shock the Super Deluxe Coil architecture
+        "only adjustable in rebound", and the service manual's settings table
+        records only a rebound count, taken turning the adjuster fully
+        counter-clockwise (from open). No compression adjuster or lever exists,
+        so nothing is missing. The dial colour is not stated and is left at the
+        default.
 
 # --------------------------------------------------------------------------
 # Setup guide — transcribed from docs/research/setup_guides/rockshox.md. SRAM
@@ -845,6 +882,34 @@ nodes:
             options:
               damper: [super_deluxe_rct]
 
+  - label: "Deluxe Coil"
+    level: model
+    category: Trail
+    category_de: Trail
+    category_fr: Trail
+    category_it: Trail
+    category_es: Trail
+    category_pt: Trail
+    guide: rockshox_rear_shock_um
+    tasks:
+      shock:full_service: *rockshox_full_service
+    children:
+      - label: "2023–2026"
+        level: generation
+        id: "2023"
+        years: "2023-2026"
+        url: https://www.sram.com/en/rockshox/models/rs-dlxc-sel-b1
+        setup_guide: https://www.sram.com/en/rockshox/learn/suspension-welcome-guide
+        specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
+        mounts: [Standard, Trunnion]
+        children:
+          - label: Select
+            level: trim
+            adjustments: *coil_spring
+            options:
+              damper: [deluxe_coil]
+              size: *coil_strokes
+
   - label: "Super Deluxe Ultimate DH"
     level: model
     category: Downhill
@@ -1216,44 +1281,66 @@ nodes:
 #     Deluxe / Super Deluxe (2023-2026) and Vivid Air list all eye-to-eye lengths
 #     with their mounts; the 2017-2022 Deluxe / Super Deluxe and SIDLuxe list
 #     sizes without a per-size mount (no statement), Monarch / Monarch Plus list
-#     the air-can sizes. Super Deluxe Coil and Vivid Coil list strokes only: the
+#     the air-can sizes. Super Deluxe Coil, Deluxe Coil and Vivid Coil list strokes only: the
 #     Vivid Coil manual names the same four length pairs as Vivid Air but not
 #     which pairs with which stroke, and the stroke-only ids are locked.
 #   - No sizes for the DH trims (Super Deluxe Ultimate DH, Vivid Air Ultimate
 #     DH, Vivid Coil Ultimate DH), Vivid Air R2C, and the Super Deluxe D1
-#     (2027): its air cans are stroke-class only (37.5-45 / 47.5-55 / 57.5-65)
-#     and no eye-to-eye table was found, so strokes are listed.
+#     (2027): the 2027+ service manual's token table pairs lengths 165/190 with
+#     37.5-45, 185/210 with 47.5-55 and 205/230 with 57.5-65 mm strokes but names
+#     no mount; the stroke-only ids are locked, so strokes are listed.
 #   - Setup guides: no official page exists for Super Deluxe specifically; the
 #     Suspension Welcome Guide (forks and shocks) is used. Dial colors: the RC2T
 #     FAQ is the only source stating knob colors; no source states them for
 #     Vivid Ultimate, so those dials keep the default.
 #   - RCT damper (Deluxe Ultimate, SIDLuxe) click counts — rebound carries
 #     `max: ~`, but compression and the climb lever are undocumented, so the
-#     models are `draft: true` until SRAM publishes real counts.
+#     models are `draft: true` until SRAM publishes real counts. SRAM's
+#     SIDLuxe page names the 3P lever Open / Pedal / Lock and its 2024 service
+#     manual documents 2P and 3P variants, so the rct damper does not fit one
+#     lever; the Flight Attendant trim has only a rebound dial (rear shock
+#     module, no lever), and the Deluxe 2023 Select is the rebound-only Select R.
+#     Neither can leave `rct` while `damper=rct` is locked in ids.lock.
 #   - RC2 (Super Deluxe Ultimate DH) click counts — not published; the trail
 #     RC2T numbers are a different tune and must not be reused. Rebound carries
 #     `max: ~`; HSC/LSC have no documented zero point, so the trim stays
 #     `draft: true`.
 #   - Super Deluxe D1 (2027, `draft: true`): rebound (15 clicks), the two-position
 #     lockout, 400 psi and the 4 / 5 / 6 internal token positions per stroke class
-#     are published; HSC / LSC ranges and the lockout lever are not, so the
-#     generation stays draft. Vivid Air D1 (2027+, 20 clicks, ABO -2..+2
-#     positions, pressure chart as an image) and Vivid Coil D1 are not split
-#     out from the 2024-2026 Vivid generations.
+#     (service manual: 0-4 / 0-5 / 0-6) are published; the HSC / LSC total
+#     positions are not (dials are numbered around a marked 0), and the lever's
+#     two positions are named only by Flow (Open / Firm), so the generation
+#     stays draft. The 2027+ manual also lists Ultimate Flight Attendant and
+#     Base trims, without an adjuster list for either. Vivid Air D1 (2027+, 20
+#     clicks, ABO -2..+2 positions, pressure chart as an image) and Vivid Coil
+#     D1 ("all new" in the 2026 spare-parts catalog; SRAM's Vivid D1 page
+#     states 20 rebound clicks) are not split out from the 2024-2026 Vivid
+#     generations; no SRAM text gives their HSC / LSC / ABO counts.
 #   - RC2T threshold/climb lever — the "T" circuit is not documented as a
 #     discrete set of named positions, so no Threshold adjustment is generated.
 #   - Legacy damper click counts (Monarch RT3, Monarch Plus RC3, Deluxe RT3,
 #     Super Deluxe RCT, Vivid Air R2C) — none published in SRAM's current
 #     documentation; would need the archived per-year rear-shock spec sheets.
 #     Rebound carries `max: ~`; the compression levers and dials stay
-#     undocumented, so these models stay `draft: true`.
-#   - Bottomless Token maxima still missing: Super Deluxe Coil / Vivid Coil
-#     (coil), Super Deluxe Ultimate DH, SIDLuxe WCID / IsoStrut variants (3 / 2
-#     tokens, separate products). Maximum pressure is published only for Super
+#     undocumented, so these models stay `draft: true`. The SRAM service
+#     manuals (Monarch 2013-2016, Deluxe 2018-2023, Super Deluxe 2018-2022) only
+#     tell the mechanic to count rebound clicks turning fully counter-clockwise
+#     and to unlock the compression lever; the Monarch / Monarch Plus R trims
+#     have no lever, but share the locked lever damper ids.
+#   - Bottomless Token maxima still missing: Super Deluxe Ultimate DH, SIDLuxe
+#     WCID / IsoStrut variants (3 / 2 tokens, separate products). Coil shocks
+#     have no air spring and no tokens in SRAM's service manuals. Maximum
+#     pressure is published only for Super
 #     Deluxe D1 (400 psi), Vivid Air (360 / 300 psi) and the SIDLuxe Linear XL
 #     air can (325 psi); the Deluxe / Super Deluxe (2023-2026) and older
 #     shocks carry no Pressure maximum.
-#   - Kage, Deluxe Coil, Super Deluxe GENIE (190x45, 210x55, Specialized only)
-#     and the Trek/Scott/Specialized OEM Deluxe variants (RE:aktiv, Thru Shaft,
-#     NUDE) are not covered.
+#   - Kage, Super Deluxe GENIE (190x45, 210x55, Specialized only) and the
+#     Trek/Scott/Specialized OEM Deluxe variants (RE:aktiv, Thru Shaft, NUDE)
+#     are not covered. Flight Attendant trims of the Super Deluxe (UFA-C1/C2/D1),
+#     Vivid Air and Vivid Coil exist in the 2026 spare-parts catalog; no
+#     adjuster list is published for them.
+#   - Coil years: the 2026 spare-parts catalog dates Super Deluxe Coil B1 as
+#     2023-2024 and Vivid Coil C1 as 2025-2026 (Deluxe Coil B1: "2023+"), while
+#     the generations here span 2023-2026 and 2024-2026. Narrowing `years`
+#     (ids stay) is left for the maintainer.
 # --------------------------------------------------------------------------

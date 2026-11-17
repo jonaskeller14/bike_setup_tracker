@@ -48,7 +48,7 @@ sources:
   - https://www.bikeradar.com/reviews/components/rear-shocks/fox-float-x2-factory-2pos-adjust-2022-review/
   - https://flowmountainbike.com/post-all/2021-fox-36-38-40-forks-dhx2-float-x2-shocks/
   - https://blisterreview.com/gear-reviews/2021-fox-float-x2-shock
-updated: 2026-10-29
+updated: 2026-11-17
 # Click ranges taken from the per-model spec tables on the official FOX
 # product pages (ridefox.com/pages/fox-<model>). Clicks counted from fully
 # closed (firmest) → default `dial_ccw`; an adjuster with "16 clicks" is 0..16.
@@ -1380,7 +1380,12 @@ nodes:
 #     MY24 / current shop listings; older frame-specific sizes may exist.
 #   - FLOAT X "Performance": whether that trim keeps the 11-click low-speed
 #     compression dial or ships with a fixed setting is still unresolved, so its
-#     trim note was removed rather than left as an unverified claim.
+#     trim note was removed rather than left as an unverified claim. The
+#     2026-11-17 product page lists only rebound (16 clicks) for the
+#     Performance and 11 compression clicks for Factory and Performance Elite,
+#     which suggests a fixed compression setting but does not say so.
+#   - 2027 FLOAT X2 Live Valve Neo has its own manual (3174, shared with the
+#     FLOAT X and DHX Live Valve Neo); it joins the electronic variants above.
 #   - Setup guides: the DHX2 2019-2025 damper tables are picked by shock
 #     stroke × rear-wheel travel (tables A/B/C), a bike-level input the
 #     catalog lacks (#71), so those guides carry SAG only. The FLOAT X2

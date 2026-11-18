@@ -138,5 +138,21 @@ void main() {
       expect(config.refreshCalls, 1);
       expect(reportedReasons, isEmpty);
     });
+
+    testWidgets('fetches again each time the app returns to the foreground', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final config = _FakeAppVersionConfig(() async => AppInfo.buildNumber + 1);
+      await pumpBlocked(tester, config);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      expect(config.refreshCalls, 1);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      expect(config.refreshCalls, 2);
+    });
   });
 }

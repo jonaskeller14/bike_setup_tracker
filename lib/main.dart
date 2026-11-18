@@ -144,7 +144,7 @@ class LoadingGate extends StatefulWidget {
   State<LoadingGate> createState() => _LoadingGateState();
 }
 
-class _LoadingGateState extends State<LoadingGate> {
+class _LoadingGateState extends State<LoadingGate> with WidgetsBindingObserver {
   late final Future<void> _initialization;
   late final _catalogRepository = ComponentCatalogRepository(
     languageCode: () => appLocaleOf(widget.appSettings).languageCode,
@@ -155,7 +155,21 @@ class _LoadingGateState extends State<LoadingGate> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initialization = _initialize();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // An app kept in memory for days would otherwise fetch only at its next cold
+  // start and gate one cold start later still.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _appVersionConfig.refreshInBackground();
   }
 
   RegionalDefaults _deviceRegionalDefaults() {

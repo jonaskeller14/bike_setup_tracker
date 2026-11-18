@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +8,6 @@ import 'component/component.dart';
 
 class AppSettings extends ChangeNotifier {
   static const String _kPrefix = 'app_settings.';
-  static const String _kLegacyBlobKey = 'app_settings';
   static const String kFiltersKey = '${_kPrefix}filters';
   static const String _kRegionalDefaultsAppliedKey = '${_kPrefix}regionalDefaultsApplied';
 
@@ -470,7 +468,6 @@ class AppSettings extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      await _migrateLegacyBlob(prefs);
       await _removeDeprecatedPreferences(prefs);
       await _applyRegionalDefaults(prefs, regionalDefaults);
 
@@ -692,35 +689,6 @@ class AppSettings extends ChangeNotifier {
     _developerMode,
   ];
 
-  /// Migrates the pre-existing monolithic `app_settings` JSON blob to per-key
-  /// storage, then removes it. Runs at most once (the blob is gone afterwards).
-  /// Only values that *differ* from the original default are migrated: settings
-  /// the user never explicitly changed are left unset, so they continue to
-  /// track the live code default — matching new-install behaviour.
-  /// // TODO: delete after grace period
-  Future<void> _migrateLegacyBlob(SharedPreferences prefs) async {
-    final raw = prefs.getString(_kLegacyBlobKey);
-    if (raw == null) return;
-    try {
-      final json = jsonDecode(raw) as Map<String, dynamic>;
-      for (final entry in json.entries) {
-        final value = entry.value;
-        if (!_legacyDefaults.containsKey(entry.key)) continue;
-        // Skip untouched defaults so they keep following future code defaults.
-        if (_legacyDefaults[entry.key] == value) continue;
-        final key = '$_kPrefix${entry.key}';
-        if (value is bool) {
-          await prefs.setBool(key, value);
-        } else if (value is String) {
-          await prefs.setString(key, value);
-        }
-      }
-    } catch (e, st) {
-      debugPrint("ERROR migrating legacy App Settings: $e\n$st");
-    }
-    await prefs.remove(_kLegacyBlobKey);
-  }
-
   static const _deprecatedPreferenceKeys = [
     'enableGarage',
     'enableLanguageSelection',
@@ -747,35 +715,12 @@ class AppSettings extends ChangeNotifier {
   ];
 
   Future<void> _removeDeprecatedPreferences(SharedPreferences prefs) async {
+    // Monolithic JSON blob that per-key storage replaced; no longer read.
+    await prefs.remove('app_settings');
     for (final key in _deprecatedPreferenceKeys) {
       await prefs.remove('$_kPrefix$key');
     }
   }
-
-  /// Default values as written into the old monolithic blob. Used solely by
-  /// [_migrateLegacyBlob] to tell an explicit user choice from a frozen default.
-  /// These are the defaults at the time the blob format was retired; do not
-  /// change them when you bump the live defaults above.
-  static const Map<String, Object> _legacyDefaults = {
-    'showOnboarding': true,
-    'themeMode': 'ThemeMode.system',
-    'dateFormat': 'yyyy-MM-dd',
-    'timeFormat': 'HH:mm',
-    'temperatureUnit': '°C',
-    'windSpeedUnit': 'km/h',
-    'altitudeUnit': 'm',
-    'precipitationUnit': 'mm',
-    'distanceUnit': 'km',
-    'enableGoogleDrive': false,
-    'enableTextAdjustment': false,
-    'enableSetupTags': false,
-    'enableTaskTags': false,
-    'enableStravaNotifications': true,
-    'enableTask': false,
-    'enableTaskPriority': true,
-    'enableInstallationTimeline': false,
-    'enableCalendar': false,
-  };
 
   static LENGTH _distanceLengthUnit(String unit) => switch (unit) {
     'km' => LENGTH.kilometers,

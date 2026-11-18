@@ -70,3 +70,43 @@ A locale added to `LOCALES` in `tool/store/ios.sh` needs, before the first uploa
   [`app-store/custom-product-pages/README.md`](app-store/custom-product-pages/README.md#when-a-page-needs-an-update)).
 - Keywords, subtitle and description: edit the `.txt` files, then `ios.sh release` or
   `ios.sh metadata` ships them.
+
+## Raising the minimum supported build
+
+Builds below the Remote Config value `min_supported_build` open on a full-screen gate with **Update**
+and **Export backup** instead of the app (see
+[#108](https://github.com/jonaskeller14/bike_setup_tracker/issues/108)). It stays `0` unless one of
+these forces it:
+
+- **A backend contract change** that old builds can't handle, such as the Strava string IDs in
+  [#112](https://github.com/jonaskeller14/bike_setup_tracker/issues/112) Phase 3.
+- **A client bug that corrupts data.**
+
+Before raising it:
+
+1. **Check adoption.** In Firebase Analytics, look at active users by app version, and in
+   Crashlytics at users per version. Everyone below the new value gets the gate.
+2. **Check the OS floor.** The new minimum build mustn't need a newer iOS deployment target
+   (`IPHONEOS_DEPLOYMENT_TARGET`, 15.0 today) or Android `minSdk` (`flutter.minSdkVersion` in
+   `android/app/build.gradle`) than the builds it blocks, or those devices can't update and only
+   have the export.
+
+Raising it: in the Firebase console, **Remote Config** → `min_supported_build` → set the build
+number → publish. If only one store is affected, add a platform condition (iOS or Android) instead
+of changing the default.
+
+When it takes effect: the app fetches the value after every cold start and every return to the
+foreground, at most once per hour in release. The gate appears at the first cold start after a fetch,
+never while the app is open. So a user gets at most one more session on the old build.
+
+Rollback: set the value back to `0`. A blocked user is let in at the first cold start after the
+next fetch, which runs on the gate too.
+
+### Contract migration order
+
+1. Ship the client that accepts both the old and the new shape (and the gate).
+2. Wait for adoption.
+3. Raise `min_supported_build` to the first build that accepts the new shape.
+4. Wait at least a week, so everyone who opens the app in that time is gated before the backend
+   changes.
+5. Deploy the breaking backend change.

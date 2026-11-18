@@ -5,31 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 class _FakeRemoteConfigSource implements RemoteConfigSource {
   Map<String, int> values = {};
-  Future<void> Function() onInitialize = () async {};
+  Future<void> Function() onLoadActivated = () async {};
   Future<void> Function() onFetch = () async {};
-  int initializeCalls = 0;
+  int loadActivatedCalls = 0;
   int fetchCalls = 0;
-  Map<String, int>? defaults;
   Duration? minimumFetchInterval;
 
   @override
-  Future<void> initialize({
-    required Map<String, int> defaults,
-    required Duration fetchTimeout,
-    required Duration minimumFetchInterval,
-  }) {
-    initializeCalls++;
-    this.defaults = defaults;
-    this.minimumFetchInterval = minimumFetchInterval;
-    return onInitialize();
+  Future<void> loadActivated() {
+    loadActivatedCalls++;
+    return onLoadActivated();
   }
 
   @override
-  int getInt(String key) => values[key] ?? defaults?[key] ?? 0;
+  int getInt(String key) => values[key] ?? 0;
 
   @override
-  Future<void> fetchAndActivate() {
+  Future<void> fetchAndActivate({required Duration fetchTimeout, required Duration minimumFetchInterval}) {
     fetchCalls++;
+    this.minimumFetchInterval = minimumFetchInterval;
     return onFetch();
   }
 }
@@ -73,24 +67,23 @@ void main() {
       source.values = {AppVersionConfig.minSupportedBuildKey: 52};
 
       expect(await config().loadMinSupportedBuild(), 52);
-      expect(source.defaults, {AppVersionConfig.minSupportedBuildKey: 0});
-      expect(source.minimumFetchInterval, Duration.zero);
+      expect(source.fetchCalls, 0);
     });
 
     test('returns the default 0 before any fetch', () async {
       expect(await config().loadMinSupportedBuild(), 0);
     });
 
-    test('returns 0 when initializing fails', () async {
+    test('returns 0 when loading the activated values fails', () async {
       source.values = {AppVersionConfig.minSupportedBuildKey: 52};
-      source.onInitialize = () async => throw Exception('no Firebase');
+      source.onLoadActivated = () async => throw Exception('no Firebase');
 
       expect(await config().loadMinSupportedBuild(), 0);
     });
 
-    test('returns 0 when initializing times out', () async {
+    test('returns 0 when loading the activated values times out', () async {
       source.values = {AppVersionConfig.minSupportedBuildKey: 52};
-      source.onInitialize = () => Completer<void>().future;
+      source.onLoadActivated = () => Completer<void>().future;
 
       expect(await config().loadMinSupportedBuild(), 0);
     });
@@ -102,19 +95,16 @@ void main() {
       unsupported.refreshInBackground();
       await pumpEventQueue();
 
-      expect(source.initializeCalls, 0);
+      expect(source.loadActivatedCalls, 0);
       expect(source.fetchCalls, 0);
     });
 
-    test('refresh initializes once and then fetches', () async {
-      final appVersionConfig = config();
-      await appVersionConfig.loadMinSupportedBuild();
-
-      appVersionConfig.refreshInBackground();
+    test('refresh fetches with the debug interval', () async {
+      config().refreshInBackground();
       await pumpEventQueue();
 
-      expect(source.initializeCalls, 1);
       expect(source.fetchCalls, 1);
+      expect(source.minimumFetchInterval, Duration.zero);
     });
 
     test('refresh swallows fetch errors', () async {
@@ -124,15 +114,6 @@ void main() {
       await pumpEventQueue();
 
       expect(source.fetchCalls, 1);
-    });
-
-    test('refresh swallows initialize errors and skips the fetch', () async {
-      source.onInitialize = () async => throw Exception('no Firebase');
-
-      config().refreshInBackground();
-      await pumpEventQueue();
-
-      expect(source.fetchCalls, 0);
     });
   });
 }

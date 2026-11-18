@@ -133,7 +133,7 @@ It is not part of worktrees. For any task that touches Strava, subscriptions, Fi
 
 ### Environment / Secrets
 
-Secrets (e.g., `MAPBOX_TOKEN`) are stored in `.env` and obfuscated via `envied`. Generated output lands in `lib/env/env.g.dart` (gitignored). Do not hardcode tokens in source.
+Tokens (`MAPBOX_TOKEN`, `APP_CHECK_DEBUG_TOKEN_ANDROID`, `APP_CHECK_DEBUG_TOKEN_IOS`; an empty App Check token lets the SDK generate one) are stored in `.env` and obfuscated via `envied`. Generated output lands in `lib/env/env.g.dart` (gitignored). A fresh clone or worktree needs a copy of `.env` plus `build_runner build` before it compiles; re-run `build_runner` after editing `.env`. CI generates `env.g.dart` from empty values. Every key declared in `lib/env/env.dart` ships inside the app and can be extracted, so only keys the app never reads are truly secret. Do not hardcode tokens in source.
 
 ### Platform Notes
 

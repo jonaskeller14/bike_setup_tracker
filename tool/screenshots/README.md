@@ -23,7 +23,7 @@ The phone AVD uses the generic `medium_phone` profile on purpose. Device profile
 - Java 17 or newer. Homebrew's `openjdk@17` isn't on `PATH` by default: `export JAVA_HOME=/opt/homebrew/opt/openjdk@17` and add `$JAVA_HOME/bin` to `PATH`.
 - The [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro). The run script finds it on `PATH` or in `~/.maestro/maestro/bin`.
 - Python 3 (standard library only).
-- The usual local build config: `android/key.properties`, `android/app/google-services.json` and `.env`. A debug build still reads all three.
+- The usual local build config: `android/key.properties`, `android/app/google-services.json` and `.env` (then `flutter pub run build_runner build`). A debug build still reads all three.
 - iOS only: a Mac with Xcode and the *iPhone 17 Pro Max* and *iPad Pro 13-inch (M5)* simulators.
 
 ## Android

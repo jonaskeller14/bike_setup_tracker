@@ -15,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'database/app_database.dart';
+import 'env/env.dart';
 import 'l10n/l10n.dart';
 import 'l10n/locale_resolution.dart';
 import 'models/app_settings.dart';
@@ -75,10 +76,10 @@ void main() async {
 
   await FirebaseAppCheck.instance.activate(
     providerAndroid: kDebugMode 
-        ? const AndroidDebugProvider()
+        ? AndroidDebugProvider(debugToken: Env.appCheckDebugTokenAndroid)
         : const AndroidPlayIntegrityProvider(),
     providerApple: kDebugMode 
-        ? const AppleDebugProvider() 
+        ? AppleDebugProvider(debugToken: Env.appCheckDebugTokenIos)
         : const AppleAppAttestWithDeviceCheckFallbackProvider(),
   );
 

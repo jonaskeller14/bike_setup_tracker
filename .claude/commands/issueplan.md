@@ -11,7 +11,8 @@ GitHub issue**. Do not create a plan file under `doc/`. This is still a planning
 **do not write or change any app code.**
 
 ## 1. Read the decisions
-- Read the issue body and relevant architecture/decision comments.
+- Read the issue body and relevant architecture/decision comments. The brainstorm comment is
+  the one headed `# <Topic> — concept brainstorming`; note its comment id.
 - Extract the chosen option for every lettered decision area and every answer to the
   "Open questions" section.
 
@@ -45,12 +46,23 @@ GitHub issue**. Do not create a plan file under `doc/`. This is still a planning
     - Re-check this on every progress update: tick a box or change a status, and flip `open`.
     - Only phases are wrapped. `Resolved open questions`, `Feature flag`, the commit list and the
       acceptance criteria stay as they are.
+  - **Close the decisions in the brainstorm comment** (after the step 2 confirmation, not before).
+    The brainstorm comment is edited, not the issue body. For each lettered decision area:
+    - Change its `<details open>` to `<details>`.
+    - Change its summary to `<summary>Status: ✅ Decided — <letter><number> <option name></summary>`.
+    - Keep every option inside the block for reference. Change nothing else in the comment.
+    - Edit with `gh api`: fetch the comment body, write the edited Markdown to a temp file, then
+      `gh api -X PATCH repos/:owner/:repo/issues/comments/<id> -F body=@<file>`. Use a file, never
+      literal `\n` escapes.
+    - If the brainstorm comment is not found or its decision blocks don't match this pattern,
+      stop and ask the user before writing the plan.
   - `## Suggested commit granularity` — the overall commit/PR sequencing across phases.
 - Order phases so pure-logic layers (models, DAOs, repository) land before UI, and each
   phase is independently mergeable where possible.
 
 ## 4. Hand back
-- Print the issue URL and the phase list. 
+- Print the issue URL and the phase list. To execute a phase, start a fresh context window
+  and say "Implement Phase <N> of Issue #<n>".
 
 ## Constraints
 - No app code — this step only updates issue planning.

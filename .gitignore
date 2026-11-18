@@ -64,6 +64,7 @@ ios/Runner/client_*.plist
 
 # Mapbox Secret Access Token
 .env
+lib/env/env.g.dart
 
 .mcp.json
 .claude/scheduled_tasks.lock

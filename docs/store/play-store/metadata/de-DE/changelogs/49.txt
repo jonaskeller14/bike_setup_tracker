@@ -1,0 +1,5 @@
+• X-Fusion-Gabeln und -Dämpfer im Katalog, dazu mehr FOX- und RockShox-Modelle
+• Strava-Aktivitäten zeigen ihre Setups als Zeitleiste
+• Setup-Anleitungen: Wert per erneutem Tippen rückgängig machen, fehlende Gabel- oder Dämpferdaten direkt auf der Karte wählen
+• Verständlichere Katalog-Updates; dein eigener Federweg bleibt unangetastet
+• Haptisches Feedback und UI/UX-Feinschliff

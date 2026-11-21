@@ -1,0 +1,5 @@
+• Garfos e amortecedores X-Fusion no catálogo, com mais modelos FOX e RockShox
+• As atividades do Strava mostram seus setups em uma linha do tempo
+• Guias de setup: toque de novo em um valor aplicado para desfazê-lo e escolha os detalhes que faltam do garfo ou amortecedor no próprio cartão
+• Atualizações do catálogo mais claras; o seu curso nunca é sobrescrito
+• Resposta tátil e melhorias de UI/UX

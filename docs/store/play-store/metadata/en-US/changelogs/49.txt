@@ -1,0 +1,5 @@
+• X-Fusion forks and shocks join the catalog, with more FOX and RockShox models
+• Strava activities show their setups as a timeline
+• Setup Guides: tap an applied value again to undo it, and pick missing fork or shock details right on the card
+• Clearer catalog updates; your own travel is never overwritten
+• Haptic feedback and UI/UX polish

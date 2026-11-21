@@ -56,6 +56,9 @@ create a GitHub release until the applicable confirmation gate has been approved
 - **Tell the user the PR must be merged with "Create a merge commit."** Squash or rebase merges
   create a new commit SHA on `main`, which would invalidate the exact commit this run built,
   tested, and will tag later.
+- Back up `build/marketing/` before cleaning: if it exists, copy its contents to
+  `~/Desktop/marketing/` (create the folder if missing, merge into it if present, never delete
+  anything there). Skip the backup silently if `build/marketing/` does not exist.
 - On the current branch/HEAD, run `flutter clean`, then `flutter pub get`. This refreshes the
   build environment and installs `pubspec.lock` versions; it does not upgrade dependency
   versions. Run `flutter analyze` and `flutter test`, stopping on failure.

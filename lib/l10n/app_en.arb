@@ -674,6 +674,26 @@
   "@loadingErrorDownloadBundleSubtitle": {
     "description": "Subtitle of the entry that exports the latest backup with attachments on the load error page."
   },
+  "updateRequiredTitle": "Update required",
+  "@updateRequiredTitle": {
+    "description": "Title of the full-screen page shown when this app build is below the minimum supported build."
+  },
+  "updateRequiredMessage": "This version of the app is no longer supported. Update to keep using it. Your data stays on this device.",
+  "@updateRequiredMessage": {
+    "description": "Body of the update required page. The app is blocked until the user updates; their local data is kept."
+  },
+  "updateRequiredNoUpdateHint": "If no update is offered on this device, export a backup to keep your data safe.",
+  "@updateRequiredNoUpdateHint": {
+    "description": "Hint on the update required page for devices where the store offers no update (e.g. the OS is too old)."
+  },
+  "updateRequiredUpdate": "Update",
+  "@updateRequiredUpdate": {
+    "description": "Primary button on the update required page that opens the app's store page."
+  },
+  "updateRequiredExportBackup": "Export backup",
+  "@updateRequiredExportBackup": {
+    "description": "Secondary button on the update required page that saves a backup of all data with attachments as a ZIP file."
+  },
   "onboardingSkip": "Skip",
   "@onboardingSkip": {
     "description": "App bar button that skips the onboarding."
@@ -3101,6 +3121,15 @@
       }
     }
   },
+  "componentFormPresetUpdated": "{name}: catalog details updated",
+  "@componentFormPresetUpdated": {
+    "description": "Snackbar after other details (such as travel or model year) of the catalog product a component is already linked to were picked. {name} is the product name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "componentFormPresetLinked": "{count, plural, =0{Linked to {name} · no adjustments added} =1{Linked to {name} · 1 adjustment added} other{Linked to {name} · {count} adjustments added}}",
   "@componentFormPresetLinked": {
     "description": "Snackbar after an existing component was linked to a catalog product. {name} is the product name, {count} the number of added adjustments.",
@@ -5519,13 +5548,13 @@
       }
     }
   },
-  "setupFormGuideWeightLocal": "Only used for these recommendations",
+  "setupFormGuideWeightLocal": "Only used for these recommendations.",
   "@setupFormGuideWeightLocal": {
     "description": "Hint under the weight field of the setup guide card when no rider attribute is used."
   },
-  "setupFormGuideAddWeight": "Add riding weight to {name}",
+  "setupFormGuideAddWeight": "Save as {name}'s weight",
   "@setupFormGuideAddWeight": {
-    "description": "Button of the setup guide card that adds a riding weight attribute to the rider.",
+    "description": "Link after the hint under the setup guide card's weight field: adds a riding weight attribute to the rider and saves the typed weight to it.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8281,6 +8310,57 @@
   "@testSessionEndSession": {
     "description": "Button that ends a test session."
   },
+  "testSessionProgressLeft": "{count, plural, =1{1 more run} other{{count} more runs}}",
+  "@testSessionProgressLeft": {
+    "description": "Label under the progress bar of a running test session: the exact number of runs the method still needs.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressRange": "{min}–{max} more runs",
+  "@testSessionProgressRange": {
+    "description": "Label under the progress bar of a running test session: the fewest and the most runs the method still needs. max is at least 2.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressUpTo": "{count, plural, =1{Up to 1 more run} other{Up to {count} more runs}}",
+  "@testSessionProgressUpTo": {
+    "description": "Label under the progress bar of a running test session: the method may be done after the current run, or need up to this many more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressAbout": "{count, plural, =1{About 1 more run} other{About {count} more runs}}",
+  "@testSessionProgressAbout": {
+    "description": "Label under the progress bar of a running Fine-tune test session: an estimate of the runs still needed, which grows when a run turns out better.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "testSessionProgressLastRun": "Last run",
+  "@testSessionProgressLastRun": {
+    "description": "Label under the progress bar of a running test session while its last run waits for feedback."
+  },
+  "testSessionProgressConfirm": "Last run: confirm the best",
+  "@testSessionProgressConfirm": {
+    "description": "Label under the progress bar of a running test session when the last run rides the best run again to confirm it."
+  },
+  "testSessionProgressDone": "Done — end the session",
+  "@testSessionProgressDone": {
+    "description": "Label under the full progress bar of a running test session whose method has its result."
+  },
   "testSessionActionsTooltip": "Test session actions",
   "@testSessionActionsTooltip": {
     "description": "Tooltip of the menu button of a test session."
@@ -9431,13 +9511,21 @@
       }
     }
   },
-  "stravaActivityNoSetupsTitle": "No setups for this activity",
-  "@stravaActivityNoSetupsTitle": {
-    "description": "Title when no setup belongs to an activity."
-  },
   "stravaActivityNoSetupsSubtitle": "Add a setup to record your bike configuration",
   "@stravaActivityNoSetupsSubtitle": {
     "description": "Hint when no setup belongs to an activity."
+  },
+  "stravaActivityNoSetupBeforeTitle": "No setup before this activity",
+  "@stravaActivityNoSetupBeforeTitle": {
+    "description": "Placeholder on the activity timeline when no setup was recorded before the activity."
+  },
+  "stravaActivityTimelineStart": "Start",
+  "@stravaActivityTimelineStart": {
+    "description": "Timeline node where the Strava activity started."
+  },
+  "stravaActivityTimelineEnd": "End",
+  "@stravaActivityTimelineEnd": {
+    "description": "Timeline node where the Strava activity ended."
   },
   "stravaActivitySessionRunning": "Test session '{name}' is running on this bike. End it to add a setup.",
   "@stravaActivitySessionRunning": {
@@ -10705,15 +10793,6 @@
       }
     }
   },
-  "pressureCheckSetNowUnmarked": "{name} no longer marked as pumped",
-  "@pressureCheckSetNowUnmarked": {
-    "description": "Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "pressureCheckSetNowDone": "Pumped just now",
   "@pressureCheckSetNowDone": {
     "description": "Replaces the set-on line under a pressure name once the row is marked as pumped."
@@ -10953,9 +11032,9 @@
   "@guideCardRidingWeight": {
     "description": "Label of the riding weight field of the setup guide card."
   },
-  "guideCardAddWeightDefault": "Add riding weight to rider",
+  "guideCardAddWeightDefault": "Save as the rider's weight",
   "@guideCardAddWeightDefault": {
-    "description": "Button that stores the typed riding weight with the rider, used when no rider name is known."
+    "description": "Link that saves the typed riding weight with the rider, used when no rider name is known."
   },
   "guideCardBasedOn": "Based on: {guide}",
   "@guideCardBasedOn": {
@@ -11032,6 +11111,35 @@
   "guideIssueNeedsMore": "Needs more information",
   "@guideIssueNeedsMore": {
     "description": "Reason a setup guide row has no value."
+  },
+  "guideCardChooseDetail": "Choose",
+  "@guideCardChooseDetail": {
+    "description": "Link after the reason of a setup guide row that needs a catalog detail of the component, such as its travel; opens a sheet to choose it."
+  },
+  "guideDetailsTitle": "Missing catalog details",
+  "@guideDetailsTitle": {
+    "description": "Title of the sheet that asks for catalog details of a component (such as travel or shock size) that its setup guide needs."
+  },
+  "guideDetailsIntro": "The recommended values for {component} need these details. They are saved to the component.",
+  "@guideDetailsIntro": {
+    "description": "Text at the top of the missing catalog details sheet. {component} is the component name.",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      }
+    }
+  },
+  "guideDetailsSaved": "{component}: {details} saved",
+  "@guideDetailsSaved": {
+    "description": "Snackbar after catalog details were saved from the setup guide. {component} is the component name, {details} the chosen details such as \"Travel 170 mm\".",
+    "placeholders": {
+      "component": {
+        "type": "String"
+      },
+      "details": {
+        "type": "String"
+      }
+    }
   },
   "guideIssueOutsideRange": "Outside the published range",
   "@guideIssueOutsideRange": {
@@ -11747,6 +11855,18 @@
   "@presetMergeKeptRange": {
     "description": "Line on a merged result card whose range was not replaced."
   },
+  "presetMergeKeptTravel": "Keeps your travel of {own} mm (preset: {catalog} mm)",
+  "@presetMergeKeptTravel": {
+    "description": "Line on a merged SAG result card whose own travel was kept instead of the preset's. {own} and {catalog} are formatted millimetre values.",
+    "placeholders": {
+      "own": {
+        "type": "String"
+      },
+      "catalog": {
+        "type": "String"
+      }
+    }
+  },
   "presetMergeChoiceMergeInto": "Merge into \"{name}\"",
   "@presetMergeChoiceMergeInto": {
     "description": "Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.",
@@ -11902,9 +12022,9 @@
   "@catalogCardDismiss": {
     "description": "Button that dismisses a catalog update."
   },
-  "catalogCardReview": "Review",
-  "@catalogCardReview": {
-    "description": "Button that reviews a catalog update."
+  "catalogCardApply": "Apply",
+  "@catalogCardApply": {
+    "description": "Button that applies a catalog update to the component; opens the merge sheet."
   },
   "subcomponentsSheetIntro": "Install components on other components, e.g. a tire and a brake disc on a wheel. In the Garage, they are grouped with their parent.",
   "@subcomponentsSheetIntro": {

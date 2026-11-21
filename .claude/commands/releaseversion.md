@@ -207,7 +207,9 @@ create a GitHub release until the applicable confirmation gate has been approved
 - **Print the store upload commands** in one ```bash block the maintainer can paste into a terminal
   as is, with the version filled in: first `cd` to the repo root and check out the release commit
   (the guards abort when `build/` or `changelogs/B.txt` doesn't match `pubspec.yaml`), then
-  `tool/store/ios.sh release --dry-run` and `tool/store/ios.sh release` (App Store, via `asc`), then
+  `tool/store/ios.sh release --dry-run` and `tool/store/ios.sh release` (App Store, via `asc`; it waits
+  up to 30 minutes for processing, and when an earlier run timed out it asks `[y/N]` to skip the
+  upload: answer `y`, never upload a build number twice), then
   `bundle exec fastlane android release dry_run:true` and `bundle exec fastlane android release`
   (Play, via `supply`). Add `tool/store/ios.sh screenshots` and the Play `android metadata` /
   `android screenshots` lanes only when this release changed screenshots or the listing, and say

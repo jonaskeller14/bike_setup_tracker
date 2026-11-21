@@ -1,8 +1,8 @@
 class AppInfo {
   AppInfo._();
 
-  static const String appVersion = '1.8.0';
-  static const int buildNumber = 48;
+  static const String appVersion = '1.8.1';
+  static const int buildNumber = 49;
   static const String releaseDate = 'November 2026';
 
   static const String supportEmail = 'jonaskeller14.app+support@gmail.com';
@@ -14,5 +14,6 @@ class AppInfo {
   static const String tosUrl = 'https://jonaskeller14.com/bike_setup_tracker/terms_of_service.html';
   static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.jonaskeller14.bike_setup_tracker';
   static const String appStoreUrl = 'https://apps.apple.com/app/id6759974325?action=write-review';
+  static const String appStorePageUrl = 'https://apps.apple.com/app/id6759974325';
   static const String stravaClubForumUrl = 'https://www.strava.com/clubs/bike_setup_tracker';
 }

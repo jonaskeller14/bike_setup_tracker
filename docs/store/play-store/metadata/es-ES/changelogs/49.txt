@@ -1,0 +1,5 @@
+• Horquillas y amortiguadores X-Fusion en el catálogo, y más modelos de FOX y RockShox
+• Las actividades de Strava muestran sus setups en una línea de tiempo
+• Guías de setup: toca de nuevo un valor aplicado para deshacerlo y elige los datos que faltan de la horquilla o el amortiguador en la propia tarjeta
+• Actualizaciones del catálogo más claras; tu recorrido nunca se sobrescribe
+• Respuesta háptica y mejoras de UI/UX

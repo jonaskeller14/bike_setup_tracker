@@ -1,7 +1,7 @@
 # yt-shorts · For racers
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/iBEIgy5vkBg?feature=share
 - Posted: 2026-11-19 17:00
 - App version: 1.7.0
 - Playlist: v1.8.0

@@ -181,7 +181,10 @@ class _SetTaskDelaySheetState extends State<_SetTaskDelaySheet> {
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
     Navigator.pop(context, widget.taskRule.copyWith(delay: _delay));
   }
 

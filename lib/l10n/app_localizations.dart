@@ -1099,6 +1099,36 @@ abstract class AppLocalizations {
   /// **'Latest backup and attachment files as ZIP bundle'**
   String get loadingErrorDownloadBundleSubtitle;
 
+  /// Title of the full-screen page shown when this app build is below the minimum supported build.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get updateRequiredTitle;
+
+  /// Body of the update required page. The app is blocked until the user updates; their local data is kept.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app is no longer supported. Update to keep using it. Your data stays on this device.'**
+  String get updateRequiredMessage;
+
+  /// Hint on the update required page for devices where the store offers no update (e.g. the OS is too old).
+  ///
+  /// In en, this message translates to:
+  /// **'If no update is offered on this device, export a backup to keep your data safe.'**
+  String get updateRequiredNoUpdateHint;
+
+  /// Primary button on the update required page that opens the app's store page.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateRequiredUpdate;
+
+  /// Secondary button on the update required page that saves a backup of all data with attachments as a ZIP file.
+  ///
+  /// In en, this message translates to:
+  /// **'Export backup'**
+  String get updateRequiredExportBackup;
+
   /// App bar button that skips the onboarding.
   ///
   /// In en, this message translates to:
@@ -4417,6 +4447,12 @@ abstract class AppLocalizations {
   /// **'Replaced adjustments with {name}'**
   String componentFormPresetReplaced(String name);
 
+  /// Snackbar after other details (such as travel or model year) of the catalog product a component is already linked to were picked. {name} is the product name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: catalog details updated'**
+  String componentFormPresetUpdated(String name);
+
   /// Snackbar after an existing component was linked to a catalog product. {name} is the product name, {count} the number of added adjustments.
   ///
   /// In en, this message translates to:
@@ -7354,13 +7390,13 @@ abstract class AppLocalizations {
   /// Hint under the weight field of the setup guide card when no rider attribute is used.
   ///
   /// In en, this message translates to:
-  /// **'Only used for these recommendations'**
+  /// **'Only used for these recommendations.'**
   String get setupFormGuideWeightLocal;
 
-  /// Button of the setup guide card that adds a riding weight attribute to the rider.
+  /// Link after the hint under the setup guide card's weight field: adds a riding weight attribute to the rider and saves the typed weight to it.
   ///
   /// In en, this message translates to:
-  /// **'Add riding weight to {name}'**
+  /// **'Save as {name}\'s weight'**
   String setupFormGuideAddWeight(String name);
 
   /// Snackbar after a riding weight attribute was added to the rider.
@@ -10441,6 +10477,48 @@ abstract class AppLocalizations {
   /// **'End session'**
   String get testSessionEndSession;
 
+  /// Label under the progress bar of a running test session: the exact number of runs the method still needs.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more run} other{{count} more runs}}'**
+  String testSessionProgressLeft(int count);
+
+  /// Label under the progress bar of a running test session: the fewest and the most runs the method still needs. max is at least 2.
+  ///
+  /// In en, this message translates to:
+  /// **'{min}–{max} more runs'**
+  String testSessionProgressRange(int min, int max);
+
+  /// Label under the progress bar of a running test session: the method may be done after the current run, or need up to this many more.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Up to 1 more run} other{Up to {count} more runs}}'**
+  String testSessionProgressUpTo(int count);
+
+  /// Label under the progress bar of a running Fine-tune test session: an estimate of the runs still needed, which grows when a run turns out better.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{About 1 more run} other{About {count} more runs}}'**
+  String testSessionProgressAbout(int count);
+
+  /// Label under the progress bar of a running test session while its last run waits for feedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run'**
+  String get testSessionProgressLastRun;
+
+  /// Label under the progress bar of a running test session when the last run rides the best run again to confirm it.
+  ///
+  /// In en, this message translates to:
+  /// **'Last run: confirm the best'**
+  String get testSessionProgressConfirm;
+
+  /// Label under the full progress bar of a running test session whose method has its result.
+  ///
+  /// In en, this message translates to:
+  /// **'Done — end the session'**
+  String get testSessionProgressDone;
+
   /// Tooltip of the menu button of a test session.
   ///
   /// In en, this message translates to:
@@ -11707,17 +11785,29 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 feedback} other{{count} feedback}}'**
   String stravaActivityFeedbackCount(int count);
 
-  /// Title when no setup belongs to an activity.
-  ///
-  /// In en, this message translates to:
-  /// **'No setups for this activity'**
-  String get stravaActivityNoSetupsTitle;
-
   /// Hint when no setup belongs to an activity.
   ///
   /// In en, this message translates to:
   /// **'Add a setup to record your bike configuration'**
   String get stravaActivityNoSetupsSubtitle;
+
+  /// Placeholder on the activity timeline when no setup was recorded before the activity.
+  ///
+  /// In en, this message translates to:
+  /// **'No setup before this activity'**
+  String get stravaActivityNoSetupBeforeTitle;
+
+  /// Timeline node where the Strava activity started.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get stravaActivityTimelineStart;
+
+  /// Timeline node where the Strava activity ended.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get stravaActivityTimelineEnd;
 
   /// Hint that no setup can be added while a test session runs. {name} is the session name.
   ///
@@ -13147,12 +13237,6 @@ abstract class AppLocalizations {
   /// **'{name} marked as pumped'**
   String pressureCheckSetNowMarked(String name);
 
-  /// Snackbar after the pumped mark of a pressure row is removed, with an undo action. {name} is the component and adjustment name.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} no longer marked as pumped'**
-  String pressureCheckSetNowUnmarked(String name);
-
   /// Replaces the set-on line under a pressure name once the row is marked as pumped.
   ///
   /// In en, this message translates to:
@@ -13447,10 +13531,10 @@ abstract class AppLocalizations {
   /// **'Riding weight'**
   String get guideCardRidingWeight;
 
-  /// Button that stores the typed riding weight with the rider, used when no rider name is known.
+  /// Link that saves the typed riding weight with the rider, used when no rider name is known.
   ///
   /// In en, this message translates to:
-  /// **'Add riding weight to rider'**
+  /// **'Save as the rider\'s weight'**
   String get guideCardAddWeightDefault;
 
   /// Line under a component name in the setup guide card. {guide} is the name of the guide.
@@ -13524,6 +13608,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Needs more information'**
   String get guideIssueNeedsMore;
+
+  /// Link after the reason of a setup guide row that needs a catalog detail of the component, such as its travel; opens a sheet to choose it.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get guideCardChooseDetail;
+
+  /// Title of the sheet that asks for catalog details of a component (such as travel or shock size) that its setup guide needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing catalog details'**
+  String get guideDetailsTitle;
+
+  /// Text at the top of the missing catalog details sheet. {component} is the component name.
+  ///
+  /// In en, this message translates to:
+  /// **'The recommended values for {component} need these details. They are saved to the component.'**
+  String guideDetailsIntro(String component);
+
+  /// Snackbar after catalog details were saved from the setup guide. {component} is the component name, {details} the chosen details such as "Travel 170 mm".
+  ///
+  /// In en, this message translates to:
+  /// **'{component}: {details} saved'**
+  String guideDetailsSaved(String component, String details);
 
   /// Reason a setup guide row has no value.
   ///
@@ -14125,6 +14233,12 @@ abstract class AppLocalizations {
   /// **'Keeps your range: recorded values lie outside the preset\'s'**
   String get presetMergeKeptRange;
 
+  /// Line on a merged SAG result card whose own travel was kept instead of the preset's. {own} and {catalog} are formatted millimetre values.
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps your travel of {own} mm (preset: {catalog} mm)'**
+  String presetMergeKeptTravel(String own, String catalog);
+
   /// Menu entry that merges a preset adjustment into an existing one. {name} is the existing adjustment.
   ///
   /// In en, this message translates to:
@@ -14305,11 +14419,11 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get catalogCardDismiss;
 
-  /// Button that reviews a catalog update.
+  /// Button that applies a catalog update to the component; opens the merge sheet.
   ///
   /// In en, this message translates to:
-  /// **'Review'**
-  String get catalogCardReview;
+  /// **'Apply'**
+  String get catalogCardApply;
 
   /// Introduction of the subcomponents sheet.
   ///

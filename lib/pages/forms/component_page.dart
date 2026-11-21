@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/enum_labels.dart';
@@ -26,6 +27,7 @@ import '../../utils/catalog_revisions.dart';
 import '../../utils/component_catalog_application.dart';
 import '../../utils/component_catalog_search.dart';
 import '../../utils/component_preset_resolver.dart';
+import '../../utils/guide_details_change.dart';
 import '../../utils/installation_timeline_validation.dart';
 import '../../utils/preset_merge.dart';
 import '../../utils/value_migration_actions.dart';
@@ -466,7 +468,19 @@ class _ComponentPageState extends State<ComponentPage> {
   /// adjusters or are replaced; the name stays the user's and the preset notes
   /// are appended (a re-pick swaps the block the previous pick appended).
   /// [adjustments] stands in for the current list, e.g. with catalog fixes applied.
-  Future<void> _extendFromPreset(ResolvedPreset resolved, CatalogApplication app, {List<Adjustment>? adjustments}) async {
+  /// Other details of the linked product (travel, year) that bring no new
+  /// adjusters skip the sheet, unless the rider is [reviewing] a catalog update.
+  Future<void> _extendFromPreset(
+    ResolvedPreset resolved,
+    CatalogApplication app, {
+    List<Adjustment>? adjustments,
+    bool reviewing = false,
+  }) async {
+    final current = _resolvedPreset;
+    if (!reviewing && current != null && _sameProduct(current, resolved)) {
+      final change = planGuideDetailsChange(adjustments ?? _adjustments, current, resolved, context.l10n);
+      if (change.added.isEmpty) return _updatePresetDetails(resolved, change);
+    }
     // Only what an earlier pick in this session added is dropped — it was never saved.
     final kept = (adjustments ?? _adjustments).where((a) => !_presetAdjustmentIds.contains(a.id)).toList();
     var merge = applyPresetMerge(
@@ -505,14 +519,7 @@ class _ComponentPageState extends State<ComponentPage> {
       _resolvedPreset = resolved;
       _presetAdjustmentIds = {for (final a in added) a.id};
       _adjustments = merge.adjustments;
-      // A pending proposal follows its adjustment into the merged definition.
-      final pending = {
-        for (final adjustment in merge.adjustments)
-          if (_pendingMigrations[adjustment.id] case final proposal?) adjustment.id: proposal.rebuild(after: adjustment),
-      };
-      _pendingMigrations
-        ..clear()
-        ..addAll(pending);
+      _rebuildPendingMigrations();
     });
     _adjustmentsFieldNotify?.call();
     _changeListener();
@@ -522,6 +529,32 @@ class _ComponentPageState extends State<ComponentPage> {
           : context.l10n.componentFormPresetLinked(app.name, added.length),
       snapshot,
     );
+  }
+
+  /// The preset map and a SAG without travel change; the notes and every other
+  /// adjustment stay the rider's.
+  void _updatePresetDetails(ResolvedPreset resolved, GuideDetailsChange change) {
+    final snapshot = _snapshot();
+    setState(() {
+      _preset = change.preset;
+      _resolvedPreset = resolved;
+      _adjustments = change.adjustments;
+      _rebuildPendingMigrations();
+    });
+    _adjustmentsFieldNotify?.call();
+    _changeListener();
+    _showPresetUndoSnackBar(context.l10n.componentFormPresetUpdated(change.productName), snapshot);
+  }
+
+  /// A pending proposal follows its adjustment into the new definition.
+  void _rebuildPendingMigrations() {
+    final pending = {
+      for (final adjustment in _adjustments)
+        if (_pendingMigrations[adjustment.id] case final proposal?) adjustment.id: proposal.rebuild(after: adjustment),
+    };
+    _pendingMigrations
+      ..clear()
+      ..addAll(pending);
   }
 
   /// Reviews a saved component has not accepted or dismissed yet.
@@ -556,6 +589,7 @@ class _ComponentPageState extends State<ComponentPage> {
       resolved,
       buildCatalogApplication(resolved, context.l10n),
       adjustments: _withCatalogFixes(resolved, preset),
+      reviewing: true,
     );
   }
 
@@ -648,6 +682,7 @@ class _ComponentPageState extends State<ComponentPage> {
 
   void _saveComponent() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       setState(() => _expanded = true);
       return;
     }
@@ -1300,6 +1335,13 @@ class _ComponentPageState extends State<ComponentPage> {
     );
   }
 }
+
+/// Both end at the same catalog product, whatever options are chosen.
+bool _sameProduct(ResolvedPreset a, ResolvedPreset b) =>
+    a.catalog.id == b.catalog.id &&
+    a.catalog.componentType == b.catalog.componentType &&
+    a.product != null &&
+    listEquals([for (final node in a.path) node.id], [for (final node in b.path) node.id]);
 
 class _PresetSnapshot {
   final String name;

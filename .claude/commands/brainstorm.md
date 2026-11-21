@@ -33,6 +33,31 @@ This is a thinking step: **do not write or change any app code.**
     Under each, list numbered options (`### A1 — …`, `### A2 — …`). **Every option must
     have an explicit `**Pros:**` and `**Cons:**` bullet list** — no bare prose. Mark your
     suggestion `(recommended)`.
+  - **Collapsible decisions:** wrap the body of each lettered decision area (everything under
+    its `## X. …` heading, up to the next heading) in a `<details open>` block. Keep the
+    `## X. …` heading visible above it. The first line inside is
+    `<summary>Status: 🟡 Open — pick one option</summary>`. Leave a blank line after
+    `<summary>` and before `</details>` so GitHub renders the Markdown inside:
+
+    ```
+    ## A. <Decision area>
+
+    <details open>
+    <summary>Status: 🟡 Open — pick one option</summary>
+
+    ### A1 — …
+    **Pros:**
+    - …
+    **Cons:**
+    - …
+
+    ### A2 — … (recommended)
+    …
+
+    </details>
+    ```
+
+    `/issueplan` closes these blocks once the decisions are locked in.
   - `## Recommended combination` — the option letters you'd pick and why, phased if useful.
   - `## Open questions for the final plan` — anything the user must decide before /issueplan.
 

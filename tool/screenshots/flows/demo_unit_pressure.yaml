@@ -1,0 +1,63 @@
+# scenario: units
+# Demo: the front tire's pressure in the pump's unit. A new setup starts from
+# the newest one, 1.5 bar; tapping the unit twice (bar → kPa → psi) shows it in
+# psi, then 22 psi is typed and the field shows "= 1.52 bar" below it. Short:
+# 07_v1.8.0 kit, ba-units.
+appId: ${APP_ID}
+---
+- runFlow: _launch.yaml
+- startRecording: demo_unit_pressure
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1000
+- tapOn:
+    id: setups.add
+- runFlow:
+    when:
+      platform: Android
+    file: _accept_location_accuracy.yaml
+- extendedWaitUntil:
+    visible:
+      id: setupForm.name
+    timeout: 15000
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 2000
+
+# Front Tire Pressure
+- scrollUntilVisible:
+    element:
+      id: setAdjustment.da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f
+    direction: DOWN
+    centerElement: true
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 1500
+- tapOn:
+    id: setAdjustment.unit.da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 400
+- tapOn:
+    id: setAdjustment.unit.da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f
+- runFlow:
+    file: _pause.yaml
+    env:
+      MS: 3000
+
+- tapOn:
+    id: setAdjustment.da8957c9-ab11-4b3e-8a2a-dc9cc6f63f6f
+# Typing while the keyboard slides in can double the first letter.
+- waitForAnimationToEnd:
+    timeout: 3000
+- eraseText: 10
+- inputText: '22'
+- runFlow: _hide_keyboard_android.yaml
+- runFlow:
+    file: _stop_recording.yaml
+    env:
+      MS: 3500

@@ -584,7 +584,10 @@ class _TaskRulePageState extends State<TaskRulePage> {
   }
 
   void _saveTaskRule() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
+      return;
+    }
 
     final name = _nameController.text.trim();
     final notes = _notesController.text.trim();

@@ -110,8 +110,9 @@ The forums, Strava and the directories have no limits that matter for these post
 - **Every post gets a Location** (`### Location` in the draft), for reach: TikTok shows posts in
   that place's page and its Nearby feed (rolled out December 2025). Rotate famous MTB destinations
   so posts reach different audiences: Whistler Mountain Bike Park, Finale Ligure, Morzine, Moab,
-  Lenzerheide, Squamish, Queenstown. When the video shows a place (the sample's Finale Ligure), use
-  that one.
+  Lenzerheide, Squamish, Queenstown, Rotorua, Riva del Garda, Saalbach Hinterglemm, Livigno, Pisgah
+  National Forest, Derby (Tasmania), Mont-Sainte-Anne. Pick a place the kit hasn't used yet; when the
+  video is about a place (the sample's Finale Ligure), use that one.
 - A clickable bio link needs a **Business account** or 1,000 followers. A Business account
   only limits TikTok's own music library; the kit videos bring their own licensed track.
 - Scheduling: TikTok web uploader.

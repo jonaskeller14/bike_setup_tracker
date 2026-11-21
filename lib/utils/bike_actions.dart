@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
@@ -158,6 +161,7 @@ class BikeActions {
         .where((entry) => selectedRuleIds.contains(entry.taskRule))
         .toList();
 
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removeBikes(bikeList);
     await appRepository.removeComponents(obsoleteComponents);
     await appRepository.removeSetups(obsoleteSetups);

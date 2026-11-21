@@ -5,6 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/catalog_labels.dart';
 import '../l10n/enum_labels.dart';
 import '../l10n/l10n.dart';
 import '../models/adjustment/adjustment.dart';
@@ -19,6 +20,7 @@ import '../utils/number_input_formatters.dart';
 import '../utils/setup_guide_actions.dart';
 import '../utils/unit_conversion.dart';
 import 'hint_card_parts.dart';
+import 'rolling_value_text.dart';
 import 'setup_guide_status.dart';
 import 'sheets/setup_guide_info_sheet.dart';
 
@@ -58,17 +60,27 @@ class GuideWeightInput {
 /// guide, styled like the app hints. Collapsed unless [initiallyExpanded],
 /// with the header icon in the status colours: orange while a value differs from
 /// the guide, green while every value that has a recommendation follows it.
-/// Tapping a row applies its value; [onApplyAll] applies every one.
+/// Tapping a row applies its value; [onApplyAll] applies every one. Tapping
+/// an applied row again, before its value is changed, undoes it. A row that
+/// waits for a catalog detail of its component asks for it.
 class SetupGuideCard extends StatefulWidget {
   final List<SetupGuideSection> sections;
   final GuideInputs inputs;
   final void Function(GuideRecommendation recommendation) onApply;
+
+  /// The adjusters whose applied value can still be undone.
+  final Set<String> undoableIds;
+  final void Function(GuideRecommendation recommendation)? onUndo;
 
   /// Null while there is nothing left to apply.
   final VoidCallback? onApplyAll;
 
   /// Shown in place of the weight line while no riding weight is recorded.
   final GuideWeightInput? weightInput;
+
+  /// Asks for the [GuideRecommendation.missingAxes] of a section's
+  /// recommendations, those of the tapped row first.
+  final void Function(SetupGuideSection section, List<String> axisIds)? onCompleteDetails;
   final bool initiallyExpanded;
 
   const SetupGuideCard({
@@ -77,7 +89,10 @@ class SetupGuideCard extends StatefulWidget {
     required this.inputs,
     required this.onApply,
     required this.onApplyAll,
+    this.undoableIds = const {},
+    this.onUndo,
     this.weightInput,
+    this.onCompleteDetails,
     this.initiallyExpanded = true,
   });
 
@@ -158,11 +173,23 @@ class _SetupGuideCardState extends State<SetupGuideCard> {
                   const _ColumnsHeader(),
                   for (final recommendation in section.recommendations)
                     _RecommendationRow(
+                      key: ValueKey(recommendation.adjustment.id),
                       recommendation: recommendation,
                       component: section.guided.component,
                       hasRiderWeight: inputs.riderWeight != null,
                       riderWeightUnit: inputs.riderWeightUnit,
                       onApply: widget.onApply,
+                      onUndo: widget.undoableIds.contains(recommendation.adjustment.id) ? widget.onUndo : null,
+                      onCompleteDetails: switch (widget.onCompleteDetails) {
+                        final onCompleteDetails? when recommendation.missingAxes.isNotEmpty => () => onCompleteDetails(
+                          section,
+                          {
+                            ...recommendation.missingAxes,
+                            for (final other in section.recommendations) ...other.missingAxes,
+                          }.toList(),
+                        ),
+                        _ => null,
+                      },
                     ),
                 ],
                 Padding(
@@ -269,47 +296,60 @@ class _WeightFieldState extends State<_WeightField> {
     final textTheme = Theme.of(context).textTheme;
     final input = widget.input;
     final onAddToRider = input.onAddToRider;
+    final hintStyle = textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 8),
         Row(
-          spacing: 8,
+          spacing: 12,
           children: [
-            Flexible(
+            Expanded(
               child: Text(
                 [
                   context.l10n.guideCardRidingWeight,
                   if (widget.ridingStyle case final style?) style.label(context.l10n),
                 ].join(" · "),
                 style: textTheme.bodyMedium?.copyWith(color: hint.onContainer),
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 64, maxWidth: 96),
+            SizedBox(
+              width: 150,
               child: Semantics(
                 identifier: AutomationIds.setupGuideWeight,
                 child: TextField(
                   controller: _controller,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  textAlign: TextAlign.end,
                   style: textTheme.bodyLarge?.copyWith(color: hint.onContainer),
                   cursorColor: hint.accent,
                   decoration: InputDecoration(
                     isDense: true,
-                    suffix: InkWell(
-                      borderRadius: BorderRadius.circular(4),
-                      onTap: _toggleUnit,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                        child: Text(_displayUnit.label, style: textTheme.bodyMedium?.copyWith(color: hint.onContainer)),
+                    hintText: context.l10n.setNumericalHint,
+                    hintStyle: TextStyle(color: hint.onContainer.withValues(alpha: 0.6)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    // Always shown, unlike `suffix`, so the empty field already says what it takes.
+                    suffixIcon: Align(
+                      widthFactor: 1,
+                      heightFactor: 1,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(4),
+                        onTap: _toggleUnit,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4, right: 12, top: 4, bottom: 4),
+                          child: Text(
+                            _displayUnit.label,
+                            style: TextStyle(color: hint.onContainer.withValues(alpha: 0.8)),
+                          ),
+                        ),
                       ),
                     ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: hint.accent.withValues(alpha: 0.5)),
+                    suffixIconConstraints: const BoxConstraints(minHeight: 40, minWidth: 0),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: hint.onContainer.withValues(alpha: 0.5)),
                     ),
-                    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
+                    focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: hint.accent, width: 2)),
                   ),
                   // The iOS number pad has no Done key and would keep covering Apply all.
                   onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
@@ -323,13 +363,14 @@ class _WeightFieldState extends State<_WeightField> {
           ],
         ),
         const SizedBox(height: 2),
-        Text(input.hint, style: textTheme.bodySmall?.copyWith(color: hint.onContainer.withValues(alpha: 0.75))),
-        if (onAddToRider != null)
-          TextButton.icon(
-            style: TextButton.styleFrom(foregroundColor: hint.accent, padding: EdgeInsets.zero),
-            onPressed: onAddToRider,
-            icon: const Icon(Icons.person_add_alt_outlined, size: 18),
-            label: Text(input.addToRiderLabel ?? context.l10n.guideCardAddWeightDefault),
+        if (onAddToRider == null)
+          Text(input.hint, style: hintStyle)
+        else
+          HintLearnMoreText(
+            text: input.hint,
+            linkText: input.addToRiderLabel ?? context.l10n.guideCardAddWeightDefault,
+            style: hintStyle,
+            onLearnMore: onAddToRider,
           ),
       ],
     );
@@ -382,7 +423,8 @@ class _SectionHeader extends StatelessWidget {
 }
 
 /// One adjuster: what it is, what is set now, what the guide recommends and
-/// whether the two agree. Tapping applies the recommendation.
+/// whether the two agree. Tapping applies the recommendation, or undoes it
+/// while it is still the applied value.
 class _RecommendationRow extends StatelessWidget {
   final GuideRecommendation recommendation;
   final Component component;
@@ -390,12 +432,21 @@ class _RecommendationRow extends StatelessWidget {
   final KnownUnit riderWeightUnit;
   final void Function(GuideRecommendation recommendation) onApply;
 
+  /// Null where the value was not applied here or has changed since.
+  final void Function(GuideRecommendation recommendation)? onUndo;
+
+  /// Set while the row waits for a catalog detail it can ask for.
+  final VoidCallback? onCompleteDetails;
+
   const _RecommendationRow({
+    super.key,
     required this.recommendation,
     required this.component,
     required this.hasRiderWeight,
     required this.riderWeightUnit,
     required this.onApply,
+    required this.onUndo,
+    required this.onCompleteDetails,
   });
 
   @override
@@ -408,12 +459,20 @@ class _RecommendationRow extends StatelessWidget {
     final shown = value ?? recommendation.unappliedValue;
     final current = recommendation.current;
     final canApply = value != null && current != value;
+    // A guide that now recommends something else is applied rather than undone.
+    final onUndo = value != null && current == value ? this.onUndo : null;
     final note = recommendation.rule.note;
     final reverseLookup = hasRiderWeight ? null : _reverseLookupText(recommendation, riderWeightUnit, context.l10n);
     final band = _bandText(recommendation, context.l10n);
+    final detail = guideDetailText(recommendation, component, context.l10n);
+    final onCompleteDetails = value == null ? this.onCompleteDetails : null;
 
     return InkWell(
-      onTap: canApply ? () => onApply(recommendation) : null,
+      onTap: switch (onUndo) {
+        final onUndo? => () => onUndo(recommendation),
+        null when canApply => () => onApply(recommendation),
+        null => onCompleteDetails,
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: _ColumnsLayout(
@@ -426,17 +485,32 @@ class _RecommendationRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              Text(guideDetailText(recommendation, component, context.l10n), style: mutedStyle),
+              if (onCompleteDetails == null)
+                Text(detail, style: mutedStyle)
+              else
+                HintLearnMoreText(
+                  text: detail,
+                  linkText: context.l10n.guideCardChooseDetail,
+                  style: mutedStyle,
+                  onLearnMore: onCompleteDetails,
+                ),
               if (reverseLookup != null) Text(reverseLookup, style: mutedStyle),
               if (note != null) Text(note, style: mutedStyle),
             ],
           ),
-          now: Text(
+          now: RollingValueText(
             current == null ? "–" : guideValueText(adjustment, current, context.l10n),
+            value: switch (current) {
+              NumericalValue(:final value) => value,
+              StepValue(:final value) => value.toDouble(),
+              _ => null,
+            },
+            format: switch (current) {
+              NumericalValue() => (value) => guideValueText(adjustment, NumericalValue(value), context.l10n),
+              StepValue() => (value) => guideValueText(adjustment, StepValue(value.round()), context.l10n),
+              _ => null,
+            },
             style: textTheme.bodyMedium?.copyWith(color: hint.onContainer.withValues(alpha: 0.75)),
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
           guide: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -605,13 +679,16 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
     return basis.isEmpty ? l10n.guideDetailFixed : basis.join(" · ");
   }
   return switch (issue) {
+    GuideIssue.missingInput when recommendation.missingAxes.isNotEmpty => l10n.guideIssueNeedsSpec(
+      recommendation.missingAxes.map((id) => _catalogTerm(id, l10n)).join(', '),
+    ),
     GuideIssue.missingInput => switch (recommendation.rule.input) {
       RiderGuideInput(key: GuideInputKey.riderWeight) => l10n.guideIssueNeedsWeight,
       RiderGuideInput(key: GuideInputKey.ridingStyle) => l10n.guideIssueNeedsStyle,
       AdjusterGuideInput(:final adjusterId) => l10n.guideIssueNeedsAdjuster(
         component.adjustments.firstWhereOrNull((a) => adjustmentRole(a) == adjusterId)?.name ?? adjusterId,
       ),
-      PresetGuideInput(:final id) => l10n.guideIssueNeedsSpec(id.replaceAll('_', ' ')),
+      PresetGuideInput(:final id) => l10n.guideIssueNeedsSpec(_catalogTerm(id, l10n)),
       null => l10n.guideIssueNeedsMore,
     },
     GuideIssue.outsideRange => switch (_outsideRangeInput(recommendation, l10n)) {
@@ -626,6 +703,14 @@ String guideDetailText(GuideRecommendation recommendation, Component component, 
   };
 }
 
+/// A catalog spec or option axis by its name; an unregistered id as written.
+String _catalogTerm(String id, AppLocalizations l10n, {bool capitalised = false}) =>
+    switch ((PresetSpecKeys.byId(id), PresetOptionAxes.byId(id))) {
+      (final spec?, _) => capitalised ? spec.name(l10n) : spec.inSentence(l10n),
+      (_, final axis?) => capitalised ? axis.name(l10n) : axis.inSentence(l10n),
+      _ => id.replaceAll('_', ' '),
+    };
+
 /// The looked-up input with its name, e.g. "Riding weight 140 kg" or
 /// "Pressure 120 psi"; an adjuster's [GuideRecommendation.inputText] has its
 /// name already, as has the spring a rule follows.
@@ -635,7 +720,7 @@ String? _outsideRangeInput(GuideRecommendation recommendation, AppLocalizations 
   if (recommendation.followsSpring != null) return text;
   return switch (recommendation.rule.input) {
     RiderGuideInput(key: GuideInputKey.riderWeight) => "${l10n.guideCardRidingWeight} $text",
-    PresetGuideInput(:final id) => "${id.replaceAll('_', ' ')} $text",
+    PresetGuideInput(:final id) => "${_catalogTerm(id, l10n, capitalised: true)} $text",
     _ => text,
   };
 }

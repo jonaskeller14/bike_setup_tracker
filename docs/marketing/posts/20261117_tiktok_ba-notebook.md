@@ -1,6 +1,6 @@
 # tiktok · Video: Before / After: Tape on the fork
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-17 20:00
 - App version: 1.7.0

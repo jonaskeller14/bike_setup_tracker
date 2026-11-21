@@ -1,7 +1,45 @@
 import 'package:bike_setup_tracker/models/strava/strava_activity.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  group('IDs', () {
+    const bigId = 1234567890123456789;
+
+    Map<String, dynamic> stored(Object id, Object athleteId) => {
+      'id': id,
+      'name': 'Ride',
+      'athleteId': athleteId,
+      'sportType': 'Ride',
+      'startDate': '2026-05-03T12:00:00Z',
+      'startDateLocal': '2026-05-03T14:00:00Z',
+      'movingTime': 3600,
+      'elapsedTime': 3600,
+    };
+
+    test('reads 64-bit int IDs from Firestore', () {
+      final activity = StravaActivity.fromFirestore({
+        ...stored(bigId, bigId),
+        'lastModified': Timestamp.now(),
+      });
+
+      expect(activity.id, bigId);
+      expect(activity.athlete, bigId);
+    });
+
+    test('reads string IDs from Firestore', () {
+      final activity = StravaActivity.fromFirestore(stored('$bigId', '$bigId'));
+
+      expect(activity.id, bigId);
+      expect(activity.athlete, bigId);
+    });
+
+    test('reads int and string IDs from JSON', () {
+      expect(StravaActivity.fromJson(stored(bigId, 9)).id, bigId);
+      expect(StravaActivity.fromJson(stored('$bigId', '9')).athlete, 9);
+    });
+  });
+
   group('feedbackTime', () {
     final start = DateTime(2026, 5, 3, 14);
 

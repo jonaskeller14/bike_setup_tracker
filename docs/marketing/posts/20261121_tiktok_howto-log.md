@@ -1,6 +1,6 @@
 # tiktok · Video: How to: Log a setup
 
-- Status: planned
+- Status: scheduled
 - URL: —
 - Posted: 2026-11-21 20:00
 - App version: 1.8.0

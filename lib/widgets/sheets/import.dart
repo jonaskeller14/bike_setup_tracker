@@ -52,6 +52,7 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
     // (foreign / stale) snapshots. Recompute them against the local Strava
     // activities and installation history.
     await appRepository.refreshTaskEntrySnapshots();
+    unawaited(HapticFeedback.successNotification());
     if (!context.mounted) return;
     scaffoldMessenger.showSnackBar(
       AppSnackBar.success(

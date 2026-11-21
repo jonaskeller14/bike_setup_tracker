@@ -1,0 +1,536 @@
+# X-Fusion mountain-bike rear shocks — adjustment preset database
+#
+# Same design as shock/suntour.yaml, shock/rst.yaml: click ranges belong to the
+# DAMPER, defined once under `option_values.damper` and referenced by id from
+# each shock's trims. See SCHEMA.md in this folder. The brand id is `x-fusion`,
+# like fork/xfusion.yaml.
+#
+# X-Fusion publishes no model years and the site shows only the current
+# lineup, so there is no generation level.
+#
+# Click counts: only the H3C set-up guide gives them (about 14 rebound, 14
+# low-speed compression, 10 high-speed compression, 3 platform positions). No
+# page or guide gives a rebound count for the O2 Pro, Rezza or H3A, but the
+# brand's other rebound dials are clicked and counted from fully closed
+# (clockwise = slower), so those are declared with `max: ~`. Dial colors: the
+# guides name the rebound dial red and the low-speed compression lever / knob
+# blue; the high-speed knob is gold, which the catalog palette lacks.
+#
+# Sizes: each page lists "Standard", "Metric" and "Trunnion" sizes as "a/b"
+# without saying what the numbers are; they are read as eye-to-eye / stroke in
+# mm (the H3C page's rate calculator and the O2 Pro weight note "165x38" use the
+# same pairs). The mount is stated per list, so it sits on each size.
+#
+# Left out: the Vector (air and coil) and older O2 / Stage / Microlite series,
+# which the site no longer lists, although its set-up page still links their
+# guides. See the Follow-ups footer.
+
+brand: X-Fusion
+component_type: shock
+sources:
+  - https://www.xfusionshox.com/products/20.htm
+  - https://www.xfusionshox.com/help_detail/14.htm
+  - https://www.xfusionshox.com/help_detail/6.htm
+  - https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+  - https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+  - https://www.xfusionshox.com/upload/files/XFUSION%20OIL%26AIR%20VALUE-v2.pdf
+  - https://www.xfusionshox.com/upload/files/Owner's%20Manual-English(1).pdf
+  - https://www.xfusionshox.com/products_detail/119.htm
+  - https://www.xfusionshox.com/products_detail/126.htm
+  - https://www.xfusionshox.com/products_detail/120.htm
+  - https://www.xfusionshox.com/products_detail/125.htm
+  - https://www.xfusionshox.com/products_detail/87.htm
+  - https://www.xfusionshox.com/products_detail/84.htm
+  - https://www.xfusionshox.com/products_detail/86.htm
+  - https://www.xfusionshox.com/products_detail/85.htm
+  - https://www.xfusionshox.com/products_detail/102.htm
+  - https://www.xfusionshox.com/products_detail/103.htm
+  - https://www.xfusionshox.com/products_detail/57.htm
+  - https://www.xfusionshox.com/products_detail/98.htm
+updated: 2026-11-17
+# Service intervals (`tasks`) from the O2 and H3C set-up guides: damper rebuild
+# every 80 hours of ride time or annually (both), air sleeve maintenance and
+# seal service every 40 hours (O2 only, 25 in extreme conditions). The Rezza
+# and H3A have no guide, so they carry no `tasks`. The owner's manual's service
+# table is ride-based instead, see the Follow-ups footer.
+
+# --------------------------------------------------------------------------
+# Dampers
+# --------------------------------------------------------------------------
+option_values:
+  damper:
+    rezza_rl:
+      name: Rezza RL
+      description: XC damper with a rebound adjuster and an on-shock lockout. Used on the Rezza RL.
+      description_de: XC-Dämpfer mit Zugstufenversteller und Lockout am Dämpfer. Verbaut am Rezza RL.
+      description_fr: Amortisseur XC avec réglage de détente et lockout sur l’amortisseur. Utilisé sur le Rezza RL.
+      description_it: Ammortizzatore XC con regolazione del ritorno e lockout sull’ammortizzatore. Usato sul Rezza RL.
+      description_es: Amortiguador XC con ajuste de rebote y lockout en el amortiguador. Se usa en el Rezza RL.
+      description_pt: Amortecedor XC com ajuste de retorno e lockout no amortecedor. Usado no Rezza RL.
+      adjustments:
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/products_detail/119.htm
+      note: "Product pages list the adjusters of the four configurations (RL: rebound and lockout; RLX: rebound and 3-position compression Open / Pedal / Lock; RLR and RLXR: the same with remote lockout) but no click counts, so rebound is declared with max: ~ (the brand's other rebound dials are clicked and counted from closed)."
+
+    rezza_rlr:
+      name: Rezza RLR
+      description: XC damper with a rebound adjuster and a handlebar-remote lockout. Used on the Rezza RLR.
+      description_de: XC-Dämpfer mit Zugstufenversteller und Lockout per Lenkerfernbedienung. Verbaut am Rezza RLR.
+      description_fr: Amortisseur XC avec réglage de détente et lockout déporté au guidon. Utilisé sur le Rezza RLR.
+      description_it: Ammortizzatore XC con regolazione del ritorno e lockout remoto al manubrio. Usato sul Rezza RLR.
+      description_es: Amortiguador XC con ajuste de rebote y lockout remoto en el manillar. Se usa en el Rezza RLR.
+      description_pt: Amortecedor XC com ajuste de retorno e lockout remoto no guidão. Usado no Rezza RLR.
+      adjustments:
+        - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean, notes: Handlebar-remote lever, notes_de: Hebel mit Lenkerfernbedienung, notes_fr: Levier déporté au guidon, notes_it: Leva remota al manubrio, notes_es: Palanca remota en el manillar, notes_pt: Alavanca remota no guidão }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/products_detail/120.htm
+      note: "Product pages list the adjusters of the four configurations (RL: rebound and lockout; RLX: rebound and 3-position compression Open / Pedal / Lock; RLR and RLXR: the same with remote lockout) but no click counts, so rebound is declared with max: ~ (the brand's other rebound dials are clicked and counted from closed)."
+
+    rezza_rlx:
+      name: Rezza RLX
+      description: XC damper with a rebound adjuster and a 3-position compression lever (Open, Pedal, Lock). Used on the Rezza RLX.
+      description_de: XC-Dämpfer mit Zugstufenversteller und 3-Positionen-Druckstufenhebel (Open, Pedal, Lock). Verbaut am Rezza RLX.
+      description_fr: Amortisseur XC avec réglage de détente et levier de compression à 3 positions (Open, Pedal, Lock). Utilisé sur le Rezza RLX.
+      description_it: Ammortizzatore XC con regolazione del ritorno e leva di compressione a 3 posizioni (Open, Pedal, Lock). Usato sul Rezza RLX.
+      description_es: Amortiguador XC con ajuste de rebote y palanca de compresión de 3 posiciones (Open, Pedal, Lock). Se usa en el Rezza RLX.
+      description_pt: Amortecedor XC com ajuste de retorno e alavanca de compressão de 3 posições (Open, Pedal, Lock). Usado no Rezza RLX.
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/products_detail/126.htm
+      note: "Product pages list the adjusters of the four configurations (RL: rebound and lockout; RLX: rebound and 3-position compression Open / Pedal / Lock; RLR and RLXR: the same with remote lockout) but no click counts, so rebound is declared with max: ~ (the brand's other rebound dials are clicked and counted from closed)."
+
+    rezza_rlxr:
+      name: Rezza RLXR
+      description: XC damper with a rebound adjuster and a handlebar-remote 3-position compression lever (Open, Pedal, Lock). Used on the Rezza RLXR.
+      description_de: XC-Dämpfer mit Zugstufenversteller und 3-Positionen-Druckstufenhebel (Open, Pedal, Lock) per Lenkerfernbedienung. Verbaut am Rezza RLXR.
+      description_fr: Amortisseur XC avec réglage de détente et levier de compression à 3 positions (Open, Pedal, Lock) déporté au guidon. Utilisé sur le Rezza RLXR.
+      description_it: Ammortizzatore XC con regolazione del ritorno e leva di compressione a 3 posizioni (Open, Pedal, Lock) remota al manubrio. Usato sul Rezza RLXR.
+      description_es: Amortiguador XC con ajuste de rebote y palanca de compresión de 3 posiciones (Open, Pedal, Lock) remota en el manillar. Se usa en el Rezza RLXR.
+      description_pt: Amortecedor XC com ajuste de retorno e alavanca de compressão de 3 posições (Open, Pedal, Lock) remota no guidão. Usado no Rezza RLXR.
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock], notes: Handlebar-remote lever, notes_de: Hebel mit Lenkerfernbedienung, notes_fr: Levier déporté au guidon, notes_it: Leva remota al manubrio, notes_es: Palanca remota en el manillar, notes_pt: Alavanca remota no guidão }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source: https://www.xfusionshox.com/products_detail/125.htm
+      note: "Product pages list the adjusters of the four configurations (RL: rebound and lockout; RLX: rebound and 3-position compression Open / Pedal / Lock; RLR and RLXR: the same with remote lockout) but no click counts, so rebound is declared with max: ~ (the brand's other rebound dials are clicked and counted from closed)."
+
+    o2_pro_r:
+      name: O2 Pro R
+      description: Rebound-only damper with an external rebound dial and no compression adjustment. Used on the O2 Pro R.
+      description_de: Reiner Zugstufendämpfer mit externem Zugstufenrad und ohne Druckstufenverstellung. Verbaut am O2 Pro R.
+      description_fr: Amortisseur de détente seule avec molette de détente externe et sans réglage de compression. Utilisé sur le O2 Pro R.
+      description_it: Ammortizzatore solo ritorno con manopola esterna del ritorno e senza regolazione della compressione. Usato sul O2 Pro R.
+      description_es: Amortiguador solo de rebote con rueda externa de rebote y sin ajuste de compresión. Se usa en el O2 Pro R.
+      description_pt: Amortecedor somente de retorno com seletor externo de retorno e sem ajuste de compressão. Usado no O2 Pro R.
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/87.htm
+        - https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+      note: "Product pages list the adjusters (R: rebound; RL / RLR: rebound and 2-position compression Open / Lock; RLX: rebound and 3-position compression Open / Pedal / Lock). Neither the pages nor the O2 set-up guide (2012) give a rebound click count, so rebound is declared with max: ~ (the guide's red dial turns clockwise to slow, the brand's other rebound dials are clicked and counted from closed)."
+
+    o2_pro_rl:
+      name: O2 Pro RL
+      description: Damper with a rebound dial and a 2-position compression lever (Open, Lock). Used on the O2 Pro RL.
+      description_de: Dämpfer mit Zugstufenrad und 2-Positionen-Druckstufenhebel (Open, Lock). Verbaut am O2 Pro RL.
+      description_fr: Amortisseur avec molette de détente et levier de compression à 2 positions (Open, Lock). Utilisé sur le O2 Pro RL.
+      description_it: Ammortizzatore con manopola del ritorno e leva di compressione a 2 posizioni (Open, Lock). Usato sul O2 Pro RL.
+      description_es: Amortiguador con rueda de rebote y palanca de compresión de 2 posiciones (Open, Lock). Se usa en el O2 Pro RL.
+      description_pt: Amortecedor com seletor de retorno e alavanca de compressão de 2 posições (Open, Lock). Usado no O2 Pro RL.
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/84.htm
+        - https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+      note: "Product pages list the adjusters (R: rebound; RL / RLR: rebound and 2-position compression Open / Lock; RLX: rebound and 3-position compression Open / Pedal / Lock). Neither the pages nor the O2 set-up guide (2012) give a rebound click count, so rebound is declared with max: ~ (the guide's red dial turns clockwise to slow, the brand's other rebound dials are clicked and counted from closed)."
+
+    o2_pro_rlr:
+      name: O2 Pro RLR
+      description: Damper with a rebound dial and a handlebar-remote 2-position compression lever (Open, Lock). Used on the O2 Pro RLR.
+      description_de: Dämpfer mit Zugstufenrad und 2-Positionen-Druckstufenhebel (Open, Lock) per Lenkerfernbedienung. Verbaut am O2 Pro RLR.
+      description_fr: Amortisseur avec molette de détente et levier de compression à 2 positions (Open, Lock) déporté au guidon. Utilisé sur le O2 Pro RLR.
+      description_it: Ammortizzatore con manopola del ritorno e leva di compressione a 2 posizioni (Open, Lock) remota al manubrio. Usato sul O2 Pro RLR.
+      description_es: Amortiguador con rueda de rebote y palanca de compresión de 2 posiciones (Open, Lock) remota en el manillar. Se usa en el O2 Pro RLR.
+      description_pt: Amortecedor com seletor de retorno e alavanca de compressão de 2 posições (Open, Lock) remota no guidão. Usado no O2 Pro RLR.
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock], notes: Handlebar-remote lever, notes_de: Hebel mit Lenkerfernbedienung, notes_fr: Levier déporté au guidon, notes_it: Leva remota al manubrio, notes_es: Palanca remota en el manillar, notes_pt: Alavanca remota no guidão }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/86.htm
+        - https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+      note: "Product pages list the adjusters (R: rebound; RL / RLR: rebound and 2-position compression Open / Lock; RLX: rebound and 3-position compression Open / Pedal / Lock). Neither the pages nor the O2 set-up guide (2012) give a rebound click count, so rebound is declared with max: ~ (the guide's red dial turns clockwise to slow, the brand's other rebound dials are clicked and counted from closed)."
+
+    o2_pro_rlx:
+      name: O2 Pro RLX
+      description: Damper with a rebound dial and a 3-position compression lever (Open, Pedal, Lock). Used on the O2 Pro RLX.
+      description_de: Dämpfer mit Zugstufenrad und 3-Positionen-Druckstufenhebel (Open, Pedal, Lock). Verbaut am O2 Pro RLX.
+      description_fr: Amortisseur avec molette de détente et levier de compression à 3 positions (Open, Pedal, Lock). Utilisé sur le O2 Pro RLX.
+      description_it: Ammortizzatore con manopola del ritorno e leva di compressione a 3 posizioni (Open, Pedal, Lock). Usato sul O2 Pro RLX.
+      description_es: Amortiguador con rueda de rebote y palanca de compresión de 3 posiciones (Open, Pedal, Lock). Se usa en el O2 Pro RLX.
+      description_pt: Amortecedor com seletor de retorno e alavanca de compressão de 3 posições (Open, Pedal, Lock). Usado no O2 Pro RLX.
+      adjustments:
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock] }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/85.htm
+        - https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+      note: "Product pages list the adjusters (R: rebound; RL / RLR: rebound and 2-position compression Open / Lock; RLX: rebound and 3-position compression Open / Pedal / Lock). Neither the pages nor the O2 set-up guide (2012) give a rebound click count, so rebound is declared with max: ~ (the guide's red dial turns clockwise to slow, the brand's other rebound dials are clicked and counted from closed)."
+
+    h3a_rcp:
+      name: H3A RCP
+      description: Enduro damper with a 3-position platform, a low-speed compression dial and a rebound dial. Used on the H3A RCP.
+      description_de: Enduro-Dämpfer mit 3-Positionen-Plattform, Low-Speed-Druckstufenrad und Zugstufenrad. Verbaut am H3A RCP.
+      description_fr: Amortisseur enduro avec plateforme à 3 positions, molette de compression basse vitesse et molette de détente. Utilisé sur le H3A RCP.
+      description_it: Ammortizzatore enduro con piattaforma a 3 posizioni, manopola della compressione a bassa velocità e manopola del ritorno. Usato sul H3A RCP.
+      description_es: Amortiguador enduro con plataforma de 3 posiciones, rueda de compresión de baja velocidad y rueda de rebote. Se usa en el H3A RCP.
+      description_pt: Amortecedor enduro com plataforma de 3 posições, seletor de compressão de baixa velocidade e seletor de retorno. Usado no H3A RCP.
+      missing_adjustments: [Platform]
+      missing_adjustments_de: [Plattform]
+      missing_adjustments_fr: [Plateforme]
+      missing_adjustments_it: [Piattaforma]
+      missing_adjustments_es: [Plataforma]
+      missing_adjustments_pt: [Plataforma]
+      adjustments:
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/102.htm
+        - https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+      note: "H3A pages list rebound, low-speed compression and (HLR) high-speed compression, with no click counts. The H3C set-up guide gives counts for the coil H3C only, so the H3A dials are declared with max: ~ (clicked dials counted from closed, as in that guide). The platform has 3 positions on the product page but they are named only in the H3C guide, so it is a missing adjuster here."
+
+    h3a_hlr:
+      name: H3A HLR
+      description: Downhill damper with high-speed and low-speed compression dials and a rebound dial. Used on the H3A HLR.
+      description_de: Downhill-Dämpfer mit High-Speed- und Low-Speed-Druckstufenrädern und Zugstufenrad. Verbaut am H3A HLR.
+      description_fr: Amortisseur descente avec molettes de compression haute et basse vitesse et molette de détente. Utilisé sur le H3A HLR.
+      description_it: Ammortizzatore downhill con manopole della compressione ad alta e bassa velocità e manopola del ritorno. Usato sul H3A HLR.
+      description_es: Amortiguador de descenso con ruedas de compresión de alta y baja velocidad y rueda de rebote. Se usa en el H3A HLR.
+      description_pt: Amortecedor de downhill com seletores de compressão de alta e baixa velocidade e seletor de retorno. Usado no H3A HLR.
+      adjustments:
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: ~, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: ~, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/103.htm
+        - https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+      note: "H3A pages list rebound, low-speed compression and (HLR) high-speed compression, with no click counts. The H3C set-up guide gives counts for the coil H3C only, so the H3A dials are declared with max: ~ (clicked dials counted from closed, as in that guide)."
+
+    h3c_rcp:
+      name: H3C RCP
+      description: Enduro coil-shock damper with a 3-position platform, a low-speed compression dial and a rebound dial. Used on the H3C RCP.
+      description_de: Enduro-Dämpfer für Stahlfeder mit 3-Positionen-Plattform, Low-Speed-Druckstufenrad und Zugstufenrad. Verbaut am H3C RCP.
+      description_fr: Amortisseur enduro pour ressort hélicoïdal avec plateforme à 3 positions, molette de compression basse vitesse et molette de détente. Utilisé sur le H3C RCP.
+      description_it: Ammortizzatore enduro a molla elicoidale con piattaforma a 3 posizioni, manopola della compressione a bassa velocità e manopola del ritorno. Usato sul H3C RCP.
+      description_es: Amortiguador enduro de muelle helicoidal con plataforma de 3 posiciones, rueda de compresión de baja velocidad y rueda de rebote. Se usa en el H3C RCP.
+      description_pt: Amortecedor enduro de mola helicoidal com plataforma de 3 posições, seletor de compressão de baixa velocidade e seletor de retorno. Usado no H3C RCP.
+      adjustments:
+        - { name: Platform, name_de: Plattform, name_fr: Plateforme, name_it: Piattaforma, name_es: Plataforma, name_pt: Plataforma, type: categorical, options: [Soft, Mid, Firm], options_de: [Weich, Mittel, Fest], options_fr: [Souple, Milieu, Ferme], options_it: [Morbida, Medio, Rigido], options_es: [Blanda, Medio, Firme], options_pt: [Macia, Médio, Firme] }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 14, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/57.htm
+        - https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+      note: Click counts (about 14 LSC and 14 rebound, counted from fully closed) and the 3 platform positions (1 soft, 2 mid, 3 firm) read from the H3C Set-Up Guide, steps 3-5. The guide states the counts as approximate.
+
+    h3c_hlr:
+      name: H3C HLR
+      description: Downhill coil-shock damper with high-speed and low-speed compression dials and a rebound dial. Used on the H3C HLR.
+      description_de: Downhill-Dämpfer für Stahlfeder mit High-Speed- und Low-Speed-Druckstufenrädern und Zugstufenrad. Verbaut am H3C HLR.
+      description_fr: Amortisseur descente pour ressort hélicoïdal avec molettes de compression haute et basse vitesse et molette de détente. Utilisé sur le H3C HLR.
+      description_it: Ammortizzatore downhill a molla elicoidale con manopole della compressione ad alta e bassa velocità e manopola del ritorno. Usato sul H3C HLR.
+      description_es: Amortiguador de descenso de muelle helicoidal con ruedas de compresión de alta y baja velocidad y rueda de rebote. Se usa en el H3C HLR.
+      description_pt: Amortecedor de downhill de mola helicoidal com seletores de compressão de alta e baixa velocidade e seletor de retorno. Usado no H3C HLR.
+      adjustments:
+        - { name: HSC, name_de: HSC, name_fr: HSC, name_it: HSC, name_es: HSC, name_pt: HSC, type: step, max: 10, notes: High-Speed Compression, notes_de: High-Speed-Druckstufe, notes_fr: Compression haute vitesse, notes_it: Compressione ad alta velocità, notes_es: Compresión de alta velocidad, notes_pt: Compressão de alta velocidade }
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, max: 14, notes: Low-Speed Compression, notes_de: Low-Speed-Druckstufe, notes_fr: Compression basse vitesse, notes_it: Compressione a bassa velocità, notes_es: Compresión de baja velocidad, notes_pt: Compressão de baixa velocidade, dialColor: blue }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: 14, notes: Counted from fully closed (slowest), notes_de: Von ganz geschlossen (am langsamsten) gezählt, notes_fr: Compté depuis la position entièrement fermée (la plus lente), notes_it: Contato a partire dalla posizione completamente chiusa (la più lenta), notes_es: Contado desde la posición totalmente cerrada (la más lenta), notes_pt: Contado a partir da posição totalmente fechada (a mais lenta), dialColor: red }
+      source:
+        - https://www.xfusionshox.com/products_detail/98.htm
+        - https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+      note: Click counts (about 10 HSC, 14 LSC and 14 rebound, counted from fully closed) read from the H3C Set-Up Guide, steps 3-5. The guide states them as approximate. The high-speed knob is gold, so no dialColor is set for it.
+
+# --------------------------------------------------------------------------
+# Shocks — X-Fusion's current website lineup (2026). No model years are
+# published, so there is no generation level. One trim per product page,
+# because the damper (and so the adjusters) differs per page. Sizes are the
+# Standard / Metric / Trunnion lists of each product page, read as
+# eye-to-eye x stroke in mm.
+# --------------------------------------------------------------------------
+nodes:
+  - label: Rezza
+    level: model
+    category: XC
+    category_de: XC
+    category_fr: XC
+    category_it: XC
+    category_es: XC
+    category_pt: XC
+    setup_guide: https://www.xfusionshox.com/help_detail/14.htm
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: &xfusion_air
+      - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 60, max: 300, notes: "60 psi minimum, 300 psi maximum", notes_de: "Minimum 60 psi, Maximum 300 psi", notes_fr: "60 psi minimum, 300 psi maximum", notes_it: "Minimo 60 psi, massimo 300 psi", notes_es: "Mínimo 60 psi, máximo 300 psi", notes_pt: "Mínimo 60 psi, máximo 300 psi" }
+    children:
+      - label: RL
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/119.htm
+        options:
+          damper: [rezza_rl]
+          size:
+            - { size: "170x30/35", mount: Metric }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "145x30/35", mount: Trunnion }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+      - label: RLX
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/126.htm
+        options:
+          damper: [rezza_rlx]
+          size:
+            - { size: "170x30/35", mount: Metric }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "145x30/35", mount: Trunnion }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+      - label: RLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/120.htm
+        options:
+          damper: [rezza_rlr]
+          size:
+            - { size: "170x30/35", mount: Metric }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "145x30/35", mount: Trunnion }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+      - label: RLXR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/125.htm
+        options:
+          damper: [rezza_rlxr]
+          size:
+            - { size: "170x30/35", mount: Metric }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "145x30/35", mount: Trunnion }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+
+  - label: "O2 Pro"
+    level: model
+    category: XC / Trail / All-Mountain
+    category_de: XC / Trail / All-Mountain
+    category_fr: XC / Trail / All-Mountain
+    category_it: XC / Trail / All-Mountain
+    category_es: XC / Trail / All-Mountain
+    category_pt: XC / Trail / All-Mountain
+    setup_guide: https://www.xfusionshox.com/upload/files/2012O2Setupguide1.pdf
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air
+    tasks:
+      shock:air_can_service: { interval: { moving_time_h: 40 }, source: X-Fusion shock set-up guide, source_de: X-Fusion-Dämpfer-Setup-Anleitung, source_fr: Guide de réglage de l’amortisseur X-Fusion, source_it: Guida al setup dell’ammortizzatore X-Fusion, source_es: Guía de ajuste del amortiguador X-Fusion, source_pt: Guia de ajuste do amortecedor X-Fusion }
+      shock:full_service: { interval: { moving_time_h: 80 }, fallback: { days: 365 }, source: X-Fusion shock set-up guide, source_de: X-Fusion-Dämpfer-Setup-Anleitung, source_fr: Guide de réglage de l’amortisseur X-Fusion, source_it: Guida al setup dell’ammortizzatore X-Fusion, source_es: Guía de ajuste del amortiguador X-Fusion, source_pt: Guia de ajuste do amortecedor X-Fusion }
+    children:
+      - label: R
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/87.htm
+        options:
+          damper: [o2_pro_r]
+          size:
+            - { size: "165x38", mount: Standard }
+            - { size: "184x44", mount: Standard }
+            - { size: "190x51", mount: Standard }
+            - { size: "200x51/56", mount: Standard }
+            - { size: "215x63", mount: Standard }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+      - label: RL
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/84.htm
+        options:
+          damper: [o2_pro_rl]
+          size:
+            - { size: "165x38", mount: Standard }
+            - { size: "184x44", mount: Standard }
+            - { size: "190x51", mount: Standard }
+            - { size: "200x51/56", mount: Standard }
+            - { size: "215x63", mount: Standard }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+      - label: RLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/86.htm
+        options:
+          damper: [o2_pro_rlr]
+          size:
+            - { size: "165x38", mount: Standard }
+            - { size: "184x44", mount: Standard }
+            - { size: "190x51", mount: Standard }
+            - { size: "200x51/56", mount: Standard }
+            - { size: "215x63", mount: Standard }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+      - label: RLX
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/85.htm
+        options:
+          damper: [o2_pro_rlx]
+          size:
+            - { size: "165x38", mount: Standard }
+            - { size: "184x44", mount: Standard }
+            - { size: "190x51", mount: Standard }
+            - { size: "200x51/56", mount: Standard }
+            - { size: "215x63", mount: Standard }
+            - { size: "190x40/45", mount: Metric }
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "165x40/45", mount: Trunnion }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+
+  - label: H3A
+    level: model
+    category: Enduro / DH
+    category_de: Enduro / DH
+    category_fr: Enduro / DH
+    category_it: Enduro / DH
+    category_es: Enduro / DH
+    category_pt: Enduro / DH
+    setup_guide: https://www.xfusionshox.com/help_detail/14.htm
+    specs: { spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+    adjustments: *xfusion_air
+    children:
+      - label: RCP
+        level: trim
+        draft: true
+        url: https://www.xfusionshox.com/products_detail/102.htm
+        options:
+          damper: [h3a_rcp]
+          size:
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "250x75", mount: Metric }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+            - { size: "225x75", mount: Trunnion }
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/103.htm
+        options:
+          damper: [h3a_hlr]
+          size:
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "250x75", mount: Metric }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+            - { size: "225x75", mount: Trunnion }
+
+  - label: H3C
+    level: model
+    category: Enduro / DH
+    category_de: Enduro / DH
+    category_fr: Enduro / DH
+    category_it: Enduro / DH
+    category_es: Enduro / DH
+    category_pt: Enduro / DH
+    setup_guide: https://www.xfusionshox.com/upload/files/H3C%20Setup%20guide1.pdf
+    specs: { spring: Coil, spring_de: Stahlfeder, spring_fr: Hélicoïdal, spring_it: Elicoidale, spring_es: Helicoidal, spring_pt: Helicoidal }
+    adjustments:
+      - { name: Spring Rate, name_de: Federrate, name_fr: Raideur du ressort, name_it: Rigidità della molla, name_es: Rigidez del muelle, name_pt: Rigidez da mola, type: numerical, unit: lbs/in, min: 0 }
+      - { name: Preload, name_de: Vorspannung, name_fr: Précontrainte, name_it: Precarico, name_es: Precarga, name_pt: Pré-carga, type: numerical, unit: turns, min: 1, max: 6, notes: "Keep at least 1 full turn of preload engaged; 6 turns is the maximum", notes_de: Mindestens 1 volle Umdrehung Vorspannung eingedreht lassen; 6 Umdrehungen sind das Maximum, notes_fr: Gardez au moins 1 tour complet de précontrainte engagé ; 6 tours est le maximum, notes_it: Tieni almeno 1 giro completo di precarico impegnato; 6 giri è il massimo, notes_es: Mantén al menos 1 vuelta completa de precarga engranada; 6 vueltas es el máximo, notes_pt: Mantenha pelo menos 1 volta completa de pré-carga engatada; 6 voltas é o máximo }
+    tasks:
+      shock:full_service: { interval: { moving_time_h: 80 }, fallback: { days: 365 }, source: X-Fusion shock set-up guide, source_de: X-Fusion-Dämpfer-Setup-Anleitung, source_fr: Guide de réglage de l’amortisseur X-Fusion, source_it: Guida al setup dell’ammortizzatore X-Fusion, source_es: Guía de ajuste del amortiguador X-Fusion, source_pt: Guia de ajuste do amortecedor X-Fusion }
+    children:
+      - label: RCP
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/57.htm
+        options:
+          damper: [h3c_rcp]
+          size:
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "250x75", mount: Metric }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+            - { size: "225x75", mount: Trunnion }
+        note: "Not for every frame: check the maximum strut length for the stroke (40-45mm 118mm, 50-55mm 98mm, 60-65mm 72mm, 70-75mm 37mm)"
+        note_de: "Nicht für jeden Rahmen: maximale Strebenlänge für den Hub prüfen (40-45mm 118mm, 50-55mm 98mm, 60-65mm 72mm, 70-75mm 37mm)"
+        note_fr: "Pas pour tous les cadres : vérifiez la longueur maximale de biellette pour la course (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_it: "Non adatto a tutti i telai: controlla la lunghezza massima del puntone per la corsa (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_es: "No apto para todos los cuadros: comprueba la longitud máxima del tirante para la carrera (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_pt: "Não serve para todos os quadros: verifique o comprimento máximo do tirante para o curso (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+      - label: HLR
+        level: trim
+        url: https://www.xfusionshox.com/products_detail/98.htm
+        options:
+          damper: [h3c_hlr]
+          size:
+            - { size: "210x50/55", mount: Metric }
+            - { size: "230x60/65", mount: Metric }
+            - { size: "250x75", mount: Metric }
+            - { size: "185x50/55", mount: Trunnion }
+            - { size: "205x60/65", mount: Trunnion }
+            - { size: "225x75", mount: Trunnion }
+        note: "Not for every frame: check the maximum strut length for the stroke (40-45mm 118mm, 50-55mm 98mm, 60-65mm 72mm, 70-75mm 37mm)"
+        note_de: "Nicht für jeden Rahmen: maximale Strebenlänge für den Hub prüfen (40-45mm 118mm, 50-55mm 98mm, 60-65mm 72mm, 70-75mm 37mm)"
+        note_fr: "Pas pour tous les cadres : vérifiez la longueur maximale de biellette pour la course (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_it: "Non adatto a tutti i telai: controlla la lunghezza massima del puntone per la corsa (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_es: "No apto para todos los cuadros: comprueba la longitud máxima del tirante para la carrera (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+        note_pt: "Não serve para todos os quadros: verifique o comprimento máximo do tirante para o curso (40-45 mm 118 mm, 50-55 mm 98 mm, 60-65 mm 72 mm, 70-75 mm 37 mm)"
+
+
+# --------------------------------------------------------------------------
+# Follow-ups (not yet captured — avoid guessing):
+#   - Model years: none published; no generation level.
+#   - Draft trim: H3A RCP, because the platform's three positions are named
+#     only in the H3C guide (1 soft, 2 mid, 3 firm), not for the air shock.
+#   - Rezza, O2 Pro and H3A rebound / compression dials are `max: ~`: the pages
+#     name the adjusters but no page, guide or manual gives a click count for
+#     them. Whether the O2 Pro and Rezza rebound dials are clicked at all is
+#     taken from the brand's other dials (fork guides, H3C guide).
+#   - O2 Pro RLX: the product page says Open / Pedal / Lock; the 2012 O2 guide
+#     says Open / Firm / Lockout for the RLX. The page is used.
+#   - Sizes: the pages print "a/b" or "axb" lists without saying what they are;
+#     read as eye-to-eye / stroke in mm (the O2 Pro "Standard" list is 165x38,
+#     184x44, 190x51, 200x51 / 56, 215x63).
+#     The H3C calculator lists further sizes (200x56, 215x63, 222x69, 240x76,
+#     267x89, imperial equivalents) that no product page offers.
+#   - Pressure: 60 psi minimum, 300 psi maximum are on the O2 Pro and H3A pages
+#     and in the owner's manual's general rear-suspension limits (used for the
+#     Rezza too). The H3C is a coil shock.
+#   - Volume spacers: the Rezza and H3A pages mention adjustable / available
+#     volume spacers but no count, so none is declared.
+#   - H3C preload: the guide gives minimum preload = 1 full turn past flush,
+#     then up to 5 more turns (declared as 1 to 6 turns); the owner's manual's
+#     warranty text says not to exceed three turns of prestress.
+#   - H3C spring rate: no spring-rate list is published; only a calculator
+#     (rider weight, bike weight, rear travel, sag) on the page.
+#   - Set-up guides: the O2 guide (2012) says to start at 80 % of body weight
+#     and sag 20-25 % XC / Trail, 25-35 % Enduro / All-Mountain, 30-40 %
+#     DH / Freeride; the H3C guide gives the same sag bands. Sag bands are by
+#     discipline and the pressure start has no stated unit, so there is no
+#     `guides:` block.
+#   - Service: the owner's manual lists oil and damper rebuild every 100 rides
+#     or every year and the outer air chamber axle every 25 rides (seals every
+#     50), the guides use hours; the guides' figures are used.
+#   - The "Oil & Air Value" chart gives damper and air-sleeve oil volumes only.
+#   - Not modelled: Vector air / coil and other series no longer on the site.
+# --------------------------------------------------------------------------

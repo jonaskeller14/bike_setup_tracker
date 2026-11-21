@@ -223,11 +223,38 @@ void main() {
       expect((merged.adjustment as CategoricalAdjustment).options, {'Open', 'Firm', 'Offen', 'Fest'});
     });
 
-    test('SAG only gets the preset key', () {
+    test('SAG without a travel in the catalog only gets the preset key', () {
       final own = SagAdjustment(name: 'Sag', notes: null, referenceTravelMm: 160);
       final catalog = SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag');
 
-      expect(mergeAdjustment(own, catalog, const []).adjustment, own.copyWith(presetKey: 'fork:sag'));
+      final merged = mergeAdjustment(own, catalog, const []);
+
+      expect(merged.adjustment, own.copyWith(presetKey: 'fork:sag'));
+      expect(merged.keptOwnTravel, isFalse);
+    });
+
+    test('SAG without a travel of its own adopts the catalog travel', () {
+      final own = SagAdjustment(name: 'Sag', notes: null);
+      final catalog = SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag', referenceTravelMm: 170);
+
+      final merged = mergeAdjustment(own, catalog, const [NumericalValue(25)]);
+
+      expect(merged.adjustment, own.copyWith(presetKey: 'fork:sag', referenceTravelMm: 170.0));
+      expect(merged.keptOwnTravel, isFalse);
+    });
+
+    test('SAG keeps a travel the rider set, flagged where the catalog differs', () {
+      final own = SagAdjustment(name: 'Sag', notes: null, referenceTravelMm: 160);
+      SagAdjustment catalog(double travel) =>
+          SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag', referenceTravelMm: travel);
+
+      final differs = mergeAdjustment(own, catalog(170), const []);
+      final same = mergeAdjustment(own, catalog(160), const []);
+
+      expect(differs.adjustment, own.copyWith(presetKey: 'fork:sag'));
+      expect(differs.keptOwnTravel, isTrue);
+      expect(same.adjustment, own.copyWith(presetKey: 'fork:sag'));
+      expect(same.keptOwnTravel, isFalse);
     });
   });
 

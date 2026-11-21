@@ -21,6 +21,7 @@ import '../items/tile_meta_row.dart';
 import '../running_badge.dart';
 import '../sticky_section.dart';
 import '../test_session_next_step.dart';
+import '../test_session_progress.dart';
 import '../test_session_suggestion.dart';
 import '../text/section_title.dart';
 import 'sheet_header.dart';
@@ -133,7 +134,15 @@ class TestSessionSheetContent extends StatelessWidget {
           if (session.isRunning)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: TestSessionNextStep(session: session),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 12,
+                children: [
+                  if (appRepository.progressFor(session.id) case final progress?)
+                    TestSessionProgress(progress: progress),
+                  TestSessionNextStep(session: session),
+                ],
+              ),
             ),
         ],
       ),

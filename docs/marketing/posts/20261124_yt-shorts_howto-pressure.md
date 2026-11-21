@@ -1,7 +1,7 @@
 # yt-shorts · How to: Pressure Check
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/VQldN2MU4jo?feature=share
 - Posted: 2026-11-24 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

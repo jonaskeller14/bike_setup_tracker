@@ -40,6 +40,7 @@ import '../../utils/adjustment_presets.dart';
 import '../../utils/adjustment_role.dart';
 import '../../utils/attachment_actions.dart';
 import '../../utils/automation_ids.dart';
+import '../../utils/guide_details_actions.dart';
 import '../../utils/setup_guide_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/attachment_strip.dart';
@@ -185,6 +186,8 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   /// Bumped when the setup guide writes values, so the bike tab's fields
   /// re-read them.
   int _appliedGuideRevision = 0;
+
+  final Map<String, ({AdjustmentValue applied, AdjustmentValue? previous})> _guideUndo = {};
 
   /// Bumped when the setup guide card writes the riding weight, so the rider
   /// tab's fields re-read it.
@@ -877,6 +880,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   void _saveSetup() {
     if (!_formKey.currentState!.validate()) {
+      unawaited(HapticFeedback.errorNotification());
       _revealFirstInvalidField();
       return;
     }
@@ -925,6 +929,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _onBikeAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _bikeAdjustmentValues[adjustment.id] = newValue;
     _dropStaleSetNowId(adjustment.id);
+    _dropStaleGuideUndo(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
   }
@@ -936,6 +941,12 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (_bikeAdjustmentValues[adjustmentId] != reference.value) _setNowIds.remove(adjustmentId);
   }
 
+  /// Once the value is no longer the applied one, undoing it would overwrite
+  /// the rider's own value.
+  void _dropStaleGuideUndo(String adjustmentId) {
+    if (_guideUndo[adjustmentId]?.applied != _bikeAdjustmentValues[adjustmentId]) _guideUndo.remove(adjustmentId);
+  }
+
   void _onPersonAdjustmentValueChanged({required Adjustment adjustment, required AdjustmentValue newValue}) {
     _personAdjustmentValues[adjustment.id] = newValue;
     _adjustmentValuesRevision.value++;
@@ -945,6 +956,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   void _removeFromBikeAdjustmentValues({required Adjustment adjustment}) {
     _bikeAdjustmentValues.remove(adjustment.id);
     _dropStaleSetNowId(adjustment.id);
+    _dropStaleGuideUndo(adjustment.id);
     _adjustmentValuesRevision.value++;
     _changeListener();
   }
@@ -1500,6 +1512,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
           weightInput: _guideWeightInput(),
           onApply: _applyGuideValue,
           onApplyAll: canApplyAll ? () => _applyAllGuideValues(sections, inputs) : null,
+          undoableIds: _guideUndo.keys.toSet(),
+          onUndo: _undoGuideValue,
+          onCompleteDetails: (section, axisIds) => unawaited(completeGuideDetails(context, section.guided, axisIds)),
           initiallyExpanded: firstSetup,
         );
       },
@@ -1606,10 +1621,22 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final previous = {adjustment: _bikeAdjustmentValues[adjustment.id]};
     unawaited(HapticFeedback.selectionClick());
     _setBikeAdjustmentValues({adjustment: value});
+    _guideUndo[adjustment.id] = (applied: value, previous: previous[adjustment]);
     _showGuideAppliedSnackBar(
       l10n.setupFormGuideAppliedOne(adjustment.name, guideValueText(adjustment, value, l10n)),
       onUndo: () => _setBikeAdjustmentValues(previous),
     );
+  }
+
+  /// Tapping an applied row again. It shows no snackbar of its own, and the
+  /// applied one goes: its undo has just been done.
+  void _undoGuideValue(GuideRecommendation recommendation) {
+    final adjustment = recommendation.adjustment;
+    final undo = _guideUndo[adjustment.id];
+    if (undo == null) return;
+    unawaited(HapticFeedback.selectionClick());
+    _setBikeAdjustmentValues({adjustment: undo.previous});
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
   void _applyAllGuideValues(List<SetupGuideSection> sections, GuideInputs inputs) {
@@ -1621,6 +1648,9 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final previous = {for (final adjustment in values.keys) adjustment: _bikeAdjustmentValues[adjustment.id]};
     final previousNotes = _notesController.text;
     _setBikeAdjustmentValues(values);
+    for (final MapEntry(key: adjustment, value: value) in values.entries) {
+      _guideUndo[adjustment.id] = (applied: value, previous: previous[adjustment]);
+    }
     final guides = sections.map((section) => section.guided.guide).toList();
     _notesController.text = appendNotesLine(
       previousNotes,

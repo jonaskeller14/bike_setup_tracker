@@ -89,10 +89,10 @@ class StravaActivity {
     switch (version) {
       case null:
         return StravaActivity(
-          id: json["id"] as int,
+          id: _parseId(json["id"]),
           lastModified: DateTime.tryParse(json["lastModified"] as String? ?? ""),
           name: json['name'] as String,
-          athlete: json['athleteId'] as int,
+          athlete: _parseId(json['athleteId']),
           sportType: SportType.fromString(json['sportType'] as String?),
           startDate: DateTime.parse(json['startDate'] as String),
           startDateLocal: DateTime.parse(json['startDateLocal'] as String).copyWith(isUtc: false),
@@ -115,10 +115,10 @@ class StravaActivity {
     switch (version) {
       case null:
         return StravaActivity(
-          id: json["id"] as int,
+          id: _parseId(json["id"]),
           lastModified: (json["lastModified"] as Timestamp?)?.toDate().toUtc(),
           name: json['name'] as String,
-          athlete: json['athleteId'] as int,
+          athlete: _parseId(json['athleteId']),
           sportType: SportType.fromString(json['sportType'] as String?),
           startDate: DateTime.parse(json['startDate'] as String),
           startDateLocal: DateTime.parse(json['startDateLocal'] as String).copyWith(isUtc: false),
@@ -135,6 +135,9 @@ class StravaActivity {
       default: throw Exception("Json Version $version of StravaActivity incompatible.");
     }
   }
+
+  /// The backend may store IDs as decimal strings later (#112).
+  static int _parseId(Object? value) => value is String ? int.parse(value) : value as int;
 
   @override
   bool operator ==(Object other) {

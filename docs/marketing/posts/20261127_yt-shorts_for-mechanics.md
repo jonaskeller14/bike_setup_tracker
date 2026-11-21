@@ -1,7 +1,7 @@
 # yt-shorts · For home mechanics
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/dC_JgvmHVJc?feature=share
 - Posted: 2026-11-27 17:00
 - App version: 1.8.0
 - Playlist: v1.8.0

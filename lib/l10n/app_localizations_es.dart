@@ -513,6 +513,23 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loadingErrorDownloadBundleSubtitle => 'Última copia de seguridad y adjuntos en un archivo ZIP';
 
   @override
+  String get updateRequiredTitle => 'Actualización necesaria';
+
+  @override
+  String get updateRequiredMessage =>
+      'Esta versión de la app ya no es compatible. Actualízala para seguir usándola. Tus datos se quedan en este dispositivo.';
+
+  @override
+  String get updateRequiredNoUpdateHint =>
+      'Si este dispositivo no ofrece ninguna actualización, exporta una copia de seguridad para no perder tus datos.';
+
+  @override
+  String get updateRequiredUpdate => 'Actualizar';
+
+  @override
+  String get updateRequiredExportBackup => 'Exportar copia de seguridad';
+
+  @override
   String get onboardingSkip => 'Omitir';
 
   @override
@@ -2434,6 +2451,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String componentFormPresetUpdated(String name) {
+    return '$name: datos del catálogo actualizados';
+  }
+
+  @override
   String componentFormPresetLinked(String name, int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -4328,11 +4350,11 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get setupFormGuideWeightLocal => 'Solo se usa para estas recomendaciones';
+  String get setupFormGuideWeightLocal => 'Solo se usa para estas recomendaciones.';
 
   @override
   String setupFormGuideAddWeight(String name) {
-    return 'Añadir el peso a $name';
+    return 'Guardar como peso de $name';
   }
 
   @override
@@ -6356,6 +6378,53 @@ class AppLocalizationsEs extends AppLocalizations {
   String get testSessionEndSession => 'Finalizar sesión';
 
   @override
+  String testSessionProgressLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count runs',
+      one: 'Queda 1 run',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String testSessionProgressRange(int min, int max) {
+    return 'Quedan $min–$max runs';
+  }
+
+  @override
+  String testSessionProgressUpTo(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan $count runs como máximo',
+      one: 'Queda 1 run como máximo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String testSessionProgressAbout(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Quedan unos $count runs',
+      one: 'Queda 1 run aproximadamente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get testSessionProgressLastRun => 'Último run';
+
+  @override
+  String get testSessionProgressConfirm => 'Último run: confirma el mejor';
+
+  @override
+  String get testSessionProgressDone => 'Listo: finaliza la sesión';
+
+  @override
   String get testSessionActionsTooltip => 'Acciones de la sesión de pruebas';
 
   @override
@@ -7140,10 +7209,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get stravaActivityNoSetupsTitle => 'Ningún setup para esta actividad';
+  String get stravaActivityNoSetupsSubtitle => 'Añade un setup para guardar la configuración de tu bici';
 
   @override
-  String get stravaActivityNoSetupsSubtitle => 'Añade un setup para guardar la configuración de tu bici';
+  String get stravaActivityNoSetupBeforeTitle => 'Ningún setup antes de esta actividad';
+
+  @override
+  String get stravaActivityTimelineStart => 'Inicio';
+
+  @override
+  String get stravaActivityTimelineEnd => 'Fin';
 
   @override
   String stravaActivitySessionRunning(String name) {
@@ -8035,11 +8110,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String pressureCheckSetNowUnmarked(String name) {
-    return '$name ya no está marcado como inflado';
-  }
-
-  @override
   String get pressureCheckSetNowDone => 'Inflado ahora mismo';
 
   @override
@@ -8213,7 +8283,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get guideCardRidingWeight => 'Peso del rider';
 
   @override
-  String get guideCardAddWeightDefault => 'Añadir el peso al rider';
+  String get guideCardAddWeightDefault => 'Guardar como peso del rider';
 
   @override
   String guideCardBasedOn(String guide) {
@@ -8268,6 +8338,22 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get guideIssueNeedsMore => 'Necesita más información';
+
+  @override
+  String get guideCardChooseDetail => 'Elegir';
+
+  @override
+  String get guideDetailsTitle => 'Datos del catálogo que faltan';
+
+  @override
+  String guideDetailsIntro(String component) {
+    return 'Los valores recomendados para $component necesitan estos datos. Se guardan en el componente.';
+  }
+
+  @override
+  String guideDetailsSaved(String component, String details) {
+    return '$component: $details guardado';
+  }
 
   @override
   String get guideIssueOutsideRange => 'Fuera del rango publicado';
@@ -8806,6 +8892,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get presetMergeKeptRange => 'Mantiene tu rango: hay valores registrados fuera del de la plantilla';
 
   @override
+  String presetMergeKeptTravel(String own, String catalog) {
+    return 'Mantiene tu recorrido de $own mm (plantilla: $catalog mm)';
+  }
+
+  @override
   String presetMergeChoiceMergeInto(String name) {
     return 'Combinar en “$name”';
   }
@@ -8910,7 +9001,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get catalogCardDismiss => 'Descartar';
 
   @override
-  String get catalogCardReview => 'Revisar';
+  String get catalogCardApply => 'Aplicar';
 
   @override
   String get subcomponentsSheetIntro =>

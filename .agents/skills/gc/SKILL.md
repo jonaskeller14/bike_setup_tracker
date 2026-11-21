@@ -8,26 +8,4 @@ allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git b
 
 Delegate this workflow to the project-local `commit-staged` custom agent. It runs on the configured lightweight model; do not execute the commit workflow in the parent agent.
 
-Commit the changes that are **already staged**. Do not stage anything yourself.
-
-## Steps
-1. Inspect staged changes: `git diff --cached --stat` and `git diff --cached`.
-   - If nothing is staged, STOP and tell the user there is nothing to commit (do not run `git add`).
-   - Scan the staged diff for obvious (major) errors or typos — e.g. syntax errors, broken/leftover debug code, obviously wrong identifiers, or misspellings in user-facing strings. If any exist, STOP and return the list of errors to the user (do not commit). Ignore stylistic nitpicks.
-2. If `$ARGUMENTS` is provided, use it as the commit message (or as a strong subject/hint).
-   Otherwise write a message in this repo's Conventional Commit style:
-   `type(scope): summary` where `type` ∈ feat | fix | refactor | docs | chore | test | perf |
-   style | build. Derive it from the staged diff; keep the summary in the imperative mood.
-   
-   **When the changeset includes multiple sub-changes** (new files, refactors across multiple files, mixed types of changes, etc.), use multiple `-m` flags to break them down:
-   - First `-m`: concise subject line
-   - Subsequent `-m` flags: bullet-point list of all specific changes (e.g., "- Add widget.dart", "- Update ComponentType with maxCount", "- Refactor preset picker")
-3. Commit ONLY the staged changes: `git commit -m "<message>"` (use multiple `-m` flags for a body).
-4. Print the result: `git log -1 --format='%h %s'`.
-
-## Constraints
-- Never `git add`, `git push`, or `git commit --amend`.
-- Use multiple `-m` flags for multi-paragraph messages (avoid PowerShell here-strings).
-- If the current branch is `main` or `master`, warn the user and ask for confirmation before committing.
-- Do NOT include "coauthored by claude" or similar notes in commit messages.
-- Use clear, descriptive summaries of the functional changes.
+The commit workflow itself is in `.claude/commands/gc.md`. Read that file and follow it exactly, with `$ARGUMENTS` as the optional message hint. Do not keep a copy here.

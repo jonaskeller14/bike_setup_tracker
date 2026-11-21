@@ -27,6 +27,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate env.g.dart
+        run: |
+          printf 'MAPBOX_TOKEN=\nAPP_CHECK_DEBUG_TOKEN_ANDROID=\nAPP_CHECK_DEBUG_TOKEN_IOS=\n' > .env
+          dart run build_runner build
+
       - name: Flutter Analyse
         run: flutter analyze
 

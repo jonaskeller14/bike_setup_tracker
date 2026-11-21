@@ -15,6 +15,16 @@
   rider         Near-black, the rider type huge in its colour above the hook; the phone slides up when the
                 hook ends. {"kind": "rider", "word": "Racers", "color": "#ff5a1f", "label": "For racers", "size": 170}
 
+  "draw" (any look) replaces the captions of voice lines [from, to) with a drawn explainer in the caption band,
+  drawn type and rules only (brand.md, Motion); it ends the caption before it at line "from":
+  scale   Two units on one rule, a pump gauge's two scales: the marker slides to "value" at the spoken word "move".
+          {"kind": "scale", "lines": [3, 4], "move": [3, "same"], "label": "Same pressure", "range": [1, 2],
+           "top": {"unit": "bar", "value": 1.5, "minor": 0.1, "labels": 0.5}, "factor": 14.5038,
+           "bottom": {"unit": "psi", "value": "21.76", "minor": 1, "labels": 5}}
+  travel  A travel line, filled to the measured part at "fill", the result landing at "land".
+          {"kind": "travel", "lines": [4, 6], "value": "32 mm", "of": 32, "travel": 160, "end": "160 mm travel",
+           "fill": [4, "thirty-two"], "result": "= 20 %", "land": [5, "twenty"]}
+
   The brand bar is on the hook only; the captions after it move up to 236 px. Before / After captions before the
   reveal end above the note (video_9x16.html?note). The note, the table and the step
   number are drawn type, never UI. Every look hides the phone until its reveal (voice line 1, or "after"), so
@@ -91,6 +101,25 @@
   #scribble { position: absolute; left: 110px; top: 1270px; z-index: 4; font: 700 84px/1 'Caveat', cursive; color: #1f3a8a; white-space: nowrap; }
   .has-table #stamp { left: 480px; top: 1250px; }
 
+  /* Drawn explainers ("draw"), in the caption band above the phone. */
+  #draw { position: absolute; z-index: 3; font-variant-numeric: tabular-nums; }
+  #draw.scale { left: 60px; top: 246px; width: 960px; height: 330px; }
+  #draw .label { position: absolute; left: 0; top: 0; font-weight: 700; font-size: 28px; line-height: 1.2; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  #draw .rule { position: absolute; left: 24px; width: 816px; height: 4px; background: var(--ink); }
+  #draw .tick { position: absolute; width: 3px; background: var(--ink); }
+  #draw .num { position: absolute; font-weight: 700; font-size: 28px; line-height: 1; transform: translateX(-50%); color: var(--muted); }
+  #draw .marker { position: absolute; top: 0; bottom: 0; width: 0; }
+  #draw .marker .line { position: absolute; left: -3px; width: 6px; background: var(--ink); }
+  #draw .reading { position: absolute; font-weight: 900; font-size: 64px; line-height: 1; letter-spacing: -.04em; white-space: nowrap; transform: translateX(-50%); }
+  #draw.travel { left: 290px; top: 244px; width: 730px; height: 190px; }
+  #draw .big { position: absolute; top: 0; font-weight: 700; font-size: 84px; line-height: 1; letter-spacing: -.035em; white-space: nowrap; }
+  #draw .bar { position: absolute; left: 0; right: 0; top: 112px; height: 28px; border: 3px solid var(--ink); box-sizing: border-box; }
+  #draw .fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--headline); }
+  #draw .oring { position: absolute; top: -12px; bottom: -12px; width: 6px; margin-left: -3px; background: var(--ink); }
+  #draw .ends { position: absolute; left: 0; right: 0; top: 156px; font-weight: 700; font-size: 28px; line-height: 1; color: var(--muted); }
+  .howto #draw .big, .howto #draw .ends, .howto #draw .label { font-family: 'JetBrains Mono', monospace; }
+  .howto #draw .big { font-family: 'Space Grotesk', 'Archivo', sans-serif; }
+
   /* For riders who…: one colour per rider type (F3). */
   .rider { --paper: #141414; --ink: #f5f5f5; --muted: #9a9a9a; --changed: #ffb74d; }
   .rider #label { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--headline); }
@@ -164,6 +193,62 @@
   // A longer rider word sets a smaller "size" (px), so it stays inside the frame.
   if (F.kind === 'rider') add('<div id="word">' + text(F.word) + '</div>').style.fontSize = (F.size || 170) + 'px';
 
+  const D = F.draw;
+  if (D) {
+    const box = add('<div id="draw" class="' + D.kind + '"></div>');
+    if (D.kind === 'scale') {
+      // The rule's x for a value in the top unit; the unit names sit right of it.
+      const [lo, hi] = D.range;
+      const x = (v) => 24 + (v - lo) / (hi - lo) * 816;
+      const ticks = (unit, perTop, y, down) => {
+        const first = Math.ceil(lo * perTop / unit.minor - 1e-9);
+        for (let k = first; k * unit.minor <= hi * perTop + 1e-9; k++) {
+          const v = k * unit.minor;
+          const major = Math.abs(v / unit.labels - Math.round(v / unit.labels)) < 1e-6;
+          const tick = document.createElement('div');
+          tick.className = 'tick';
+          box.appendChild(tick);
+          Object.assign(tick.style, { left: (x(v / perTop) - 1.5) + 'px', top: (down ? y : y - (major ? 24 : 12)) + 'px', height: (major ? 24 : 12) + 'px' });
+          if (major) {
+            const num = document.createElement('div');
+            num.className = 'num';
+            num.textContent = String(Math.round(v * 100) / 100);
+            Object.assign(num.style, { left: x(v / perTop) + 'px', top: (down ? y + 32 : y - 56) + 'px' });
+            box.appendChild(num);
+          }
+        }
+      };
+      box.innerHTML = '<div class="label">' + text(D.label) + '</div><div class="rule" style="top: 176px"></div>';
+      ticks(D.top, 1, 176, false);
+      ticks(D.bottom, D.factor, 180, true);
+      const unitLabel = (u, y) => {
+        const el = document.createElement('div');
+        el.className = 'num';
+        el.style.cssText = 'left: 872px; transform: none; top: ' + y + 'px; color: var(--ink)';
+        el.textContent = u;
+        box.appendChild(el);
+      };
+      unitLabel(D.top.unit, 148);
+      unitLabel(D.bottom.unit, 184);
+      box.insertAdjacentHTML('beforeend', '<div class="marker" style="left: ' + x(lo) + 'px"><div class="line" style="top: 150px; height: 56px"></div>'
+        + '<div class="reading" style="top: 52px">' + text(D.top.value + ' ' + D.top.unit) + '</div>'
+        + '<div class="reading" style="top: 258px">' + text(D.bottom.value + ' ' + D.bottom.unit) + '</div></div>');
+      box.dataset.to = x(D.top.value) - x(lo);
+    }
+    if (D.kind === 'travel') {
+      const part = D.of / D.travel * 100;
+      box.innerHTML = '<div class="big" style="left: 0; color: var(--headline)">' + text(D.value) + '</div>'
+        + '<div class="big result" style="right: 0; color: var(--changed)">' + text(D.result) + '</div>'
+        + '<div class="bar"><div class="fill" style="width: ' + part + '%"></div><div class="oring" style="left: ' + part + '%"></div></div>'
+        + '<div class="ends"><span>0</span><span style="position: absolute; right: 0">' + text(D.end) + '</span></div>';
+    }
+    // The caption before the drawing leaves when it arrives.
+    const start = lineAt(D.lines[0]);
+    document.querySelectorAll('.caption').forEach((el) => {
+      if (Number(el.dataset.from) < start && Number(el.dataset.to) > start) el.dataset.to = start - .16;
+    });
+  }
+
   const motion = Motion.create();
   const captions = [...document.querySelectorAll('.caption')];
   captions.forEach((el) => motion.caption(el, Number(el.dataset.from), Number(el.dataset.to)));
@@ -233,6 +318,38 @@
     // A fade, not motion.leave: rising 90 px would take the word above y 220.
     motion.tl.to('#word', { autoAlpha: 0, duration: .16, ease: 'power2.in' }, end - .16);
     reveal(end);
+  }
+
+  if (D) {
+    const start = lineAt(D.lines[0]);
+    const end = lineAt(D.lines[1]) - .16;
+    gsap.set('#draw', { autoAlpha: 0 });
+    motion.tl.set('#draw', { autoAlpha: 1 }, start);
+    if (D.kind === 'scale') {
+      // The rule draws in, the ticks follow, then the marker slides to the value; its readings arrive with it.
+      gsap.set('#draw .rule', { clipPath: 'inset(-40px 100% -40px 0)' });
+      motion.tl.to('#draw .rule', { clipPath: 'inset(-40px 0% -40px 0)', duration: .35, ease: 'power2.out' }, start);
+      gsap.set('#draw .tick, #draw .num, #draw .label', { opacity: 0 });
+      motion.tl.to('#draw .tick, #draw .num, #draw .label', { opacity: 1, duration: .25 }, start + .2);
+      gsap.set('#draw .reading', { opacity: 0 });
+      const move = motion.when(...D.move);
+      motion.tl.to('#draw .marker', { x: Number(document.getElementById('draw').dataset.to), duration: .7, ease: 'power3.inOut' }, move);
+      motion.tl.to('#draw .reading', { opacity: 1, duration: .2 }, move + .55);
+    }
+    if (D.kind === 'travel') {
+      gsap.set('#draw .big:not(.result), #draw .bar, #draw .ends', { opacity: 0 });
+      motion.tl.to('#draw .bar, #draw .ends', { opacity: 1, duration: .25 }, start);
+      gsap.set('#draw .fill', { scaleX: 0, transformOrigin: 'left center' });
+      gsap.set('#draw .oring', { opacity: 0 });
+      const fill = motion.when(...D.fill);
+      motion.tl.to('#draw .big:not(.result)', { opacity: 1, duration: .2 }, fill);
+      motion.tl.to('#draw .fill', { scaleX: 1, duration: .5, ease: 'power2.out' }, fill);
+      motion.tl.to('#draw .oring', { opacity: 1, duration: .1 }, fill + .45);
+      // The result overshoots once, from the right so it stays clear of the buttons (motion/README.md).
+      gsap.set('#draw .result', { opacity: 0, transformOrigin: 'right bottom' });
+      motion.tl.fromTo('#draw .result', { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, duration: .35, ease: 'back.out(2)', immediateRender: false }, motion.when(...D.land));
+    }
+    motion.leave('#draw', end);
   }
 
   motion.finish();

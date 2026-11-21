@@ -1,0 +1,5 @@
+• Forcelle e ammortizzatori X-Fusion nel catalogo, più altri modelli FOX e RockShox
+• Le attività Strava mostrano i loro setup in una cronologia
+• Guide al setup: tocca di nuovo un valore applicato per annullarlo e scegli i dettagli mancanti di forcella o ammortizzatore direttamente sulla scheda
+• Aggiornamenti del catalogo più chiari; la tua escursione non viene mai sovrascritta
+• Feedback aptico e miglioramenti UI/UX

@@ -71,14 +71,21 @@ class HintCardLoadingIndicator extends StatelessWidget {
   }
 }
 
-/// [text] followed by a "Learn more" link. The whole text is the tap target,
-/// since the link alone is too small to hit reliably.
+/// [text] followed by a "Learn more" link, or [linkText] in its place. The
+/// whole text is the tap target, since the link alone is too small to hit reliably.
 class HintLearnMoreText extends StatelessWidget {
   final String text;
   final TextStyle? style;
   final VoidCallback onLearnMore;
+  final String? linkText;
 
-  const HintLearnMoreText({super.key, required this.text, required this.style, required this.onLearnMore});
+  const HintLearnMoreText({
+    super.key,
+    required this.text,
+    required this.style,
+    required this.onLearnMore,
+    this.linkText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +100,7 @@ class HintLearnMoreText extends StatelessWidget {
             children: [
               TextSpan(text: "$text "),
               TextSpan(
-                text: context.l10n.hintLearnMore,
+                text: linkText ?? context.l10n.hintLearnMore,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,

@@ -93,6 +93,7 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
   "endcard": { "signature": "…", "note": "…" },  // optional; defaults "78 psi. 4 clicks. Saved." / "Free on iOS and Android"
   "music": "track.mp3",          // in tool/marketing/assets/music/ (gitignored); missing → silent track
   "voice": "03_features",        // optional: folder in tool/marketing/assets/voice/ with the speechma batches (see Voiceover)
+  "sounds": {"click": {"file": "kenney_interface-sounds/Audio/click_001.ogg", "gain": 0.25}},  // optional: named sound effects in tool/marketing/assets/sfx/ (see Sound effects)
   "recordings": "build/marketing/raw/ios",  // where clips without "source" are read; default build/marketing/raw
   "clips": {
     "demo_add_setup": {
@@ -113,6 +114,7 @@ home animation starts (the end of the last frame gap of ≥1 s) and every demo c
       "at": [0.3, 3.0, …],                     // optional: Short second where each line starts; default one after the other
       "captions": [null, "Your *bike fit*", …]  // optional: one per line, shown from its start; null keeps the one before; the first is the hook
     },
+    "sfx": [[2.4, "click"], [6.1, "click"]],  // optional: [Short second, name in "sounds"]
     "motion": "restore.html",  // optional, see Motion: docs/marketing/motion/<file> draws the whole picture; the first clip is its recording
     "format": { "kind": "howto", "label": "How to · 01", "steps": [{"line": 1, "text": "Switch on"}] }  // with "motion": "format.html": the series look, fields in its header
   } },
@@ -208,6 +210,14 @@ Mix: the voice is loudness-normalized as one track (−15 LUFS); the music bed p
 and ducks further while a line plays (sidechain compressor), then a limiter. A Short with voice
 measures about −16 LUFS over its voiced part, like the music-only Shorts. Captions start with
 their line, so muted viewers read what is said.
+
+### Sound effects
+
+A Short's `sfx` places sounds from the kit's `sounds` at Short seconds: a click on a tap, a soft slide when a
+scene leaves or the page turns, a pop when a value lands. They sit on top of the mix at their `gain` (default
+0.25; the packs peak near 0 dBFS) and don't duck the voice; keep them few and quiet. The packs are CC0
+downloads, gitignored and unpacked next to their zips in `tool/marketing/assets/sfx/` (its README); a missing
+file fails the build.
 
 ### Motion
 
@@ -351,3 +361,4 @@ Preview one in Chrome, e.g.
   corners match the SDK's `pixel_8` emulator skin (same display size). The iPhone frame is
   `docs/store/app-store/iPhone-17-Pro-Max/frame.png`.
 - `music/`: the music bed, gitignored.
+- `sfx/`: the sound effect packs, gitignored; `sfx/README.md` says where to download them.

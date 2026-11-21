@@ -458,13 +458,13 @@ def render_still(chrome, template, size, params, out):
         raise RuntimeError("; ".join(problems))
 
 
-def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voice=()):
+def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voice=(), sfx=()):
     """Joins video-only segments, crossfades into the end card still and adds audio.
 
     fade: crossfade between segments in seconds (0 cuts). audio: the music bed (looped, faded,
     loudness-normalized) if music is given, else a silent stereo track. voice: (mp3, start, end, at)
     lines, each cut from start to end of its mp3 and placed at second `at` of the video; the music
-    ducks under them. Returns the length.
+    ducks under them. sfx: (sound, at, gain) effects on top, never ducked. Returns the length.
     """
     inputs = []
     for segment in segments:
@@ -511,6 +511,7 @@ def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voi
             n += 1
         else:
             graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{total:.3f}[bed]")
+        mix = "[mix]" if sfx else "[a]"
         if voice:
             graph += voice_track(inputs, n, voice, total)
             # The bed sits under the voice and dips further while a line plays.
@@ -518,14 +519,32 @@ def assemble(segments, out, end_card=None, music=None, audio=True, fade=0.0, voi
                 "[vo]asplit[vo_key][vo_mix]",
                 f"[bed]volume={VOICE_BED}[bed_low]",
                 "[bed_low][vo_key]sidechaincompress=threshold=0.02:ratio=6:attack=40:release=500[ducked]",
-                "[ducked][vo_mix]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=0[a]",
+                "[ducked][vo_mix]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=0" + mix,
             ]
         else:
-            graph.append("[bed]anull[a]")
+            graph.append("[bed]anull" + mix)
+        if sfx:
+            graph += sfx_track(inputs, n + len(voice), sfx, total)
+            graph.append("[mix][fx]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.89:level=0[a]")
         maps += ["-map", "[a]", "-c:a", "aac", "-b:a", "192k"]
     out.parent.mkdir(parents=True, exist_ok=True)
     ffmpeg(*inputs, "-filter_complex", ";".join(graph), *maps, "-t", f"{total:.3f}", *DELIVERY, out)
     return duration(out)
+
+
+def sfx_track(inputs, first, cues, total):
+    """Appends one input per sound effect to inputs; returns the filter graph of the effects track [fx].
+
+    cues: (sound, at, gain), each placed at second `at` of the video at `gain` of its level.
+    """
+    graph = []
+    for i, (sound, at, gain) in enumerate(cues):
+        inputs += ["-i", sound]
+        graph.append(f"[{first + i}:a]aformat=sample_rates=48000:channel_layouts=stereo,volume={gain},"
+                     f"adelay={max(0, round(at * 1000))}:all=1[fx{i}]")
+    graph.append("".join(f"[fx{i}]" for i in range(len(cues)))
+                 + f"amix=inputs={len(cues)}:duration=longest:normalize=0,apad,atrim=0:{total:.3f}[fx]")
+    return graph
 
 
 def voice_track(inputs, first, lines, total):

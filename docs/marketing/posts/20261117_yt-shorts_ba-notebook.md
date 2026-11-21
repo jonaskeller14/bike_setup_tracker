@@ -1,7 +1,7 @@
 # yt-shorts · Before / After: Tape on the fork
 
-- Status: planned
-- URL: —
+- Status: scheduled
+- URL: https://youtube.com/shorts/Zbf_GHa1a0k?feature=share
 - Posted: 2026-11-17 17:00
 - App version: 1.7.0
 - Playlist: v1.8.0

@@ -43,7 +43,13 @@ final _catalog = [
 ];
 
 void main() {
-  Future<void> open(WidgetTester tester, ThemeData theme) async {
+  Future<void> open(
+    WidgetTester tester,
+    ThemeData theme, {
+    List<Adjustment>? existing,
+    List<PresetMergeRow>? proposal,
+    bool allowReplace = true,
+  }) async {
     tester.view.physicalSize = const Size(320, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -55,15 +61,18 @@ void main() {
             onPressed: () => showPresetMergeSheet(
               context,
               productName: 'A very long catalog product name with damper and travel',
-              existing: _own,
-              proposal: [
-                PresetMergeRow.merged(_catalog[0], _own[0]),
-                PresetMergeRow.merged(_catalog[1], _own[1]),
-                PresetMergeRow.notAdded(_catalog[2]),
-              ],
+              existing: existing ?? _own,
+              proposal:
+                  proposal ??
+                  [
+                    PresetMergeRow.merged(_catalog[0], _own[0]),
+                    PresetMergeRow.merged(_catalog[1], _own[1]),
+                    PresetMergeRow.notAdded(_catalog[2]),
+                  ],
               recordedValues: const {
                 'lsr': [StepValue(18)],
               },
+              allowReplace: allowReplace,
             ),
             child: const Text('open'),
           ),
@@ -90,6 +99,13 @@ void main() {
     });
   }
 
+  testWidgets('without replacing only merging is offered', (tester) async {
+    await open(tester, materialAppTheme, allowReplace: false);
+
+    expect(find.text('Replace'), findsNothing);
+    expect(find.text('Merge'), findsOneWidget);
+  });
+
   testWidgets('the status badge opens the choices for its card', (tester) async {
     await open(tester, materialAppTheme);
 
@@ -100,5 +116,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Result · 1 merged · 1 new · 1 unchanged'), findsOneWidget);
+  });
+
+  group('merging a SAG', () {
+    final catalogSag = SagAdjustment(name: 'SAG', notes: null, presetKey: 'fork:sag', referenceTravelMm: 170);
+
+    Future<void> openWith(WidgetTester tester, SagAdjustment own) =>
+        open(tester, materialAppTheme, existing: [own], proposal: [PresetMergeRow.merged(catalogSag, own)]);
+
+    testWidgets('says it keeps a travel the rider set', (tester) async {
+      await openWith(tester, SagAdjustment(id: 'sag', name: 'Sag', notes: null, referenceTravelMm: 160));
+
+      expect(find.text('Keeps your travel of 160 mm (preset: 170 mm)'), findsOneWidget);
+      expect(find.text('160 mm'), findsOneWidget);
+    });
+
+    testWidgets('shows the catalog travel it takes over', (tester) async {
+      await openWith(tester, SagAdjustment(id: 'sag', name: 'Sag', notes: null));
+
+      expect(find.textContaining('Keeps your travel'), findsNothing);
+      expect(find.text('170 mm'), findsOneWidget);
+    });
   });
 }

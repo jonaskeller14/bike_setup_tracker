@@ -4,6 +4,7 @@ import 'package:bike_setup_tracker/models/adjustment/adjustment.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session.dart';
 import 'package:bike_setup_tracker/models/feedback/test_session_method.dart';
 import 'package:bike_setup_tracker/models/setup.dart';
+import 'package:bike_setup_tracker/services/test_session/session_progress.dart';
 import 'package:bike_setup_tracker/services/test_session/suggestion_result.dart';
 import 'package:bike_setup_tracker/services/test_session/test_session_strategy.dart';
 
@@ -119,6 +120,34 @@ class Simulation {
 
   Map<String, AdjustmentValue> valuesOf(String setupId) =>
       (setups[setupId] ?? runs.firstWhere((r) => r.id == setupId)).bikeAdjustmentValues;
+
+  /// [history] while the latest run still waits for its feedback.
+  TestSessionHistory get historyAwaitingFeedback => TestSessionHistory(
+    session: session,
+    adjustments: adjustments,
+    runs: runs,
+    ratedRunIds: {for (final r in runs.take(runs.length - 1)) r.id},
+    comparisons: [
+      for (final comparison in comparisons)
+        if (comparison.ratedId != runs.last.id) comparison,
+    ],
+    setups: setups,
+  );
+
+  /// Rides the proposals to the end. For every run ridden: the estimate before
+  /// it, the estimate while it waited for its feedback, and the runs that were
+  /// then really left.
+  List<({SessionProgress before, SessionProgress? waiting, int actual})> playWithProgress({int maxRuns = 80}) {
+    final seen = <({SessionProgress before, SessionProgress? waiting, int at})>[];
+    while (strategy.propose(history) is Proposal && runs.length < maxRuns) {
+      final before = strategy.progress(history)!;
+      play(maxRuns: runs.length + 1);
+      seen.add((before: before, waiting: strategy.progress(historyAwaitingFeedback), at: runs.length - 1));
+    }
+    return [
+      for (final (:before, :waiting, :at) in seen) (before: before, waiting: waiting, actual: runs.length - at),
+    ];
+  }
 }
 
 int stepOf(Map<String, AdjustmentValue> values, String id) => (values[id] as StepValue).value;

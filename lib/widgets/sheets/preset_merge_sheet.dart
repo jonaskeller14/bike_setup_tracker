@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../l10n/adjustment_value_text.dart';
 import '../../l10n/l10n.dart';
 import '../../models/adjustment/adjustment.dart';
 import '../../utils/preset_merge.dart';
@@ -13,8 +14,9 @@ import 'sheet_header.dart';
 /// Lets the rider decide how [productName]'s adjusters combine with the
 /// component's [existing] adjustments: merged into them, starting from
 /// [proposal], or replacing them. [unknownMaxKeys] are the catalog preset keys
-/// whose max is a placeholder. Returns the resulting adjustments, or null when
-/// dismissed.
+/// whose max is a placeholder. Without [allowReplace] only merging is offered,
+/// for a [proposal] of some catalog adjusters only. Returns the resulting
+/// adjustments, or null when dismissed.
 Future<PresetMergeResult?> showPresetMergeSheet(
   BuildContext context, {
   required String productName,
@@ -22,6 +24,7 @@ Future<PresetMergeResult?> showPresetMergeSheet(
   required List<PresetMergeRow> proposal,
   required Map<String, List<AdjustmentValue>> recordedValues,
   Set<String> unknownMaxKeys = const {},
+  bool allowReplace = true,
 }) {
   return showModalBottomSheet<PresetMergeResult>(
     useSafeArea: true,
@@ -33,6 +36,7 @@ Future<PresetMergeResult?> showPresetMergeSheet(
       proposal: proposal,
       recordedValues: recordedValues,
       unknownMaxKeys: unknownMaxKeys,
+      allowReplace: allowReplace,
     ),
   );
 }
@@ -61,9 +65,18 @@ class _Entry {
   final Adjustment? own;
   final Adjustment? catalog;
   final bool keptOwnRange;
+  final bool keptOwnTravel;
   final List<(String, PresetMergeRow)> choices;
 
-  const _Entry(this.result, this.status, {this.own, this.catalog, this.keptOwnRange = false, this.choices = const []});
+  const _Entry(
+    this.result,
+    this.status, {
+    this.own,
+    this.catalog,
+    this.keptOwnRange = false,
+    this.keptOwnTravel = false,
+    this.choices = const [],
+  });
 }
 
 class _PresetMergeSheet extends StatefulWidget {
@@ -72,6 +85,7 @@ class _PresetMergeSheet extends StatefulWidget {
   final List<PresetMergeRow> proposal;
   final Map<String, List<AdjustmentValue>> recordedValues;
   final Set<String> unknownMaxKeys;
+  final bool allowReplace;
 
   const _PresetMergeSheet({
     required this.productName,
@@ -79,6 +93,7 @@ class _PresetMergeSheet extends StatefulWidget {
     required this.proposal,
     required this.recordedValues,
     required this.unknownMaxKeys,
+    required this.allowReplace,
   });
 
   @override
@@ -160,6 +175,7 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
       own: own,
       catalog: catalog,
       keptOwnRange: merged.keptOwnRange,
+      keptOwnTravel: merged.keptOwnTravel,
       choices: [
         (context.l10n.presetMergeChoiceSeparate, PresetMergeRow.newAdjustment(catalog)),
         (context.l10n.presetMergeChoiceSeparateDrop, PresetMergeRow.notAdded(catalog)),
@@ -217,29 +233,30 @@ class _PresetMergeSheetState extends State<_PresetMergeSheet> {
                   style: muted,
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: SegmentedButton<_Mode>(
-                    segments: [
-                      ButtonSegment(
-                        value: _Mode.merge,
-                        label: Text(context.l10n.presetMergeModeMerge),
-                        icon: const Icon(Icons.merge),
-                      ),
-                      ButtonSegment(
-                        value: _Mode.replace,
-                        label: Text(context.l10n.replace),
-                        icon: const Icon(Icons.swap_horiz),
-                      ),
-                    ],
-                    selected: {_mode},
-                    onSelectionChanged: (selection) {
-                      unawaited(HapticFeedback.selectionClick());
-                      setState(() => _mode = selection.first);
-                    },
+                if (widget.allowReplace)
+                  SizedBox(
+                    width: double.infinity,
+                    child: SegmentedButton<_Mode>(
+                      segments: [
+                        ButtonSegment(
+                          value: _Mode.merge,
+                          label: Text(context.l10n.presetMergeModeMerge),
+                          icon: const Icon(Icons.merge),
+                        ),
+                        ButtonSegment(
+                          value: _Mode.replace,
+                          label: Text(context.l10n.replace),
+                          icon: const Icon(Icons.swap_horiz),
+                        ),
+                      ],
+                      selected: {_mode},
+                      onSelectionChanged: (selection) {
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() => _mode = selection.first);
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
+                if (widget.allowReplace) const SizedBox(height: 12),
                 if (_mode == _Mode.merge)
                   Text(
                     context.l10n.presetMergeMergedHint,
@@ -468,6 +485,22 @@ class _EntryCardState extends State<_EntryCard> {
                 context,
                 Icons.info_outline,
                 context.l10n.presetMergeKeptRange,
+                colors.tertiary,
+              ),
+            if ((entry.keptOwnTravel, own, catalog) case (
+              true,
+              SagAdjustment(referenceTravelMm: final ownTravel?),
+              SagAdjustment(
+                referenceTravelMm: final catalogTravel?,
+              ),
+            ))
+              _line(
+                context,
+                Icons.info_outline,
+                context.l10n.presetMergeKeptTravel(
+                  NumericalValue(ownTravel).displayText(context.l10n),
+                  NumericalValue(catalogTravel).displayText(context.l10n),
+                ),
                 colors.tertiary,
               ),
           ],

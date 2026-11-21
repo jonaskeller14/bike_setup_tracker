@@ -252,7 +252,7 @@ nodes:
 
         expect(tester.takeException(), isNull);
         expect(find.text('Update available'), findsOneWidget);
-        await tester.tap(find.widgetWithText(TextButton, 'Review'));
+        await tester.tap(find.widgetWithText(FilledButton, 'Apply'));
         await tester.tap(find.widgetWithText(TextButton, 'Dismiss'));
         expect((reviewed, dismissed), (1, 1));
       });

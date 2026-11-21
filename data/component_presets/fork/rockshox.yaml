@@ -41,6 +41,10 @@ sources:
   - https://support.rockshox.com/hc/en-us/articles/24894559854747-What-is-the-difference-between-the-Race-Day-and-Race-Day-2-damper
   - https://support.rockshox.com/hc/en-us/articles/17383057951259-How-do-the-Charger-XC-and-Rush-XC-differ-from-Charger-Race-Day-2
   - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2019-2023-boxxer-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2016-2017-yari-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2018-lyrik-yari-service-manual.pdf
+  - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2018-pike-revelation-service-manual.pdf
+  - https://www.sram.com/en/rockshox/models/fs-bxr-sel-d2
   - https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
   - https://support.rockshox.com/hc/en-us/articles/48153513107867-What-is-the-maximum-air-pressure
   - https://support.rockshox.com/hc/en-us/articles/48153509699995-What-is-different-between-ZEB-B1-and-ZEB-A-series
@@ -58,7 +62,17 @@ sources:
   - https://flowmountainbike.com/tests/2025-rockshox-zeb-lyrik-pike-fork-review/
   - https://enduro-mtb.com/en/rockshox-2025-fork-charger-review/
   - https://freehub.com/product-reviews/2014-rockshox-pike-rct3-160mm-review
-updated: 2026-10-13
+updated: 2026-11-17
+revision: 2
+changes:
+  - revision: 2
+    when: { damper: motion_control_rc }
+    review: Adds the compression adjuster.
+    review_de: Fügt den Druckstufenregler hinzu.
+    review_fr: Ajoute le réglage de compression.
+    review_it: Aggiunge la regolazione della compressione.
+    review_es: Añade el ajuste de compresión.
+    review_pt: Adiciona o ajuste de compressão.
 # Counting conventions, verified per damper against SRAM material:
 #   * Charger 3 / 3.1 / 3.2 compression counts from the MIDDLE detent — HSC has
 #     5 positions (-2..+2), LSC has 15 positions (-7..+7). Stored with those
@@ -197,6 +211,33 @@ option_values:
         Charger 3 and 3.1 and does not name 3.2, which SRAM describes as a
         different tune and range, so the 18 is carried over as an estimate.
 
+    charger_3_2_rc:
+      name: Charger 3.2 RC
+      description: >-
+        Single-knob Charger 3.2 with one compression dial and a rebound dial, built to
+        match the Linear XL air spring and the 2027 chassis.
+      description_de: >-
+        Charger 3.2 mit nur einem Druckstufenrad und einem Zugstufenrad, abgestimmt auf
+        die Linear-XL-Luftfeder und das Chassis 2027.
+      description_fr: Charger 3.2 à une seule molette de compression et une molette de détente, conçu pour s’accorder au ressort pneumatique Linear XL et au châssis 2027.
+      description_it: Charger 3.2 con una sola manopola di compressione e una del ritorno, progettato per abbinarsi alla molla pneumatica Linear XL e al telaio 2027.
+      description_es: Charger 3.2 con una sola rueda de compresión y una de rebote, diseñado para combinar con el muelle neumático Linear XL y el chasis 2027.
+      description_pt: Charger 3.2 com um único seletor de compressão e um de retorno, projetado para combinar com a mola a ar Linear XL e o chassi 2027.
+      adjustments:
+        - { name: LSC, name_de: LSC, name_fr: LSC, name_it: LSC, name_es: LSC, name_pt: LSC, type: step, min: -7, max: 7, visualization: dial_cw, notes: "Low-Speed Compression; Counted from the middle detent", notes_de: Low-Speed-Druckstufe; von der mittleren Raste gezählt, notes_fr: Compression basse vitesse ; comptée depuis le cran médian, notes_it: Compressione a bassa velocità; contata a partire dallo scatto centrale, notes_es: Compresión de baja velocidad; contada desde la muesca central, notes_pt: Compressão de baixa velocidade; contada a partir do clique central }
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+      source:
+        - https://www.sram.com/en/rockshox/models/fs-bxr-sel-d2
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://docs.sram.com/en-US/publications/5ODr3E6BhL1uWDnWhq4ATB
+      note: >-
+        SRAM's BoXXer Select D2 model page names the Charger 3.2 RC and describes one
+        compression adjustment next to an independent rebound adjustment; the 2027
+        Front Suspension Specifications print the same damper name. The LSC range of
+        -7..+7 is the Charger 3 RC / 3.2 RC figure from SRAM's Suspension User Manual
+        (7 clicks from either end to the middle). No rebound click count is
+        published, so it carries `max: ~`.
+
     charger_2_1_rc2:
       name: Charger 2.1 RC2
       description: >-
@@ -280,6 +321,52 @@ option_values:
         click count is published, so it carries `max: ~`; nothing inferred from
         the Race Day 1 damper.
 
+    charger_race_day_2_3p:
+      name: Charger Race Day 2 (3-position)
+      description: >-
+        Featherweight XC damper with a rebound dial and a three-position compression lever (Open, Pedal, Lock).
+      description_de: Federleichter XC-Dämpfer mit Zugstufenrad und einem Druckstufenhebel mit drei Positionen (Open, Pedal, Lock).
+      description_fr: Amortisseur XC ultraléger avec une molette de détente et un levier de compression à trois positions (Open, Pedal, Lock).
+      description_it: Ammortizzatore XC ultraleggero con una manopola del ritorno e una leva di compressione a tre posizioni (Open, Pedal, Lock).
+      description_es: Amortiguador XC ultraligero con una rueda de rebote y una palanca de compresión de tres posiciones (Open, Pedal, Lock).
+      description_pt: Amortecedor XC ultraleve com um seletor de retorno e uma alavanca de compressão de três posições (Open, Pedal, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Charger Race Day 2 3 Position (Open/Pedal/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Ultimate and Select+ trims. No rebound click count is
+        published, so it carries `max: ~`.
+
+    charger_race_day_2_2p:
+      name: Charger Race Day 2 (2-position)
+      description: >-
+        Featherweight XC damper with a rebound dial and a two-position compression lever (Open, Lock).
+      description_de: Federleichter XC-Dämpfer mit Zugstufenrad und einem Druckstufenhebel mit zwei Positionen (Open, Lock).
+      description_fr: Amortisseur XC ultraléger avec une molette de détente et un levier de compression à deux positions (Open, Lock).
+      description_it: Ammortizzatore XC ultraleggero con una manopola del ritorno e una leva di compressione a due posizioni (Open, Lock).
+      description_es: Amortiguador XC ultraligero con una rueda de rebote y una palanca de compresión de dos posiciones (Open, Lock).
+      description_pt: Amortecedor XC ultraleve com um seletor de retorno e uma alavanca de compressão de duas posições (Open, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Charger Race Day 2 2 Position (Open/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Ultimate and Select+ trims. No rebound click count is
+        published, so it carries `max: ~`.
+
     charger_2_rl:
       name: Charger 2 RL
       description: >-
@@ -311,6 +398,52 @@ option_values:
         - { name: Lockout, name_de: Lockout, name_fr: Lockout, name_it: Lockout, name_es: Lockout, name_pt: Lockout, type: boolean }
       source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2021-2023-sid-and-sid-sl-service-manual.pdf
       note: "Fitted to 2021-2023 SID / SID SL Select. No click counts published; rebound carries `max: ~`."
+
+    charger_rl_2024_3p:
+      name: Charger RL (3-position)
+      description: >-
+        Cross-country damper with a rebound dial and a three-position compression lever (Open, Pedal, Lock).
+      description_de: Cross-Country-Dämpfer mit Zugstufenrad und einem Druckstufenhebel mit drei Positionen (Open, Pedal, Lock).
+      description_fr: Amortisseur cross-country avec une molette de détente et un levier de compression à trois positions (Open, Pedal, Lock).
+      description_it: Ammortizzatore cross-country con una manopola del ritorno e una leva di compressione a tre posizioni (Open, Pedal, Lock).
+      description_es: Amortiguador cross-country con una rueda de rebote y una palanca de compresión de tres posiciones (Open, Pedal, Lock).
+      description_pt: Amortecedor cross-country com um seletor de retorno e uma alavanca de compressão de três posições (Open, Pedal, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Charger RL 3 Position (Open/Pedal/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Select trims. No rebound click count is
+        published, so it carries `max: ~`.
+
+    charger_rl_2024_2p:
+      name: Charger RL (2-position)
+      description: >-
+        Cross-country damper with a rebound dial and a two-position compression lever (Open, Lock).
+      description_de: Cross-Country-Dämpfer mit Zugstufenrad und einem Druckstufenhebel mit zwei Positionen (Open, Lock).
+      description_fr: Amortisseur cross-country avec une molette de détente et un levier de compression à deux positions (Open, Lock).
+      description_it: Ammortizzatore cross-country con una manopola del ritorno e una leva di compressione a due posizioni (Open, Lock).
+      description_es: Amortiguador cross-country con una rueda de rebote y una palanca de compresión de dos posiciones (Open, Lock).
+      description_pt: Amortecedor cross-country com um seletor de retorno e uma alavanca de compressão de duas posições (Open, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Charger RL 2 Position (Open/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Select trims. No rebound click count is
+        published, so it carries `max: ~`.
 
     rush_rc:
       name: Rush RC
@@ -385,6 +518,52 @@ option_values:
         Rebound count from the Rush Damper RL "Damper Assembly" step (p. 74):
         "rotate it counter-clockwise 16 clicks from the closed position."
 
+    rush_rl_2024_3p:
+      name: Rush RL (3-position)
+      description: >-
+        Entry-level cross-country damper with a rebound dial and a three-position compression lever (Open, Pedal, Lock).
+      description_de: Cross-Country-Dämpfer der Einstiegsklasse mit Zugstufenrad und einem Druckstufenhebel mit drei Positionen (Open, Pedal, Lock).
+      description_fr: Amortisseur cross-country d’entrée de gamme avec une molette de détente et un levier de compression à trois positions (Open, Pedal, Lock).
+      description_it: Ammortizzatore cross-country entry-level con una manopola del ritorno e una leva di compressione a tre posizioni (Open, Pedal, Lock).
+      description_es: Amortiguador cross-country de gama de entrada con una rueda de rebote y una palanca de compresión de tres posiciones (Open, Pedal, Lock).
+      description_pt: Amortecedor cross-country de entrada com um seletor de retorno e uma alavanca de compressão de três posições (Open, Pedal, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Pedal, Lock], options_de: [Offen, Pedal, Lock], options_fr: [Ouvert, Pedal, Lock], options_it: [Aperto, Pedal, Lock], options_es: [Abierto, Pedal, Lock], options_pt: [Aberto, Pedal, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Rush RL 3 Position (Open/Pedal/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Base trims. No rebound click count is
+        published, so it carries `max: ~`.
+
+    rush_rl_2024_2p:
+      name: Rush RL (2-position)
+      description: >-
+        Entry-level cross-country damper with a rebound dial and a two-position compression lever (Open, Lock).
+      description_de: Cross-Country-Dämpfer der Einstiegsklasse mit Zugstufenrad und einem Druckstufenhebel mit zwei Positionen (Open, Lock).
+      description_fr: Amortisseur cross-country d’entrée de gamme avec une molette de détente et un levier de compression à deux positions (Open, Lock).
+      description_it: Ammortizzatore cross-country entry-level con una manopola del ritorno e una leva di compressione a due posizioni (Open, Lock).
+      description_es: Amortiguador cross-country de gama de entrada con una rueda de rebote y una palanca de compresión de dos posiciones (Open, Lock).
+      description_pt: Amortecedor cross-country de entrada com um seletor de retorno e uma alavanca de compressão de duas posições (Open, Lock).
+      adjustments:
+        - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
+        - { name: Compression Mode, name_de: Druckstufenmodus, name_fr: Mode de compression, name_it: Modalità di compressione, name_es: Modo de compresión, name_pt: Modo de compressão, type: categorical, options: [Open, Lock], options_de: [Offen, Lock], options_fr: [Ouvert, Lock], options_it: [Aperto, Lock], options_es: [Abierto, Lock], options_pt: [Aberto, Lock] }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2027-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2026-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2025-front-suspension-specifications.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2024-front-suspension-specifications.pdf
+      note: >-
+        Lever positions from the damper column of the Technical Specifications (2027 p. 23,
+        2026 p. 24, 2025 p. 23, 2024): "Rush RL 2 Position (Open/Lock)". SRAM lists
+        every trim as a separate 3P and 2P fork. Fitted to the SID SL and SID Base trims. No rebound click count is
+        published, so it carries `max: ~`.
+
     isolator:
       name: Isolator
       description: |-
@@ -434,20 +613,22 @@ option_values:
       description_it: Ammortizzatore trail a lunga escursione con una manopola del ritorno e una manopola di compressione che va da aperta a una piattaforma di pedalata rigida.
       description_es: Amortiguador trail de mucho recorrido con una rueda de rebote y una rueda de compresión que va de abierta a una plataforma de pedaleo firme.
       description_pt: Amortecedor trail de longo curso com um seletor de retorno e um seletor de compressão que vai de aberto a uma plataforma de pedalada firme.
-      missing_adjustments: [Compression]
-      missing_adjustments_de: [Druckstufe]
-      missing_adjustments_fr: [Compression]
-      missing_adjustments_it: [Compressione]
-      missing_adjustments_es: [Compresión]
-      missing_adjustments_pt: [Compressão]
       adjustments:
         - { name: Rebound, name_de: Zugstufe, name_fr: Détente, name_it: Ritorno, name_es: Rebote, name_pt: Retorno, type: step, max: ~, notes: Counted from fully open (fastest), notes_de: Von ganz offen (am schnellsten) gezählt, notes_fr: Compté depuis la position entièrement ouverte (la plus rapide), notes_it: Contato a partire dalla posizione completamente aperta (la più rapida), notes_es: Contado desde la posición totalmente abierta (la más rápida), notes_pt: Contado a partir da posição totalmente aberta (a mais rápida), dialColor: red }
-      source: https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+        - { name: Compression, name_de: Druckstufe, name_fr: Compression, name_it: Compressione, name_es: Compresión, name_pt: Compressão, type: step, max: ~, notes: "Low-Speed Compression; Counted from fully open (softest)", notes_de: Low-Speed-Druckstufe; von ganz offen (am weichsten) gezählt, notes_fr: Compression basse vitesse ; comptée depuis la position entièrement ouverte (la plus souple), notes_it: Compressione a bassa velocità; contata a partire dalla posizione completamente aperta (la più morbida), notes_es: Compresión de baja velocidad; contada desde la posición totalmente abierta (la más blanda), notes_pt: Compressão de baixa velocidade; contada a partir da posição totalmente aberta (a mais macia) }
+      source:
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2023-front-suspension-oil-air-coil-token-specifications-english.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2016-2017-yari-service-manual.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2018-lyrik-yari-service-manual.pdf
+        - https://www.sram.com/globalassets/document-hierarchy/service-manuals/rockshox/front-suspension/2018-pike-revelation-service-manual.pdf
       note: >-
         Fitted to Yari, Revelation and Domain per the 2023 Front Suspension
-        Specifications damper column. No click counts published by SRAM. Rebound
-        carries `max: ~`; whether the compression dial is click-indexed is not
-        documented.
+        Specifications damper column. SRAM publishes no click totals, so rebound and
+        compression carry `max: ~`. The Yari service manuals (2016-2017, 2018) and
+        the 2018 Pike / Revelation service manual tell the rider to record the
+        compression setting as the number of clicks counted while turning the
+        adjuster fully counter-clockwise, to the full open stop; that is the
+        counting convention used here.
 
     motion_control_rl:
       name: Motion Control RL
@@ -504,6 +685,7 @@ guides:
       - target: rebound
         input: rider_weight
         input_unit: kg
+        when: { trim: [ultimate, select-plus] }
         rows: {
           50: max-11, 55: max-11, 60: max-10, 65: max-9, 70: max-8,
           75: max-7, 80: max-7, 85: max-6, 90: max-5, 95: max-4,
@@ -535,6 +717,7 @@ guides:
       - target: rebound
         input: rider_weight
         input_unit: kg
+        when: { trim: [ultimate, select-plus] }
         rows: &th_sid_d1 {
           50: max-12, 55: max-11, 60: max-10, 65: max-10, 70: max-9,
           75: max-8, 80: max-7, 85: max-7, 90: max-6, 95: max-5,
@@ -649,6 +832,7 @@ guides:
       - target: rebound
         input: rider_weight
         input_unit: kg
+        when: { trim: [ultimate, select-plus] }
         rows: *th_sid_d1
         note: Calculated from RockShox TrailHead's formula
         note_de: Berechnet nach der Formel von RockShox TrailHead
@@ -2117,7 +2301,6 @@ nodes:
       - label: "2026–2027"
         level: generation
         id: "2026"
-        draft: true
         years: "2026-2027"
         url: https://www.sram.com/en/rockshox/series/sid-sl
         guide: rockshox_sid_sl_2026
@@ -2129,7 +2312,7 @@ nodes:
               - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
               - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
           - label: Select+
@@ -2137,7 +2320,7 @@ nodes:
             specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_e1_air_spring
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
             note: OEM only
@@ -2146,10 +2329,25 @@ nodes:
             note_it: Solo primo equipaggiamento
             note_es: Solo para montaje original
             note_pt: Somente para montagem original
+          - label: Select
+            level: trim
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_sl_e1_air_spring
+            options:
+              damper: [charger_rl_2024_3p, charger_rl_2024_2p]
+              travel_mm: [100, 110]
+              wheel_size: [29]
+          - label: Base
+            level: trim
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_sl_e1_air_spring
+            options:
+              damper: [rush_rl_2024_3p, rush_rl_2024_2p]
+              travel_mm: [100, 110]
+              wheel_size: [29]
       - label: "2024–2025"
         level: generation
         id: "2025"
-        draft: true
         years: "2024-2025"
         url: https://www.sram.com/en/rockshox/series/sid-sl
         guide: rockshox_sid_sl_2025
@@ -2160,7 +2358,7 @@ nodes:
             adjustments: &sid_sl_d1_air_spring
               - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 195 }
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
           - label: Select+
@@ -2168,7 +2366,7 @@ nodes:
             specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_sl_d1_air_spring
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110]
               wheel_size: [29]
             note: OEM only
@@ -2177,6 +2375,22 @@ nodes:
             note_it: Solo primo equipaggiamento
             note_es: Solo para montaje original
             note_pt: Somente para montagem original
+          - label: Select
+            level: trim
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_sl_d1_air_spring
+            options:
+              damper: [charger_rl_2024_3p, charger_rl_2024_2p]
+              travel_mm: [100, 110]
+              wheel_size: [29]
+          - label: Base
+            level: trim
+            specs: { stanchion: 32mm, stanchion_de: 32mm, stanchion_fr: 32mm, stanchion_it: 32mm, stanchion_es: 32mm, stanchion_pt: 32mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_sl_d1_air_spring
+            options:
+              damper: [rush_rl_2024_3p, rush_rl_2024_2p]
+              travel_mm: [100, 110]
+              wheel_size: [29]
       - label: "2021–2023"
         level: generation
         id: "2021"
@@ -2238,11 +2452,10 @@ nodes:
       fork:lower_leg_service: &rockshox_lower_leg_service { interval: { moving_time_h: 50 }, source: RockShox service intervals, source_de: RockShox-Serviceintervalle, source_fr: Intervalles de révision RockShox, source_it: Intervalli di manutenzione RockShox, source_es: Intervalos de mantenimiento RockShox, source_pt: Intervalos de revisão RockShox }
       fork:full_service: *rockshox_full_service
     children:
-      - label: "2025–2026"
+      - label: "2024–2027"
         level: generation
         id: "2025"
-        draft: true
-        years: "2025-2026"
+        years: "2024-2027"
         url: https://www.sram.com/en/rockshox/series/sid
         guide: rockshox_sid_2025
         children:
@@ -2253,7 +2466,7 @@ nodes:
               - { name: Pressure, name_de: Luftdruck, name_fr: Pression d’air, name_it: Pressione dell’aria, name_es: Presión de aire, name_pt: Pressão do ar, type: numerical, unit: psi, min: 0, max: 150 }
               - { name: Volume Spacers, name_de: Volumenspacer, name_fr: Tokens, name_it: Token, name_es: Tokens, name_pt: Tokens, type: step, max: 3, unit: tokens, visualization: stepper, notes: Bottomless Tokens, notes_de: Bottomless Tokens, notes_fr: Bottomless Tokens, notes_it: Bottomless Token, notes_es: Bottomless Tokens, notes_pt: Bottomless Tokens }
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
           - label: Select+
@@ -2261,7 +2474,7 @@ nodes:
             specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             adjustments: *sid_d1_air_spring
             options:
-              damper: [charger_race_day_2]
+              damper: [charger_race_day_2_3p, charger_race_day_2_2p, charger_race_day_2]
               travel_mm: [100, 110, 120]
               wheel_size: [29]
             note: OEM only
@@ -2270,6 +2483,22 @@ nodes:
             note_it: Solo primo equipaggiamento
             note_es: Solo para montaje original
             note_pt: Somente para montagem original
+          - label: Select
+            level: trim
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_d1_air_spring
+            options:
+              damper: [charger_rl_2024_3p, charger_rl_2024_2p]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
+          - label: Base
+            level: trim
+            specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
+            adjustments: *sid_d1_air_spring
+            options:
+              damper: [rush_rl_2024_3p, rush_rl_2024_2p]
+              travel_mm: [100, 110, 120]
+              wheel_size: [29]
       - label: "2021–2023"
         level: generation
         id: "2021"
@@ -2878,12 +3107,11 @@ nodes:
             note_pt: Mola a ar Linear XL combinada com o Charger 3.2, de mais amortecimento
           - label: Select
             level: trim
-            draft: true
             specs: { stanchion: 38mm (dual-crown), stanchion_de: 38mm (Doppelbrücke), stanchion_fr: 38mm (double té), stanchion_it: 38mm (doppia piastra), stanchion_es: 38mm (doble corona), stanchion_pt: 38mm (dupla coroa), spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [44, 48, 52]
             adjustments: *boxxer_linear_xl_air_spring
             options:
-              damper: [charger_3_2]
+              damper: [charger_3_2_rc, charger_3_2]
               travel_mm: [180, 190, 200]
               wheel_size: [29, 27.5]
             note: OEM only
@@ -3102,7 +3330,6 @@ nodes:
         children:
           - label: RC
             level: trim
-            draft: true
             specs: { stanchion: 35mm, stanchion_de: 35mm, stanchion_fr: 35mm, stanchion_it: 35mm, stanchion_es: 35mm, stanchion_pt: 35mm, spring: Air, spring_de: Luft, spring_fr: Air, spring_it: Aria, spring_es: Aire, spring_pt: Ar }
             offset_mm: [37, 42, 44, 46, 51]
             adjustments:
@@ -3196,13 +3423,20 @@ nodes:
 
 # --------------------------------------------------------------------------
 # Follow-ups (not yet captured — avoid guessing):
-#   - Charger RC (Pike/Lyrik/ZEB Select, 2023-2026), Charger 3.2 RC (BoXXer
+#   - Charger RC (Pike/Lyrik/ZEB Select, 2023-2026), Charger 3.2 RC (ZEB B1
 #     Select) and Delta RC (ZEB B1 / Lyrik E1 Select and Base): SRAM's manuals
-#     show an LSC knob and a rebound knob but no rebound click count, so the
-#     Select / Base trims of the 2027 ZEB and Lyrik are intentionally not listed.
-#     The Charger 3 RC / 3.2 RC LSC is documented as 7 clicks from either end to
-#     the middle (-7..+7) but its rebound total is not published. BoXXer 2027
-#     Select stays `draft: true` for that reason.
+#     show an LSC knob and a rebound knob but no rebound click count, and the
+#     damper column of the 2027 Front Suspension Specifications is a merged
+#     table that does not tie ZEB / Lyrik Select and Base to Charger 3.2 RC or
+#     Delta RC row by row, so those trims of the 2027 ZEB and Lyrik are
+#     intentionally not listed. The Charger 3 RC / 3.2 RC LSC is documented as
+#     7 clicks from either end to the middle (-7..+7); its rebound total is not
+#     published (`max: ~`). `charger_3_2_rc` is used by the BoXXer 2027 Select
+#     only, whose damper SRAM's own model page (fs-bxr-sel-d2) names; the old
+#     `charger_3_2` stays listed after it because `ids.lock` locks it on that
+#     trim. BoXXer Base D2 (Charger 3.2 RC) is
+#     in the PDF but not listed: its spring and token rows are not readable
+#     per trim.
 #   - Rush RC / Rush RL low-speed compression click count — the rebound count
 #     (16) is published in the service manuals, the LSC count is not.
 #   - Charger 3.2 RC2 rebound click count — the HSC (-2..+2) and LSC (-7..+7)
@@ -3212,13 +3446,31 @@ nodes:
 #     Attendant LSC is documented as a 10/11-position dial (middle 5 or 6) and
 #     is stored with the RC2 ranges because Flight Attendant sets it electronically.
 #   - Charger Race Day / Race Day 2 rebound click counts (SID, SID SL, Rudy) —
-#     not published, so rebound carries `max: ~`. The 2P/3P compression lever
-#     positions are known but which fork gets which is not documented per trim,
-#     so the trims with these dampers stay `draft: true`.
+#     not published, so rebound carries `max: ~`. The lever positions of the
+#     Race Day 2 (3P Open/Pedal/Lock, 2P Open/Lock) are named per fork in the
+#     2024-2027 Front Suspension Specifications, so the SID SL and SID Ultimate
+#     / Select+ list one damper per lever (`charger_race_day_2_3p` / `_2p`);
+#     `charger_race_day_2` stays listed because its ids are locked. Still
+#     `draft: true`: the 2021-2023 Ultimate with the original Charger Race Day
+#     (SID, SID SL), whose lever positions no source names, and the Rudy XPLR /
+#     Rudy XL Ultimate, whose rows print no lever and no source says they have one.
+#   - SID / SID SL Select (Charger RL) and Base (Rush RL) 2024-2027: listed with
+#     the 2P/3P lever dampers and `max: ~` rebound; no spec prints their
+#     clicks, and the TrailHead rebound rows were only read for Ultimate and
+#     Select+, so the rebound rules of those guides are limited to those two
+#     trims. The Ultimate Flight Attendant (Charger Race Day 2 Flight Attendant,
+#     FS-SIDS-UFA-E1/E2, FS-SID-UFA-D1/D2) is not listed: the adjusters of the
+#     electronic damper are not documented. The SID 2024-2027 generation starts
+#     in 2024 because the 2024 specification lists the SID D1.
 #   - Charger 2.1 RC2 (BoXXer 2019-2023): no click counts, and no statement
 #     whether HSC/LSC count from an end stop or the middle. Stays `draft: true`.
-#   - Motion Control RC (Yari, Revelation): no click counts; whether the
-#     compression dial is click-indexed is not documented. Stays `draft: true`.
+#   - Motion Control RC: no click totals (rebound and compression carry
+#     `max: ~`). The Yari service manuals (2016-2017, 2018) record the compression
+#     setting in clicks counted to the full open stop, so the Yari RC is listed.
+#     The Revelation RC stays `draft: true`: its 2018 manual says the same, but
+#     the 2019-2022 Pike / 2019-2023 Revelation manual (too large to open) is
+#     reported to list a "Charger Damper RC" for the 2019 Revelation, so the
+#     damper of the 2018-2023 generation is not settled.
 #   - Rebound totals of Charger 2 RL, Charger RL and Motion Control RL (SID /
 #     SID SL Select+ and Select, Reba, Recon Gold) — not published, so rebound
 #     carries `max: ~`.

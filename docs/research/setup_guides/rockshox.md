@@ -582,7 +582,7 @@ Max 148 psi.
 | Catalog path | `when:` | Notes |
 |---|---|---|
 | `fork/rockshox/boxxer/2027/ultimate` | `damper: charger_3_2` | FS-BXR-ULT-D2 |
-| `fork/rockshox/boxxer/2027/select` | `damper: charger_3_2` | FS-BXR-SEL-D2 (in TH, not in the PDF) |
+| `fork/rockshox/boxxer/2027/select` | `damper: charger_3_2_rc` | FS-BXR-SEL-D2 (in TH, not in the PDF). SRAM's model page `fs-bxr-sel-d2` names the Charger 3.2 RC; the old `charger_3_2` option stays listed after it because `ids.lock` locks it on that trim |
 
 Gaps:
 - The PDF names the springs per wheel: DebonAir+ for 27.5" B and Linear XL for

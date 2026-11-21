@@ -104,6 +104,7 @@ abstract final class AutomationIds {
   static const setupFormAddTags = 'setupForm.addTags';
   static const setupFormCondition = 'setupForm.condition';
   static String setAdjustment(String adjustmentId) => 'setAdjustment.$adjustmentId';
+  static String setAdjustmentUnit(String adjustmentId) => 'setAdjustment.unit.$adjustmentId';
 
   static String stravaActivity(int activityId) => 'stravaActivity.$activityId';
   static const stravaActivityActions = 'stravaActivity.actions';

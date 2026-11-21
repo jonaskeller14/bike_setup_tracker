@@ -343,3 +343,11 @@ One row per product family. **found** = a structured table we can encode,
 | RockShox | fork | Revelation | found | `rockshox_revelation_2024` |
 | RockShox | fork | Recon Gold | found | `rockshox_recon_gold_2027`: one typo cell flagged |
 | RockShox | shock | Deluxe, Super Deluxe (Air/Coil/Ultimate DH), Vivid (Air/Coil), SIDLuxe, Monarch, Monarch Plus | partial | `rockshox_rear_shock_um`: psi = lb formula, SAG per spring type, HSC/LSC base, generic rebound formula; per-model charts need a serial number |
+| X-Fusion | fork | Velvet, RC32, Sweep Boost / Slide Boost / Slant RC | found | `xfusion_forks_2025`: 32/34mm (RC/RL) weight → psi, SAG 25-30 %, rebound 8 from closed |
+| X-Fusion | fork | Sweep Boost / Slide Boost / Slant HLR, RCP | found | `xfusion_forks_2025`: 34mm RoughCut weight → psi, SAG, rebound |
+| X-Fusion | fork | Trace 36 | found | `xfusion_forks_2025`: 36mm weight → psi, SAG, rebound |
+| X-Fusion | fork | Vengeance 38, RV1 38 DH | found | `xfusion_forks_2025`: 38mm weight → psi, SAG, rebound 12 from closed |
+| X-Fusion | fork | Rezza | partial | `xfusion_forks_2025`: SAG and rebound base only; no pressure column names the Finecut dampers |
+| X-Fusion | fork | G.E.T. 30 | none | 30mm gravel fork; no guide |
+| X-Fusion | fork | Roamin | none | youth forks; no guide |
+| X-Fusion | shock | Rezza, O2 Pro, H3A, H3C | none | not encoded: O2 / H3C guides give SAG by discipline and a unitless pressure start; click counts are catalog adjusters |

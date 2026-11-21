@@ -23,7 +23,7 @@ The phone AVD uses the generic `medium_phone` profile on purpose. Device profile
 - Java 17 or newer. Homebrew's `openjdk@17` isn't on `PATH` by default: `export JAVA_HOME=/opt/homebrew/opt/openjdk@17` and add `$JAVA_HOME/bin` to `PATH`.
 - The [Maestro CLI](https://docs.maestro.dev/getting-started/installing-maestro). The run script finds it on `PATH` or in `~/.maestro/maestro/bin`.
 - Python 3 (standard library only).
-- The usual local build config: `android/key.properties`, `android/app/google-services.json` and `.env`. A debug build still reads all three.
+- The usual local build config: `android/key.properties`, `android/app/google-services.json` and `.env` (then `flutter pub run build_runner build`). A debug build still reads all three.
 - iOS only: a Mac with Xcode and the *iPhone 17 Pro Max* and *iPad Pro 13-inch (M5)* simulators.
 
 ## Android
@@ -122,6 +122,7 @@ Before each flow, the run scripts delete the marker file `demo_scenario` in the 
 | `rides_per_value` | The Hightower with four setups that differ in the Lyrik's rebound only, and 14 rides between them |
 | `pressure_check` | The Hightower without rides or tasks; tires hidden from Pressure Check. Its Add Setup form gets 3 °C and 320 m (`DemoScenario.weather`, through `ScreenshotWeatherService` and `ScreenshotElevationService`) against the 20 °C of the setup that last set the fork |
 | `forecast_weekly`, `forecast_more`, `forecast_often` | The Hightower with *Fork lowers service* at 36 of 50 h, ridden once a week or every three days; `forecast_more` is the weekly rider after two more rides this week, at 40 of 50 h |
+| `component_charts` | The Hightower with five setups, the Lyrik on one baseline three times; the Assegai moved from the front wheel to the rear before the fourth, with 3 rides on 1.55 bar (front), 7 on 1.6 (4 front, 3 rear, the newest value) and 4 on 1.65 (rear) |
 
 Dropping a bike drops everything recorded on it: its components, setups, task rules and entries, and its Strava rides. The date shift is taken from the whole sample, so every scenario shares one calendar.
 
@@ -222,10 +223,14 @@ Each flow starts from the [demo scenario](#demo-scenarios) on its `# scenario:` 
 | `demo_wet_dry` | `wet_dry` | The history with the ground per setup, then the comparison: Wet and Dry above the two tire pressures |
 | `demo_part_km` | `part_km` | The garage with the pedals among the parts, their km and rides, and the History of the move |
 | `demo_rides_per_value` | `rides_per_value` | The rides between the setups in the history, then the newest setup's Rebound name with its histogram of rides per value |
+| `demo_unit_pressure` | `units` | A new setup's front tire at 1.5 bar, its unit tapped to psi (via kPa), then 22 psi typed: "= 1.52 bar" below the field |
+| `demo_sag` | `units` | The Lyrik's SAG with its 160 mm travel, then a new setup's sag switched from % to mm: 32 mm shows "= 20 %", saved |
 | `demo_forecast_weekly`, `demo_forecast_more`, `demo_forecast_often` | `forecast_*` | The calendar's month view from today to where the fork service's prediction lands at that pace of riding |
 | `demo_setup_guide` | `one_bike_no_components` | Settings → Features → Setup Guides on, the Lyrik from the catalog, then a new setup: riding weight 78 kg and Apply all |
 | `demo_pressure_check` | `pressure_check` | Settings → Features → Pressure Check on, then a new setup on a 3 °C morning at the hometrails: the fork's row marked pumped, saved as "Cold morning" |
 | `demo_downhill` | `full` | The Trek Session's history, then Leogang wet and dry compared |
+| `demo_radar_equal` | `component_charts` | The Lyrik's radar chart with all five setups: the baseline three times on one line, its group highlighted from the legend |
+| `demo_tire_slots` | `component_charts` | The Assegai's Pressure histogram, the 1.6 bar bar split into front and rear wheel |
 | `demo_language` | `one_bike_no_components` | Settings → Preferences → Language, the page relabelling itself through French, Italian, Spanish, Portuguese and German, then the Hightower's fork from the catalog with its adjusters in German |
 
 - **Only released features.** Demo flows don't show anything behind a debug-only feature flag, such as setup guides or the pressure check.

@@ -1,0 +1,5 @@
+• Fourches et amortisseurs X-Fusion dans le catalogue, avec plus de modèles FOX et RockShox
+• Les activités Strava affichent leurs setups sous forme de chronologie
+• Guides de setup : touchez à nouveau une valeur appliquée pour l’annuler et choisissez les détails manquants de la fourche ou de l’amortisseur sur la carte
+• Mises à jour du catalogue plus claires ; votre débattement n’est jamais écrasé
+• Retour haptique et améliorations UI/UX

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/l10n.dart';
@@ -134,6 +137,7 @@ class PersonActions {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
 
+    unawaited(HapticFeedback.mediumImpact());
     await appRepository.removePersons([person]);
 
     final message = l10n.riderMovedToTrash(person.name);

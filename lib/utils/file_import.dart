@@ -85,7 +85,7 @@ class FileImport {
       await file.writeAsString(jsonString);
 
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.success(context, context.l10n.debugFileSaved(file.path)),
       );
       debugPrint("Saved error file: ${file.path}");

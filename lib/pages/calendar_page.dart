@@ -678,7 +678,7 @@ class _CalendarPageState extends State<CalendarPage> {
   /// its original slot.
   void _rejectMove(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
     );
     setState(() {});
@@ -693,17 +693,15 @@ class _CalendarPageState extends State<CalendarPage> {
     if (!mounted) return;
     final appSettings = context.read<AppSettings>();
     final format = DateFormat('${appSettings.dateFormat} ${appSettings.timeFormat}', context.l10n.localeName);
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.info(
-        context,
-        context.l10n.calendarMoved(subject, format.format(from), format.format(to)),
-        duration: const Duration(seconds: 5),
-        action: AppSnackBarAction(
-          label: context.l10n.undo,
-          onPressed: () async => restore(),
-        ),
-      ));
+    ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.info(
+      context,
+      context.l10n.calendarMoved(subject, format.format(from), format.format(to)),
+      duration: const Duration(seconds: 5),
+      action: AppSnackBarAction(
+        label: context.l10n.undo,
+        onPressed: () async => restore(),
+      ),
+    ));
   }
 
   @override

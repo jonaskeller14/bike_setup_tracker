@@ -34,4 +34,32 @@ void main() {
     final action = snackBar.action!;
     expect(action.textColor, Theme.of(context).colorScheme.onErrorContainer);
   });
+
+  testWidgets('showAppSnackBar replaces the visible and queued snackbars', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      localizedTestApp(
+        theme: materialAppTheme,
+        home: Scaffold(
+          body: Builder(
+            builder: (builderContext) {
+              context = builderContext;
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showAppSnackBar(AppSnackBar.success(context, 'First'));
+    await tester.pump();
+    messenger.showAppSnackBar(AppSnackBar.info(context, 'Second'));
+    messenger.showAppSnackBar(AppSnackBar.info(context, 'Third'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('First'), findsNothing);
+    expect(find.text('Second'), findsNothing);
+    expect(find.text('Third'), findsOneWidget);
+  });
 }

@@ -32,7 +32,7 @@ class ShareService {
       );
     } catch (e) {
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorFile}: $e'));
+      scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorFile}: $e'));
     }
   }
 
@@ -54,7 +54,7 @@ class ShareService {
       );
     } catch (e) {
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorText}: $e'));
+      scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, '${errorMessage ?? context.l10n.shareErrorText}: $e'));
     }
   }
 }

@@ -112,7 +112,7 @@ class FeedbackActions {
     await appRepository.removeFeedbacks([feedback]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.feedbackMovedToTrash,
@@ -132,7 +132,7 @@ class FeedbackActions {
     await appRepository.restoreFeedbacks([feedback]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.feedbackRestoredFromTrash,

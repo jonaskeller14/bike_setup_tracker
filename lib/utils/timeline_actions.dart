@@ -54,7 +54,7 @@ class TimelineActions {
     final sessionContents = await appRepository.removeTestSessions(sessions);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.timelineEntriesMovedToTrash(total),

@@ -31,7 +31,7 @@ class SetupActions {
     final appRepository = context.read<AppRepository>();
 
     if (appRepository.bikes.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(
           context,
           context.l10n.setupActionBikeRequired,
@@ -44,7 +44,7 @@ class SetupActions {
       return;
     }
     if (appRepository.components.values.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(
           context,
           context.l10n.setupActionComponentRequired,
@@ -149,7 +149,7 @@ class SetupActions {
     await appRepository.editSetups(originals.map((setup) => setup.copyWith(isBookmarked: bookmark)));
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         bookmark
@@ -194,7 +194,7 @@ class SetupActions {
     await appRepository.editSetups(updated);
 
     if (!context.mounted) return true;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.setupTagsUpdated(updated.length),
@@ -216,7 +216,7 @@ class SetupActions {
     await appRepository.removeSetups([setup]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.setupMovedToTrash(setup.label(context.l10n)),
@@ -236,7 +236,7 @@ class SetupActions {
     await appRepository.restoreSetups([setup]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.setupRestoredFromTrash(setup.label(context.l10n)),

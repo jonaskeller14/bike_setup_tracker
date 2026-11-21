@@ -259,9 +259,9 @@ class MapPageState extends State<MapPage> with TickerProviderStateMixin {
       ),
       _ => null,
     };
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.error(context, status.errorMessage(context.l10n), action: action));
+    ScaffoldMessenger.of(context).showAppSnackBar(
+      AppSnackBar.error(context, status.errorMessage(context.l10n), action: action),
+    );
   }
 
   Future<void> _zoomBy(double delta) =>

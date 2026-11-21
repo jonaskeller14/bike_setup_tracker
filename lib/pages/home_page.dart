@@ -88,9 +88,9 @@ class _HomePageState extends State<HomePage> {
     final enabled = !appSettings.developerMode;
     appSettings.developerMode = enabled;
     unawaited(HapticFeedback.mediumImpact());
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.info(context, enabled ? 'Developer mode on' : 'Developer mode off'));
+    ScaffoldMessenger.of(context).showAppSnackBar(
+      AppSnackBar.info(context, enabled ? 'Developer mode on' : 'Developer mode off'),
+    );
   }
 
   Future<void> _deleteSelectedBikes() {

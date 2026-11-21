@@ -78,7 +78,7 @@ class _AboutPageState extends State<AboutPage> {
               tooltip: l10n.aboutCopy,
               onPressed: () {
                 unawaited(Clipboard.setData(ClipboardData(text: userId)));
-                ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.success(context, l10n.aboutUserUidCopied));
+                ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.success(context, l10n.aboutUserUidCopied));
               },
             ),
       dense: true,

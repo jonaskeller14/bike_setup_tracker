@@ -205,7 +205,7 @@ class _TestSessionPageState extends State<TestSessionPage> {
       error = context.l10n.testSessionErrRecordSetup;
     }
     if (error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, error));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, error));
       return;
     }
 

@@ -43,7 +43,7 @@ class ComponentActions {
     final appRepository = context.read<AppRepository>();
 
     if (initialInstallations == null && initialBike is _Sentinel && appRepository.view.bikes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(
           context,
           context.l10n.componentAddBikeFirst,
@@ -109,7 +109,7 @@ class ComponentActions {
     } on ComponentHierarchyValidationException {
       await AttachmentActions.deleteUnsaved(result.value.attachments, saved: component.attachments);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.installationNotSavedLoop),
       );
       return;
@@ -287,7 +287,7 @@ class ComponentActions {
     await appRepository.addTaskRules(created);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         result.suggested.isEmpty
@@ -374,7 +374,7 @@ class ComponentActions {
         ]);
 
         if (!context.mounted) return;
-        messenger.showSnackBar(
+        messenger.showAppSnackBar(
           AppSnackBar.success(
             context,
             l10n.componentReplaced(component.name, existingComponent.name),
@@ -512,7 +512,7 @@ class ComponentActions {
         ? ''
         : '\n${l10n.bikeAlsoTrashed(l10n.bikeTrashedTasks(selectedTaskRules.length))}';
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         '${l10n.componentMovedToTrash(component.name)}$subcomponentSummary$taskSummary',
@@ -539,7 +539,7 @@ class ComponentActions {
     await appRepository.restoreComponents([component]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.componentRestoredFromTrash(component.name),

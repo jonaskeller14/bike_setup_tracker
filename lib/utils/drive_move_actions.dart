@@ -87,5 +87,5 @@ Future<void> offerDriveEnding(BuildContext context) async {
 
 /// Once sync is active, the Drive notice listener offers the move.
 void _confirmCloudSyncOn(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.success(context, context.l10n.driveEndingSyncTurnedOn));
+  ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.success(context, context.l10n.driveEndingSyncTurnedOn));
 }

@@ -72,7 +72,7 @@ class AttachmentActions {
     } catch (e) {
       // The pickers throw when camera, photo or file access is denied.
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.attachmentPickError('$e')));
+        ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.attachmentPickError('$e')));
       }
       return [];
     }
@@ -83,7 +83,7 @@ class AttachmentActions {
         attachments.add(await import.run());
       } on AttachmentTooLargeException catch (e) {
         if (!context.mounted) continue;
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showAppSnackBar(
           AppSnackBar.error(
             context,
             context.l10n.attachmentTooLarge(e.name, AttachmentStorageService.maxFileBytes ~/ (1024 * 1024)),
@@ -91,7 +91,7 @@ class AttachmentActions {
         );
       } catch (_) {
         if (!context.mounted) continue;
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showAppSnackBar(
           AppSnackBar.error(context, context.l10n.attachmentImportFailed(import.name)),
         );
       }
@@ -117,7 +117,7 @@ class AttachmentActions {
     await AttachmentStorageService().deleteFiles(filenames);
 
     if (!context.mounted) return true;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(context, context.l10n.attachmentDeletedSnack(filenames.length)),
     );
     return true;

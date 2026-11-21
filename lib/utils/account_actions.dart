@@ -37,9 +37,9 @@ class AccountActions {
     try {
       await account.signOut(removeData: removeData);
       navigator.pop();
-      messenger.showSnackBar(done);
+      messenger.showAppSnackBar(done);
     } catch (e) {
-      messenger.showSnackBar(failed);
+      messenger.showAppSnackBar(failed);
     }
   }
 
@@ -76,7 +76,7 @@ class AccountActions {
       CloudSyncStatus.idle || CloudSyncStatus.syncing => done,
     };
     if (snackBar == done) unawaited(HapticFeedback.successNotification());
-    messenger.showSnackBar(snackBar);
+    messenger.showAppSnackBar(snackBar);
   }
 
   static Future<void> signOutDevice(BuildContext context, AccountDevice device, {required String deviceLabel}) async {
@@ -96,9 +96,9 @@ class AccountActions {
     final failed = AppSnackBar.error(context, l10n.accountSignOutDeviceFailed);
     try {
       await context.read<AccountService>().revokeDevice(device.deviceId);
-      messenger.showSnackBar(done);
+      messenger.showAppSnackBar(done);
     } catch (e) {
-      messenger.showSnackBar(failed);
+      messenger.showAppSnackBar(failed);
     }
   }
 
@@ -125,12 +125,12 @@ class AccountActions {
     try {
       final result = await account.deleteAccount(removeData: removeData);
       navigator.pop();
-      messenger.showSnackBar(done);
+      messenger.showAppSnackBar(done);
       if (result.subscriptionRenews && navigator.mounted) {
         await showRenewingSubscriptionDialog(navigator.context, platform: result.platform ?? 'android');
       }
     } catch (e) {
-      messenger.showSnackBar(failed);
+      messenger.showAppSnackBar(failed);
     }
   }
 

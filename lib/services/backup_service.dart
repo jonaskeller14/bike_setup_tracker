@@ -61,14 +61,14 @@ class BackupService {
 
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.backupSaved(file.path)));
+        scaffoldMessenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.backupSaved(file.path)));
       }
       // debugPrint('Saved backup at ${file.path}');
       return file;
     } catch (e, st) {
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.backupSaveFailed(e.toString())));
+        scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.backupSaveFailed(e.toString())));
       }
       debugPrint('Error saving backup: $e\n$st');
       return null;

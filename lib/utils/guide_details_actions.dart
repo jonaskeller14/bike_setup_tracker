@@ -55,7 +55,7 @@ Future<void> completeGuideDetails(BuildContext context, GuidedComponent guided, 
       if (axisIds.contains(axis.id))
         if (chosen.selections[axis.id] case final value?) '${axis.key.name(l10n)} ${value.label}',
   ].join(', ');
-  messenger.showSnackBar(
+  messenger.showAppSnackBar(
     AppSnackBar.success(
       context,
       l10n.guideDetailsSaved(component.name, details),

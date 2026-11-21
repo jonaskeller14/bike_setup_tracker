@@ -38,10 +38,10 @@ class DataActions {
         unawaited(strava.setStravaNotificationsEnabled(appSettings.enableStravaNotifications));
       }
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataResetSettingsDone));
+      messenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.dataResetSettingsDone));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataResetSettingsFailed(e.toString())));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.dataResetSettingsFailed(e.toString())));
     }
   }
 
@@ -61,10 +61,10 @@ class DataActions {
     try {
       final count = await BackupService.deleteAllBackups();
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataDeleteBackupsDone(count)));
+      messenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.dataDeleteBackupsDone(count)));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataDeleteBackupsFailed(e.toString())));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.dataDeleteBackupsFailed(e.toString())));
     }
   }
 
@@ -85,7 +85,7 @@ class DataActions {
     final backup = await BackupService.saveBackup(database: database, force: true);
     if (backup == null) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseNoBackup));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseNoBackup));
       return;
     }
 
@@ -94,10 +94,10 @@ class DataActions {
       await database.syncDao.reset();
       await AttachmentStorageService().deleteAll();
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.dataClearDatabaseDone));
+      messenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.dataClearDatabaseDone));
     } catch (e) {
       if (!context.mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseFailed(e.toString())));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.dataClearDatabaseFailed(e.toString())));
     }
   }
 }

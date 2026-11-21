@@ -61,12 +61,12 @@ class TestSessionActions {
     final messenger = ScaffoldMessenger.of(context);
 
     if (appRepository.bikes.isEmpty) {
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionBikeRequired));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.testSessionBikeRequired));
       return;
     }
     if (!appRepository.components.values.any((component) => component.adjustments.isNotEmpty) &&
         !appRepository.persons.values.any((person) => person.adjustments.isNotEmpty)) {
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionAdjustmentRequired));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.testSessionAdjustmentRequired));
       return;
     }
 
@@ -223,7 +223,7 @@ class TestSessionActions {
     final run = appRepository.setupsInSession(session.id).lastOrNull;
     final AdjustmentValue? value = run?.bikeAdjustmentValues[adjustmentId] ?? run?.personAdjustmentValues[adjustmentId];
     if (value == null) {
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.testSessionNoValueToLock));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.testSessionNoValueToLock));
       return;
     }
     await appRepository.setTestSessionLock(session, adjustmentId, value);
@@ -238,7 +238,7 @@ class TestSessionActions {
     unawaited(HapticFeedback.successNotification());
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.testSessionEndedSnack(session.label(l10n)),
@@ -255,7 +255,7 @@ class TestSessionActions {
     final appRepository = context.read<AppRepository>();
 
     if (!appRepository.canResumeTestSession(session)) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.testSessionResumeBlocked));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.testSessionResumeBlocked));
       return;
     }
 
@@ -286,7 +286,7 @@ class TestSessionActions {
     final removed = await appRepository.removeTestSessions([session]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.testSessionMovedToTrash(session.label(l10n)),
@@ -326,7 +326,7 @@ class TestSessionActions {
     await appRepository.restoreTestSessions([session]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.testSessionRestoredFromTrash(session.label(l10n)),

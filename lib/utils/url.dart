@@ -35,11 +35,11 @@ Future<void> launchAppUrl(BuildContext context, {
       return;
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlOpenFailed(url)));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.urlOpenFailed(url)));
     }
   } else {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlNoProgram));
+    ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.urlNoProgram));
   }
 }
 
@@ -83,11 +83,11 @@ Future<void> launchAppEmail(BuildContext context, String email, {String? subject
       return;
     } else {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlEmailFailed(email)));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.urlEmailFailed(email)));
     }
   } else {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.urlNoEmailApp));
+    ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.urlNoEmailApp));
   }
 }
 
@@ -103,7 +103,7 @@ Future<void> launchLocationOnMap(BuildContext context, double latitude, double l
   }
 
   if (!context.mounted) return;
-  ScaffoldMessenger.of(context).showSnackBar(
+  ScaffoldMessenger.of(context).showAppSnackBar(
     AppSnackBar.error(context, context.l10n.urlNoMapsApp),
   );
 }

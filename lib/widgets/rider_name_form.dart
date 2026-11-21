@@ -117,7 +117,7 @@ class _RiderNameFormState extends State<RiderNameForm> {
     final person = bikeId == null
         ? await PersonActions.createRider(context, name: name)
         : await PersonActions.createRiderForBike(context, name: name, bikeId: bikeId);
-    if (person != null) messenger.showSnackBar(confirmation);
+    if (person != null) messenger.showAppSnackBar(confirmation);
     if (mounted) setState(() => _saving = false);
   }
 

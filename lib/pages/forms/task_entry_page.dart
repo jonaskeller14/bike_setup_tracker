@@ -209,7 +209,7 @@ class _TaskEntryPageState extends State<TaskEntryPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
 

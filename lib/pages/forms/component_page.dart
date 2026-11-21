@@ -666,18 +666,16 @@ class _ComponentPageState extends State<ComponentPage> {
   }
 
   void _showPresetUndoSnackBar(String message, _PresetSnapshot snapshot) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(AppSnackBar.success(
-        context,
-        message,
-        action: AppSnackBarAction(
-          label: context.l10n.undo,
-          onPressed: () {
-            if (mounted) _restoreSnapshot(snapshot);
-          },
-        ),
-      ));
+    ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.success(
+      context,
+      message,
+      action: AppSnackBarAction(
+        label: context.l10n.undo,
+        onPressed: () {
+          if (mounted) _restoreSnapshot(snapshot);
+        },
+      ),
+    ));
   }
 
   void _saveComponent() {

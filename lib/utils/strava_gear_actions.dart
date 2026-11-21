@@ -28,7 +28,7 @@ class StravaGearActions {
     await appRepository.editBikes([bike.copyWith(stravaGear: null)]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.stravaGearUnlinked(gear.name, bike.name),

@@ -146,7 +146,7 @@ class _InstallationSheetState extends State<InstallationSheet> {
     } on ComponentHierarchyValidationException {
       final messengerContext = messenger.context;
       if (!messengerContext.mounted) return;
-      messenger.showSnackBar(
+      messenger.showAppSnackBar(
         AppSnackBar.error(messengerContext, l10n.installationNotSavedLoop),
       );
     }

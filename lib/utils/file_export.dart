@@ -75,7 +75,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
+          scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -101,7 +101,7 @@ class FileExport {
         final latestBackup = await _latestBackupFile();
         if (latestBackup == null) {
           if (!context.mounted) return FileSaveOutcome.cancelled;
-          scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
+          scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.exportNoBackup));
           return FileSaveOutcome.cancelled;
         }
 
@@ -184,12 +184,12 @@ class FileExport {
       final result = await save();
       if (result == FileSaveOutcome.saved) {
         if (!context.mounted) return;
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.exportFileSaved));
+        scaffoldMessenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.exportFileSaved));
       }
     } catch (e, st) {
       debugPrint('Export failed: $e\n$st');
       if (!context.mounted) return;
-      scaffoldMessenger.showSnackBar(AppSnackBar.error(context, context.l10n.exportFailed(e.toString())));
+      scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.exportFailed(e.toString())));
     }
   }
 
@@ -216,7 +216,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareJsonFailed(e.toString())));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareJsonFailed(e.toString())));
     }
   }
 
@@ -244,7 +244,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareExcelFailed(e.toString())));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareExcelFailed(e.toString())));
     }
   }
 
@@ -272,7 +272,7 @@ class FileExport {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareCsvFailed(e.toString())));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.sharePrepareCsvFailed(e.toString())));
     }
   }
 

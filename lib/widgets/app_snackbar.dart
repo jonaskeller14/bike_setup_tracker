@@ -78,6 +78,13 @@ class AppSnackBar extends SnackBar {
   }
 }
 
+extension AppSnackBarMessenger on ScaffoldMessengerState {
+  ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showAppSnackBar(SnackBar snackBar) {
+    clearSnackBars();
+    return showSnackBar(snackBar);
+  }
+}
+
 class AppSnackBarAction {
   const AppSnackBarAction({required this.label, required this.onPressed});
 

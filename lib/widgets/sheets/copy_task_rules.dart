@@ -201,7 +201,7 @@ class _TaskRulesSheetState extends State<_TaskRulesSheet> {
       action: AppSnackBarAction(label: context.l10n.undo, onPressed: () => appSettings.enableTaskPresets = true),
     );
     appSettings.enableTaskPresets = false;
-    messenger.showSnackBar(snackBar);
+    messenger.showAppSnackBar(snackBar);
     if (widget.copyRules.isEmpty) Navigator.pop(context);
   }
 

@@ -99,7 +99,7 @@ class AppHintSlot extends StatelessWidget {
     context.read<AppSettings>().enableTask = true;
     await hintService.complete(AppHint.setupTasksV1);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintTasksEnabled),
     );
   }
@@ -111,7 +111,7 @@ class AppHintSlot extends StatelessWidget {
     context.read<AppSettings>().enableCalendar = true;
     await hintService.complete(AppHint.setupCalendarV1);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintCalendarEnabled),
     );
   }
@@ -123,7 +123,7 @@ class AppHintSlot extends StatelessWidget {
     context.read<AppSettings>().enableInstallOnComponent = true;
     await hintService.complete(AppHint.subcomponentsV1);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
@@ -131,7 +131,7 @@ class AppHintSlot extends StatelessWidget {
   /// Leaves the hint pending, so a deck can move on to its next card.
   void _turnOnSubcomponents(BuildContext context) {
     context.read<AppSettings>().enableInstallOnComponent = true;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintSubcomponentsEnabled),
     );
   }
@@ -154,7 +154,7 @@ class AppHintSlot extends StatelessWidget {
   /// Leaves the hint pending, so the deck moves on to its next card.
   Future<void> _enableSetupGuides(BuildContext context) async {
     context.read<AppSettings>().enableSetupGuides = true;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintSetupGuidesEnabled),
     );
   }
@@ -168,7 +168,7 @@ class AppHintSlot extends StatelessWidget {
       ..enableTaskInterval = true;
     await hintService.complete(AppHint.release45);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.hintTaskPresetsEnabled),
     );
   }

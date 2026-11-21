@@ -90,7 +90,7 @@ class _TrashPageState extends State<TrashPage> {
 
       if (!mounted) return;
       setState(() => _selectedItems = {});
-      messenger.showSnackBar(
+      messenger.showAppSnackBar(
         AppSnackBar.info(
           context,
           message,

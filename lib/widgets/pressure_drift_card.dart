@@ -62,7 +62,7 @@ class _PressureDriftCardState extends State<PressureDriftCard> {
     final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
     if (!setNow) return;
     final name = "${entry.componentName} · ${entry.adjustmentName}";
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.pressureCheckSetNowMarked(name),

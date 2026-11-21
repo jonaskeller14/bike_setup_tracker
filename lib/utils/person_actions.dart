@@ -43,14 +43,14 @@ class PersonActions {
 
     final bike = appRepository.bikes[bikeId];
     if (bike == null) {
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.riderBikeNotFoundMessage));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.riderBikeNotFoundMessage));
       return;
     }
 
     await appRepository.editBikes([bike.copyWith(person: person.id)]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(context, context.l10n.riderSetForBike(person.name, bike.name)),
     );
   }
@@ -142,7 +142,7 @@ class PersonActions {
 
     final message = l10n.riderMovedToTrash(person.name);
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         message,
@@ -165,7 +165,7 @@ class PersonActions {
     await appRepository.restorePersons([person]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.riderRestoredFromTrash(person.name),

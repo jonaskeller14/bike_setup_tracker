@@ -44,7 +44,7 @@ class LoadingErrorPage extends StatelessWidget {
                           await launchUrl(uri);
                         } else {
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          ScaffoldMessenger.of(context).showAppSnackBar(
                             AppSnackBar.error(context, context.l10n.errorCouldNotOpenEmailClient),
                           );
                         }

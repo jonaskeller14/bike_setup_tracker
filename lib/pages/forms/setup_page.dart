@@ -317,7 +317,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   }
 
   void _showRunStartError() {
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.error(context, context.l10n.setupFormRunOrder),
     );
   }
@@ -522,7 +522,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
         LocationStatus.timeout => context.l10n.setupFormLocationTimeout,
         _ => context.l10n.setupFormLocationError,
       };
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
       );
       return false;
@@ -536,7 +536,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
       
       return;
     }
@@ -548,7 +548,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormAddressError, duration: const Duration(seconds: 2)),
       );
       return;
@@ -736,7 +736,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
     if (_isBeforeRunStart(newDateTimeLocal.toUtc())) {
@@ -778,7 +778,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormWeatherNeedsLocation, duration: const Duration(seconds: 2)),
       );
       return;
@@ -793,7 +793,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     if (!mounted) return;
     if (currentWeather == null) {
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormWeatherError, duration: const Duration(seconds: 2)),
       );
       return;
@@ -1609,7 +1609,7 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
     } else {
       _onPersonAdjustmentValueChanged(adjustment: adjustment, newValue: NumericalValue(weight));
     }
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(context).showAppSnackBar(
       AppSnackBar.success(context, context.l10n.setupFormGuideWeightAdded(person.name)),
     );
   }
@@ -1689,20 +1689,18 @@ class _SetupPageState extends State<SetupPage> with SingleTickerProviderStateMix
   /// Replaces any earlier one, so tapping several rows leaves only the latest
   /// undo instead of a queue.
   void _showGuideAppliedSnackBar(String message, {required VoidCallback onUndo}) {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        AppSnackBar.success(
-          context,
-          message,
-          action: AppSnackBarAction(
-            label: context.l10n.undo,
-            onPressed: () {
-              if (mounted) onUndo();
-            },
-          ),
+    ScaffoldMessenger.of(context).showAppSnackBar(
+      AppSnackBar.success(
+        context,
+        message,
+        action: AppSnackBarAction(
+          label: context.l10n.undo,
+          onPressed: () {
+            if (mounted) onUndo();
+          },
         ),
-      );
+      ),
+    );
   }
 
   Widget _bikeTab(AppRepository appRepository, List<Component> bikeComponents) {

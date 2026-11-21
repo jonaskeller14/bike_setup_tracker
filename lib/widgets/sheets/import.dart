@@ -54,7 +54,7 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
     await appRepository.refreshTaskEntrySnapshots();
     unawaited(HapticFeedback.successNotification());
     if (!context.mounted) return;
-    scaffoldMessenger.showSnackBar(
+    scaffoldMessenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         switch (importResult.importMethod) {
@@ -66,7 +66,7 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
     );
   } catch (e) {
     if (!context.mounted) return;
-    scaffoldMessenger.showSnackBar(
+    scaffoldMessenger.showAppSnackBar(
       AppSnackBar.error(
         context,
         switch (importResult.importMethod) {

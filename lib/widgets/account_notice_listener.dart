@@ -43,7 +43,7 @@ class _AccountNoticeListenerState extends State<AccountNoticeListener> {
       AccountNotice.sessionRevokedDataKept => l10n.accountNoticeSessionRevokedDataKept,
       AccountNotice.accountDeleted => l10n.accountNoticeAccountDeleted,
     };
-    ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.info(context, message));
+    ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.info(context, message));
   }
 
   @override

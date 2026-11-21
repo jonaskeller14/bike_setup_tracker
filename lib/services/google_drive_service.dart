@@ -480,7 +480,7 @@ class GoogleDriveService extends ChangeNotifier {
       debugPrint('Successfully backed up to Google Drive: $backupFileName');
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.success(context, context.l10n.driveBackupCreated));
+        scaffoldMessenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.driveBackupCreated));
       }
     } catch (e) {
       debugPrint('Error backing up to Google Drive: $e');
@@ -488,7 +488,7 @@ class GoogleDriveService extends ChangeNotifier {
       _setError(error);
       if (context != null && context.mounted) {
         final scaffoldMessenger = ScaffoldMessenger.of(context);
-        scaffoldMessenger.showSnackBar(AppSnackBar.error(context, error.message(context.l10n)));
+        scaffoldMessenger.showAppSnackBar(AppSnackBar.error(context, error.message(context.l10n)));
       }
     }
   }

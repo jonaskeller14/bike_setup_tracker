@@ -108,10 +108,10 @@ class _AttachmentViewerState extends State<AttachmentViewer> {
         extension: attachment.extension.replaceFirst('.', ''),
       );
       if (outcome != FileSaveOutcome.saved || !mounted) return;
-      messenger.showSnackBar(AppSnackBar.success(context, context.l10n.attachmentViewerFileSaved));
+      messenger.showAppSnackBar(AppSnackBar.success(context, context.l10n.attachmentViewerFileSaved));
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(AppSnackBar.error(context, context.l10n.attachmentViewerSaveError('$e')));
+      messenger.showAppSnackBar(AppSnackBar.error(context, context.l10n.attachmentViewerSaveError('$e')));
     }
   }
 

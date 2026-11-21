@@ -63,7 +63,7 @@ class TaskActions {
     );
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.taskActionRenamedEntries(renamedEntries.length),
@@ -129,7 +129,7 @@ class TaskActions {
     await appRepository.editTaskRules(updatedRules);
 
     if (!context.mounted) return true;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.taskActionPrioritySet(updatedRules.length, selectedPriority.label(context.l10n)),
@@ -173,7 +173,7 @@ class TaskActions {
     await appRepository.editTaskRules(updatedRules);
 
     if (!context.mounted) return true;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.taskTagsUpdated(updatedRules.length),
@@ -224,7 +224,7 @@ class TaskActions {
     await appRepository.removeTaskEntries(obsoleteTaskEntries);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.taskRulesMovedToTrash(taskRules.length, taskRules[0].name),
@@ -247,7 +247,7 @@ class TaskActions {
     await appRepository.restoreTaskRules([taskRule]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.taskRestoredFromTrash(taskRule.name),
@@ -319,7 +319,7 @@ class TaskActions {
     unawaited(HapticFeedback.successNotification());
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         context.l10n.taskCompleted(taskEntries.length, taskRules[0].name),
@@ -384,7 +384,7 @@ class TaskActions {
     await appRepository.removeTaskEntries([taskEntry]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.taskEntriesMovedToTrash(1, taskEntry.name),
@@ -407,7 +407,7 @@ class TaskActions {
     await appRepository.removeTaskEntries(taskEntries);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.taskEntriesMovedToTrash(taskEntries.length, taskEntries[0].name),
@@ -426,7 +426,7 @@ class TaskActions {
     await appRepository.restoreTaskEntries([taskEntry]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         context.l10n.taskEntryRestoredFromTrash(taskEntry.name),

@@ -462,7 +462,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
         LocationStatus.timeout => context.l10n.setupFormLocationTimeout,
         _ => context.l10n.setupFormLocationError,
       };
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, message, duration: const Duration(seconds: 2)),
       );
       return false;
@@ -475,7 +475,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   Future<void> updateAddress() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.setupFormAddressNeedsLocation));
       return;
     }
 
@@ -486,7 +486,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (!mounted) return;
     if (newAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormAddressError, duration: const Duration(seconds: 2)),
       );
       return;
@@ -550,7 +550,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final DateTime newDateTimeLocal = _selectedDateTimeLocal.copyWith(hour: pickedTime.hour, minute: pickedTime.minute);
     if (newDateTimeLocal == _selectedDateTimeLocal) return;
     if (newDateTimeLocal.isAfter(DateTime.now())) {
-      ScaffoldMessenger.of(context).showSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
+      ScaffoldMessenger.of(context).showAppSnackBar(AppSnackBar.error(context, context.l10n.setupFormDateTimeInFuture));
       return;
     }
 
@@ -568,13 +568,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
     // The rated setup card is far above the date chips, so say when it moved.
     final rated = _ratedSetup();
     if (rated?.id != previousRatedId) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          rated == null
-              ? AppSnackBar.error(context, context.l10n.feedbackFormNoSetupActive)
-              : AppSnackBar.info(context, context.l10n.feedbackFormNowRating(rated.label(context.l10n))),
-        );
+      ScaffoldMessenger.of(context).showAppSnackBar(
+        rated == null
+            ? AppSnackBar.error(context, context.l10n.feedbackFormNoSetupActive)
+            : AppSnackBar.info(context, context.l10n.feedbackFormNowRating(rated.label(context.l10n))),
+      );
     }
     unawaited(askAndUpdateWeather());
   }
@@ -596,7 +594,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
   Future<void> updateWeather() async {
     if (_currentLocation.value == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormWeatherNeedsLocation, duration: const Duration(seconds: 2)),
       );
       return;
@@ -610,7 +608,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     if (!mounted) return;
     if (currentWeather == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(context, context.l10n.setupFormWeatherError, duration: const Duration(seconds: 2)),
       );
       return;
@@ -623,7 +621,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   void _saveFeedback() {
     if (!_formKey.currentState!.validate()) {
       unawaited(HapticFeedback.errorNotification());
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(
           context,
           context.l10n.feedbackFormInvalid,
@@ -636,7 +634,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
     // Feedback rates the setup that was active at the ride's time, so it needs one.
     final rated = _ratedSetup();
     if (rated == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context).showAppSnackBar(
         AppSnackBar.error(
           context,
           context.l10n.feedbackFormNoSetupBefore,

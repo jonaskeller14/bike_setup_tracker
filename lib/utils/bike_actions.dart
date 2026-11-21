@@ -112,7 +112,7 @@ class BikeActions {
 
     if (!context.mounted) return true;
     final personName = appRepository.persons[newPerson]?.name;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.success(
         context,
         personName == null
@@ -178,7 +178,7 @@ class BikeActions {
       message += '\n${l10n.bikeAlsoTrashed(joinItems(l10n, deletedItems))}';
     }
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         message,
@@ -205,7 +205,7 @@ class BikeActions {
     await appRepository.restoreBikes([bike]);
 
     if (!context.mounted) return;
-    messenger.showSnackBar(
+    messenger.showAppSnackBar(
       AppSnackBar.info(
         context,
         l10n.bikeRestoredFromTrash(bike.name),

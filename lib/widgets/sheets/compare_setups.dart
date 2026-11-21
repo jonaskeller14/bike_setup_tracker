@@ -40,9 +40,9 @@ Future<void> showCompareSetupsSheet(
     history: appRepository.setupHistory,
   );
   if (resolution is! SetupComparisonTargets) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.hideCurrentSnackBar();
-    messenger.showSnackBar(AppSnackBar.info(context, context.l10n.compareChooseTwoDifferent));
+    ScaffoldMessenger.of(context).showAppSnackBar(
+      AppSnackBar.info(context, context.l10n.compareChooseTwoDifferent),
+    );
     return;
   }
 

@@ -25,7 +25,7 @@ class SelectImportMethodSheetContent extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SheetHeader(
-            title: context.l10n.importSheetTitle,
+            title: context.l10n.importMethodTitle,
             onBack: onBack,
           ),
           const SizedBox(height: 16),

@@ -17,6 +17,7 @@ import '../app_snackbar.dart';
 import 'backup.dart';
 import 'data_select.dart';
 import 'import_merge_overwrite.dart';
+import 'import_summary.dart';
 import 'sheet_header.dart';
 import 'sheet_progress_content.dart';
 
@@ -80,11 +81,6 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
   }
 }
 
-enum ImportSourceOptions {
-  file,
-  backup,
-}
-
 class ImportResult {
   final ImportMethod importMethod;
   final SelectedData dataToImport;
@@ -97,7 +93,8 @@ enum ImportSheetFlowSteps {
   step3SelectDataMethod,
   step4SelectDataItems,
   step5SelectImportMethod,
-  step6Importing,
+  step6Summary,
+  step7Importing,
 }
 
 class ImportSheetFlow extends StatefulWidget {
@@ -112,18 +109,21 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
   ImportSheetFlowSteps _step = ImportSheetFlowSteps.step1SelectSource;
   final List<ImportSheetFlowSteps> _previousSteps = [];
 
+  ImportSourceOptions? _source;
   SelectedData? _remoteAllData;
   SelectedData? _remoteSelectedData;
   ImportMethod? _importMethod;
 
-  Future<void> _import(ImportMethod importMethod) async {
+  void _showSummary(ImportMethod importMethod) {
+    _importMethod = importMethod;
+    _setNextStep(ImportSheetFlowSteps.step6Summary);
+  }
+
+  Future<void> _import() async {
     unawaited(HapticFeedback.mediumImpact());
-    setState(() {
-      _importMethod = importMethod;
-      _step = ImportSheetFlowSteps.step6Importing;
-    });
+    setState(() => _step = ImportSheetFlowSteps.step7Importing);
     try {
-      await widget.onImport(ImportResult(importMethod: importMethod, dataToImport: _remoteSelectedData!));
+      await widget.onImport(ImportResult(importMethod: _importMethod!, dataToImport: _remoteSelectedData!));
     } finally {
       if (mounted) Navigator.of(context).pop();
     }
@@ -154,7 +154,9 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
         break;
       case ImportSheetFlowSteps.step5SelectImportMethod:
         break;
-      case ImportSheetFlowSteps.step6Importing:
+      case ImportSheetFlowSteps.step6Summary:
+        break;
+      case ImportSheetFlowSteps.step7Importing:
         return;
     }
 
@@ -178,6 +180,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
         child: switch (_step) {
           ImportSheetFlowSteps.step1SelectSource => SelectImportSourceSheetContent(
             onFile: (SelectedData appRepository) {
+              _source = ImportSourceOptions.file;
               _remoteAllData = appRepository;
               if (_remoteAllData == null) return;
               _setNextStep(ImportSheetFlowSteps.step3SelectDataMethod);
@@ -186,6 +189,7 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
           ),
           ImportSheetFlowSteps.step2SelectBackup => BackupSheetContent(
             onRestore: (SelectedData appRepository) async {
+              _source = ImportSourceOptions.backup;
               _remoteAllData = appRepository;
               if (_remoteAllData == null) return;
               _setNextStep(ImportSheetFlowSteps.step3SelectDataMethod);
@@ -220,12 +224,20 @@ class _ImportSheetFlowState extends State<ImportSheetFlow> {
             onBack: _onBack,
           ),
           ImportSheetFlowSteps.step5SelectImportMethod => SelectImportMethodSheetContent(
-            onOverwrite: () => _import(ImportMethod.overwrite),
-            onMerge: () => _import(ImportMethod.merge),
-            onReplace: () => _import(ImportMethod.replace),
+            onOverwrite: () => _showSummary(ImportMethod.overwrite),
+            onMerge: () => _showSummary(ImportMethod.merge),
+            onReplace: () => _showSummary(ImportMethod.replace),
             onBack: _onBack,
           ),
-          ImportSheetFlowSteps.step6Importing => SheetProgressContent(
+          ImportSheetFlowSteps.step6Summary => ImportSummarySheetContent(
+            remoteData: _remoteSelectedData!,
+            source: _source!,
+            method: _importMethod!,
+            loadLocalData: () => FileImport.loadLocalData(context.read<AppDatabase>()),
+            onConfirm: _import,
+            onBack: _onBack,
+          ),
+          ImportSheetFlowSteps.step7Importing => SheetProgressContent(
             title: context.l10n.importSheetTitle,
             message: switch (_importMethod!) {
               ImportMethod.merge => context.l10n.importProgressMerge,

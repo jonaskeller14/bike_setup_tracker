@@ -10139,6 +10139,197 @@
       }
     }
   },
+  "importSummaryLoading": "Comparing with the data on this device…",
+  "@importSummaryLoading": {
+    "description": "Import summary step: shown while the data on this device is read for the comparison."
+  },
+  "importSummaryLoadError": "Couldn't read the data on this device: {error}",
+  "@importSummaryLoadError": {
+    "description": "Import summary step: the data on this device could not be read.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummarySource": "{source, select, backup{Backup} other{File}}",
+  "@importSummarySource": {
+    "description": "Import summary step: column header for the item in the imported file or backup.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryDevice": "This device",
+  "@importSummaryDevice": {
+    "description": "Import summary step: column header for the item on this device before the import."
+  },
+  "importSummaryAdded": "{count, plural, =1{1 new} other{{count} new}}",
+  "@importSummaryAdded": {
+    "description": "Import summary step, group subtitle: items the import adds.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryUpdated": "{count, plural, =1{1 to overwrite} other{{count} to overwrite}}",
+  "@importSummaryUpdated": {
+    "description": "Import summary step, group subtitle: device items the import will overwrite with the file version.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryUnchanged": "{count, plural, =1{1 unchanged} other{{count} unchanged}}",
+  "@importSummaryUnchanged": {
+    "description": "Import summary step, group subtitle: items the import leaves as they are.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryTrashed": "{count, plural, =1{1 to trash} other{{count} to trash}}",
+  "@importSummaryTrashed": {
+    "description": "Import summary step, group subtitle: device items the import will move to the trash.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importSummaryEmpty": "Nothing on this device changes",
+  "@importSummaryEmpty": {
+    "description": "Import summary step: the import changes nothing on this device."
+  },
+  "importSummaryConfirm": "Import",
+  "@importSummaryConfirm": {
+    "description": "Import summary step: button that runs the import."
+  },
+  "importSummaryRiders": "Riders",
+  "@importSummaryRiders": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryBikes": "Bikes",
+  "@importSummaryBikes": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryComponents": "Components",
+  "@importSummaryComponents": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummarySetups": "Setups",
+  "@importSummarySetups": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryTasks": "Tasks",
+  "@importSummaryTasks": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryTaskEntries": "Task Entries",
+  "@importSummaryTaskEntries": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryFeedback": "Feedback",
+  "@importSummaryFeedback": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importSummaryTestSessions": "Test Sessions",
+  "@importSummaryTestSessions": {
+    "description": "Import summary step: title of one item type group."
+  },
+  "importMethodTitle": "Select Import Method",
+  "@importMethodTitle": {
+    "description": "Title of the import step that picks overwrite, merge or replace."
+  },
+  "importSummaryTitle": "Import Summary",
+  "@importSummaryTitle": {
+    "description": "Title of the import step that shows what the import changes before it runs."
+  },
+  "importSummaryIntro": "Check what changes on this device before you import.",
+  "@importSummaryIntro": {
+    "description": "Import summary step: one line under the chosen method."
+  },
+  "importSummaryBadgeNew": "New",
+  "@importSummaryBadgeNew": {
+    "description": "Import summary badge on the file card: the import adds this item."
+  },
+  "importSummaryBadgeRestored": "Will be restored",
+  "@importSummaryBadgeRestored": {
+    "description": "Import summary badge on the file card: the import brings back an item that is in the trash on this device."
+  },
+  "importSummaryBadgeOverwritten": "Will be overwritten",
+  "@importSummaryBadgeOverwritten": {
+    "description": "Import summary badge on the device card: the file version replaces it."
+  },
+  "importSummaryBadgeIdentical": "Identical",
+  "@importSummaryBadgeIdentical": {
+    "description": "Import summary badge on the file card: the item is the same on this device, nothing changes."
+  },
+  "importSummaryBadgeOlder": "Older, will be skipped",
+  "@importSummaryBadgeOlder": {
+    "description": "Import summary badge on the file card: Merge keeps the newer version on this device and skips the file version."
+  },
+  "importSummaryBadgeTrashed": "Will be moved to trash",
+  "@importSummaryBadgeTrashed": {
+    "description": "Import summary badge on the device card: the import moves this item to the trash."
+  },
+  "importSummaryNotOnDevice": "Not on this device",
+  "@importSummaryNotOnDevice": {
+    "description": "Import summary placeholder in the device column: the item does not exist on this device."
+  },
+  "importSummaryNotInSource": "{source, select, backup{Not in the backup} other{Not in the file}}",
+  "@importSummaryNotInSource": {
+    "description": "Import summary placeholder in the file or backup column: the file or backup does not contain the item.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryDeletedInSource": "{source, select, backup{Deleted in the backup} other{Deleted in the file}}",
+  "@importSummaryDeletedInSource": {
+    "description": "Import summary placeholder in the file or backup column: the file or backup marks the item as deleted.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryInTrash": "In the trash",
+  "@importSummaryInTrash": {
+    "description": "Import summary badge on the device card: the item is in the trash on this device (the import will restore it)."
+  },
+  "importSummaryExplainMerge": "{source, select, backup{For each item, the version edited last wins, whether it's in the backup or on this device.} other{For each item, the version edited last wins, whether it's in the file or on this device.}}",
+  "@importSummaryExplainMerge": {
+    "description": "Import summary step: what Merge does, under the method name.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryExplainOverwrite": "{source, select, backup{Items from the backup replace the same items on this device. Everything else on this device stays.} other{Items from the file replace the same items on this device. Everything else on this device stays.}}",
+  "@importSummaryExplainOverwrite": {
+    "description": "Import summary step: what Overwrite does, under the method name.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "importSummaryExplainReplace": "{source, select, backup{Items from the backup replace the same items on this device. Everything else on this device moves to the trash.} other{Items from the file replace the same items on this device. Everything else on this device moves to the trash.}}",
+  "@importSummaryExplainReplace": {
+    "description": "Import summary step: what Replace does, under the method name.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
   "stravaGearLinkedCount": "{linked} of {total} linked",
   "@stravaGearLinkedCount": {
     "description": "Note next to the Strava gear title with how many gear items are linked to a bike.",

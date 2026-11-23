@@ -36,7 +36,7 @@ void main() {
       ),
     );
 
-    expect(find.text('Daten importieren'), findsOneWidget);
+    expect(find.text('Importmethode wählen'), findsOneWidget);
     expect(find.text('Daten überschreiben'), findsOneWidget);
     expect(find.text('Daten zusammenführen'), findsOneWidget);
     expect(find.text('Daten ersetzen'), findsOneWidget);

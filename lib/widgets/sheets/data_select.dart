@@ -1,8 +1,6 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 
-import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 
 import '../../models/app_settings.dart';
@@ -10,6 +8,7 @@ import '../../models/selected_data.dart';
 import '../../models/syncable.dart';
 import '../../repositories/app_repository.dart';
 import '../../services/data_selection_dependencies.dart';
+import '../items/data_item_name.dart';
 import '../items/data_select_bike.dart';
 import '../items/data_select_component.dart';
 import '../items/data_select_feedback.dart';
@@ -209,21 +208,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     });
   }
 
-  String _nameOf(DataRef ref, AppSettings appSettings) {
-    final data = widget.allData;
-    final l10n = context.l10n;
-    return switch (ref.kind) {
-      DataKind.person => data.persons[ref.id]!.name,
-      DataKind.bike => data.bikes[ref.id]!.name,
-      DataKind.component => data.components[ref.id]!.name,
-      DataKind.setup => data.setups[ref.id]!.label(l10n),
-      DataKind.taskRule => data.taskRules[ref.id]!.name,
-      DataKind.taskEntry => data.taskEntries[ref.id]!.name,
-      DataKind.feedback => '${DateFormat(appSettings.dateFormat, l10n.localeName).format(data.feedbacks[ref.id]!.dateTimeLocal)} • '
-          '${DateFormat(appSettings.timeFormat, l10n.localeName).format(data.feedbacks[ref.id]!.dateTimeLocal)}',
-      DataKind.testSession => data.testSessions[ref.id]!.label(l10n),
-    };
-  }
+  String _nameOf(DataRef ref, AppSettings appSettings) =>
+      dataItemName(ref.kind, itemsOf(widget.allData, ref.kind)[ref.id]!, context.l10n, appSettings);
 
   @override
   void dispose() {

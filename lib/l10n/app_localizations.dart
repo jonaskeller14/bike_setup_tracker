@@ -12469,6 +12469,210 @@ abstract class AppLocalizations {
   /// **'Test session \'{name}\' not selected'**
   String dataSelectMissingTestSession(String name);
 
+  /// Import summary step: shown while the data on this device is read for the comparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing with the data on this device…'**
+  String get importSummaryLoading;
+
+  /// Import summary step: the data on this device could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read the data on this device: {error}'**
+  String importSummaryLoadError(String error);
+
+  /// Import summary step: column header for the item in the imported file or backup.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{Backup} other{File}}'**
+  String importSummarySource(String source);
+
+  /// Import summary step: column header for the item on this device before the import.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get importSummaryDevice;
+
+  /// Import summary step, group subtitle: items the import adds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 new} other{{count} new}}'**
+  String importSummaryAdded(int count);
+
+  /// Import summary step, group subtitle: device items the import will overwrite with the file version.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to overwrite} other{{count} to overwrite}}'**
+  String importSummaryUpdated(int count);
+
+  /// Import summary step, group subtitle: items the import leaves as they are.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unchanged} other{{count} unchanged}}'**
+  String importSummaryUnchanged(int count);
+
+  /// Import summary step, group subtitle: device items the import will move to the trash.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 to trash} other{{count} to trash}}'**
+  String importSummaryTrashed(int count);
+
+  /// Import summary step: the import changes nothing on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this device changes'**
+  String get importSummaryEmpty;
+
+  /// Import summary step: button that runs the import.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importSummaryConfirm;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Riders'**
+  String get importSummaryRiders;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Bikes'**
+  String get importSummaryBikes;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get importSummaryComponents;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Setups'**
+  String get importSummarySetups;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Tasks'**
+  String get importSummaryTasks;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Task Entries'**
+  String get importSummaryTaskEntries;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback'**
+  String get importSummaryFeedback;
+
+  /// Import summary step: title of one item type group.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Sessions'**
+  String get importSummaryTestSessions;
+
+  /// Title of the import step that picks overwrite, merge or replace.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Import Method'**
+  String get importMethodTitle;
+
+  /// Title of the import step that shows what the import changes before it runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Summary'**
+  String get importSummaryTitle;
+
+  /// Import summary step: one line under the chosen method.
+  ///
+  /// In en, this message translates to:
+  /// **'Check what changes on this device before you import.'**
+  String get importSummaryIntro;
+
+  /// Import summary badge on the file card: the import adds this item.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get importSummaryBadgeNew;
+
+  /// Import summary badge on the file card: the import brings back an item that is in the trash on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be restored'**
+  String get importSummaryBadgeRestored;
+
+  /// Import summary badge on the device card: the file version replaces it.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be overwritten'**
+  String get importSummaryBadgeOverwritten;
+
+  /// Import summary badge on the file card: the item is the same on this device, nothing changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Identical'**
+  String get importSummaryBadgeIdentical;
+
+  /// Import summary badge on the file card: Merge keeps the newer version on this device and skips the file version.
+  ///
+  /// In en, this message translates to:
+  /// **'Older, will be skipped'**
+  String get importSummaryBadgeOlder;
+
+  /// Import summary badge on the device card: the import moves this item to the trash.
+  ///
+  /// In en, this message translates to:
+  /// **'Will be moved to trash'**
+  String get importSummaryBadgeTrashed;
+
+  /// Import summary placeholder in the device column: the item does not exist on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on this device'**
+  String get importSummaryNotOnDevice;
+
+  /// Import summary placeholder in the file or backup column: the file or backup does not contain the item.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{Not in the backup} other{Not in the file}}'**
+  String importSummaryNotInSource(String source);
+
+  /// Import summary placeholder in the file or backup column: the file or backup marks the item as deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{Deleted in the backup} other{Deleted in the file}}'**
+  String importSummaryDeletedInSource(String source);
+
+  /// Import summary badge on the device card: the item is in the trash on this device (the import will restore it).
+  ///
+  /// In en, this message translates to:
+  /// **'In the trash'**
+  String get importSummaryInTrash;
+
+  /// Import summary step: what Merge does, under the method name.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{For each item, the version edited last wins, whether it\'s in the backup or on this device.} other{For each item, the version edited last wins, whether it\'s in the file or on this device.}}'**
+  String importSummaryExplainMerge(String source);
+
+  /// Import summary step: what Overwrite does, under the method name.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{Items from the backup replace the same items on this device. Everything else on this device stays.} other{Items from the file replace the same items on this device. Everything else on this device stays.}}'**
+  String importSummaryExplainOverwrite(String source);
+
+  /// Import summary step: what Replace does, under the method name.
+  ///
+  /// In en, this message translates to:
+  /// **'{source, select, backup{Items from the backup replace the same items on this device. Everything else on this device moves to the trash.} other{Items from the file replace the same items on this device. Everything else on this device moves to the trash.}}'**
+  String importSummaryExplainReplace(String source);
+
   /// Note next to the Strava gear title with how many gear items are linked to a bike.
   ///
   /// In en, this message translates to:

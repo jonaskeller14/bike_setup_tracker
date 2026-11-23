@@ -7641,6 +7641,196 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get importSummaryLoading => 'Comparaison avec les données de cet appareil…';
+
+  @override
+  String importSummaryLoadError(String error) {
+    return 'Impossible de lire les données de cet appareil : $error';
+  }
+
+  @override
+  String importSummarySource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Sauvegarde',
+        'other': 'Fichier',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryDevice => 'Cet appareil';
+
+  @override
+  String importSummaryAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count nouveaux',
+      one: '1 nouveau',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count à écraser',
+      one: '1 à écraser',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryUnchanged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count inchangés',
+      one: '1 inchangé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryTrashed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vers la corbeille',
+      one: '1 vers la corbeille',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryEmpty => 'Rien ne change sur cet appareil';
+
+  @override
+  String get importSummaryConfirm => 'Importer';
+
+  @override
+  String get importSummaryRiders => 'Pilotes';
+
+  @override
+  String get importSummaryBikes => 'Vélos';
+
+  @override
+  String get importSummaryComponents => 'Composants';
+
+  @override
+  String get importSummarySetups => 'Setups';
+
+  @override
+  String get importSummaryTasks => 'Tâches';
+
+  @override
+  String get importSummaryTaskEntries => 'Entrées de tâche';
+
+  @override
+  String get importSummaryFeedback => 'Feedback';
+
+  @override
+  String get importSummaryTestSessions => 'Sessions de test';
+
+  @override
+  String get importMethodTitle => 'Choisir la méthode d\'importation';
+
+  @override
+  String get importSummaryTitle => 'Résumé de l\'importation';
+
+  @override
+  String get importSummaryIntro => 'Vérifiez ce qui change sur cet appareil avant d\'importer.';
+
+  @override
+  String get importSummaryBadgeNew => 'Nouveau';
+
+  @override
+  String get importSummaryBadgeRestored => 'Sera restauré';
+
+  @override
+  String get importSummaryBadgeOverwritten => 'Sera écrasé';
+
+  @override
+  String get importSummaryBadgeIdentical => 'Identique';
+
+  @override
+  String get importSummaryBadgeOlder => 'Plus ancien, sera ignoré';
+
+  @override
+  String get importSummaryBadgeTrashed => 'Ira à la corbeille';
+
+  @override
+  String get importSummaryNotOnDevice => 'Absent de cet appareil';
+
+  @override
+  String importSummaryNotInSource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Absent de la sauvegarde',
+        'other': 'Absent du fichier',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryDeletedInSource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Supprimé dans la sauvegarde',
+        'other': 'Supprimé dans le fichier',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryInTrash => 'Dans la corbeille';
+
+  @override
+  String importSummaryExplainMerge(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Pour chaque élément, la version modifiée en dernier l\'emporte, qu\'elle soit dans la sauvegarde ou sur cet appareil.',
+        'other': 'Pour chaque élément, la version modifiée en dernier l\'emporte, qu\'elle soit dans le fichier ou sur cet appareil.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryExplainOverwrite(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Les éléments de la sauvegarde remplacent les mêmes éléments sur cet appareil. Tout le reste sur cet appareil est conservé.',
+        'other': 'Les éléments du fichier remplacent les mêmes éléments sur cet appareil. Tout le reste sur cet appareil est conservé.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryExplainReplace(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Les éléments de la sauvegarde remplacent les mêmes éléments sur cet appareil. Tout le reste sur cet appareil va à la corbeille.',
+        'other': 'Les éléments du fichier remplacent les mêmes éléments sur cet appareil. Tout le reste sur cet appareil va à la corbeille.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String stravaGearLinkedCount(int linked, int total) {
     return '$linked sur $total associés';
   }

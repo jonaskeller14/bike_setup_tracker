@@ -4,6 +4,11 @@ import '../services/data_selection_dependencies.dart';
 import 'selected_data.dart';
 import 'syncable.dart';
 
+enum ImportSourceOptions {
+  file,
+  backup,
+}
+
 enum ImportMethod {
   overwrite,
   merge,

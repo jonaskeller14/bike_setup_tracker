@@ -7593,6 +7593,196 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get importSummaryLoading => 'Comparing with the data on this device…';
+
+  @override
+  String importSummaryLoadError(String error) {
+    return 'Couldn\'t read the data on this device: $error';
+  }
+
+  @override
+  String importSummarySource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Backup',
+        'other': 'File',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryDevice => 'This device';
+
+  @override
+  String importSummaryAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new',
+      one: '1 new',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count to overwrite',
+      one: '1 to overwrite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryUnchanged(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unchanged',
+      one: '1 unchanged',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryTrashed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count to trash',
+      one: '1 to trash',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryEmpty => 'Nothing on this device changes';
+
+  @override
+  String get importSummaryConfirm => 'Import';
+
+  @override
+  String get importSummaryRiders => 'Riders';
+
+  @override
+  String get importSummaryBikes => 'Bikes';
+
+  @override
+  String get importSummaryComponents => 'Components';
+
+  @override
+  String get importSummarySetups => 'Setups';
+
+  @override
+  String get importSummaryTasks => 'Tasks';
+
+  @override
+  String get importSummaryTaskEntries => 'Task Entries';
+
+  @override
+  String get importSummaryFeedback => 'Feedback';
+
+  @override
+  String get importSummaryTestSessions => 'Test Sessions';
+
+  @override
+  String get importMethodTitle => 'Select Import Method';
+
+  @override
+  String get importSummaryTitle => 'Import Summary';
+
+  @override
+  String get importSummaryIntro => 'Check what changes on this device before you import.';
+
+  @override
+  String get importSummaryBadgeNew => 'New';
+
+  @override
+  String get importSummaryBadgeRestored => 'Will be restored';
+
+  @override
+  String get importSummaryBadgeOverwritten => 'Will be overwritten';
+
+  @override
+  String get importSummaryBadgeIdentical => 'Identical';
+
+  @override
+  String get importSummaryBadgeOlder => 'Older, will be skipped';
+
+  @override
+  String get importSummaryBadgeTrashed => 'Will be moved to trash';
+
+  @override
+  String get importSummaryNotOnDevice => 'Not on this device';
+
+  @override
+  String importSummaryNotInSource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Not in the backup',
+        'other': 'Not in the file',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryDeletedInSource(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Deleted in the backup',
+        'other': 'Deleted in the file',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importSummaryInTrash => 'In the trash';
+
+  @override
+  String importSummaryExplainMerge(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'For each item, the version edited last wins, whether it\'s in the backup or on this device.',
+        'other': 'For each item, the version edited last wins, whether it\'s in the file or on this device.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryExplainOverwrite(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Items from the backup replace the same items on this device. Everything else on this device stays.',
+        'other': 'Items from the file replace the same items on this device. Everything else on this device stays.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importSummaryExplainReplace(String source) {
+    String _temp0 = intl.Intl.selectLogic(
+      source,
+      {
+        'backup': 'Items from the backup replace the same items on this device. Everything else on this device moves to the trash.',
+        'other': 'Items from the file replace the same items on this device. Everything else on this device moves to the trash.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
   String stravaGearLinkedCount(int linked, int total) {
     return '$linked of $total linked';
   }

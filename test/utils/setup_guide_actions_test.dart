@@ -33,6 +33,20 @@ guides:
         input_unit: psi
         rows: { 60-75: 10, 75-85: 8, 85-95: 6 }
       - { target: lsc, value: 4 }
+  acme_spring:
+    label: Acme spring manual (2027)
+    source: https://example.com/acme-spring
+    spring: pressure
+    rules:
+      - target: pressure
+        unit: psi
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 70, 80-90: 80, 90-100: 90 }
+      - target: hsr
+        input: rider_weight
+        input_unit: kg
+        rows: { 70-80: 6, 80-90: 4, 90-100: 2 }
 nodes:
   - label: Guided
     level: model
@@ -41,6 +55,12 @@ nodes:
       - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
       - { name: Rebound, type: step, max: 16 }
       - { name: LSC, type: step, max: 10 }
+  - label: Spring follower
+    level: model
+    guide: acme_spring
+    adjustments:
+      - { name: Pressure, type: numerical, unit: psi, min: 0, max: 120 }
+      - { name: HSR, type: step, max: 8 }
   - label: Plain
     level: model
     adjustments:
@@ -240,6 +260,36 @@ nodes:
       final applied = guideValuesToApply(guided, const GuideInputs(), {}, englishL10n);
 
       expect(applied.keys.map((a) => a.name), ['LSC']);
+    });
+
+    test('without a rider weight, keys dependent rules on the entered pressure', () {
+      final guided = GuidedComponent(component('guided'), resolve(component('guided'))!);
+      final pressure = adjustment(guided.component, 'Pressure');
+      final current = {pressure.id: const NumericalValue(80)};
+
+      final applied = guideValuesToApply(guided, const GuideInputs(), current, englishL10n);
+
+      expect({for (final entry in applied.entries) entry.key.name: entry.value}, {
+        'Rebound': const StepValue(8),
+        'LSC': const StepValue(4),
+      });
+    });
+
+    test('without a rider weight, applies every value a row tap would', () {
+      final guided = GuidedComponent(component('spring-follower'), resolve(component('spring-follower'))!);
+      final pressure = adjustment(guided.component, 'Pressure');
+      final hsr = adjustment(guided.component, 'HSR');
+      final current = {pressure.id: const NumericalValue(80), hsr.id: const StepValue(8)};
+
+      final shown = guided.evaluate(const GuideInputs(), current, englishL10n);
+      final tappable = {
+        for (final recommendation in shown) recommendation.adjustment.name: ?recommendation.value,
+      };
+      expect(tappable, {'HSR': const StepValue(4)});
+
+      final applied = guideValuesToApply(guided, const GuideInputs(), current, englishL10n);
+
+      expect({for (final entry in applied.entries) entry.key.name: entry.value}, tappable);
     });
   });
 

@@ -81,16 +81,21 @@ GuideInputs guideInputsFor(
 
 /// What **Apply all** writes for [guided]: every applicable recommendation.
 ///
-/// The targets' own current values are left out of the evaluation, so a rule
-/// reading another adjuster (rebound keyed by pressure) reads the pressure
-/// being applied, not the one it replaces.
+/// The current values of the targets that get a value are left out of the
+/// evaluation, so a rule reading another adjuster (rebound keyed by pressure)
+/// reads the pressure being applied, not the one it replaces. A target without
+/// a value (a weight-keyed pressure with no weight) keeps its entered value,
+/// which the rules reading it go on following.
 Map<Adjustment, AdjustmentValue> guideValuesToApply(
   GuidedComponent guided,
   GuideInputs inputs,
   Map<String, AdjustmentValue> currentValues,
   AppLocalizations l10n,
 ) {
-  final targets = guided.evaluate(inputs, currentValues, l10n).map((r) => r.adjustment.id).toSet();
+  final targets = {
+    for (final recommendation in guided.evaluate(inputs, currentValues, l10n))
+      if (recommendation.value != null) recommendation.adjustment.id,
+  };
   final untouched = {
     for (final entry in currentValues.entries)
       if (!targets.contains(entry.key)) entry.key: entry.value,

@@ -313,12 +313,22 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
-          if (!issues.isEmpty)
-            DataSelectWarningBanner(
-              count: issues.items.length,
-              onSelectMissing: () => _selectMissing(issues),
-              onShow: () => _showIssues(issues),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) => SizeTransition(
+              sizeFactor: animation,
+              alignment: Alignment.topCenter,
+              child: FadeTransition(opacity: animation, child: child),
             ),
+            child: issues.isEmpty
+                ? const SizedBox(width: double.infinity, key: ValueKey('no-issues'))
+                : DataSelectWarningBanner(
+                    key: const ValueKey('issues'),
+                    count: issues.items.length,
+                    onSelectMissing: () => _selectMissing(issues),
+                    onShow: () => _showIssues(issues),
+                  ),
+          ),
           Flexible(
             child: SingleChildScrollView(
               child: Column(

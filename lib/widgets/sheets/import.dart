@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../database/app_database.dart';
 import '../../l10n/enum_labels.dart';
 import '../../l10n/l10n.dart';
+import '../../models/import_preview.dart';
 import '../../models/selected_data.dart';
 import '../../models/service_error.dart';
 import '../../repositories/app_repository.dart';
@@ -82,12 +83,6 @@ Future<void> _runImport(BuildContext context, ImportResult importResult) async {
 enum ImportSourceOptions {
   file,
   backup,
-}
-
-enum ImportMethod {
-  overwrite,
-  merge,
-  replace,
 }
 
 class ImportResult {

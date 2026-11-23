@@ -23,7 +23,7 @@ class DataRef {
   String toString() => 'DataRef(${kind.name}, $id)';
 }
 
-Map<String, Syncable> _itemsOf(SelectedData data, DataKind kind) => switch (kind) {
+Map<String, Syncable> itemsOf(SelectedData data, DataKind kind) => switch (kind) {
   DataKind.person => data.persons,
   DataKind.bike => data.bikes,
   DataKind.component => data.components,
@@ -43,7 +43,7 @@ class DataSelection {
   /// Every item of [data] selected.
   DataSelection.all(SelectedData data) {
     for (final kind in DataKind.values) {
-      _ids[kind]!.addAll(_itemsOf(data, kind).keys);
+      _ids[kind]!.addAll(itemsOf(data, kind).keys);
     }
   }
 
@@ -127,7 +127,7 @@ class DataSelectionDependencies {
     final candidates = _candidateReferences(ref);
     return {
       for (final target in candidates)
-        if (target != ref && _itemsOf(allData, target.kind).containsKey(target.id)) target,
+        if (target != ref && itemsOf(allData, target.kind).containsKey(target.id)) target,
     };
   }
 
@@ -211,7 +211,7 @@ class DataSelectionDependencies {
   DataSelectionIssues issues(DataSelection selection) {
     final issues = <DataSelectionIssue>[];
     for (final kind in DataKind.values) {
-      for (final id in _itemsOf(allData, kind).keys) {
+      for (final id in itemsOf(allData, kind).keys) {
         final item = DataRef(kind, id);
         if (!selection.contains(item)) continue;
         final missing = {

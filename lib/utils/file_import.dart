@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../database/app_database.dart';
 import '../l10n/l10n.dart';
+import '../models/import_preview.dart';
 import '../models/selected_data.dart';
 import '../models/service_error.dart';
 import '../models/syncable.dart';
@@ -94,46 +95,74 @@ class FileImport {
     }
   }
 
+  /// The data on this device, in the in-memory form the import works on.
+  static Future<SelectedData> loadLocalData(AppDatabase database) async =>
+      SelectedData.fromJson(await DataExportService.backupDatabaseToJson(database));
+
+  /// What importing [remoteData] with [method] would change in [localData]. Writes nothing.
+  static ImportPreview preview({
+    required SelectedData remoteData,
+    required SelectedData localData,
+    required ImportMethod method,
+  }) {
+    final after = _shallowCopy(localData);
+    _apply(remoteData: remoteData, localData: after, method: method);
+    return ImportPreview.diff(remote: remoteData, before: localData, after: after);
+  }
+
   /// Overwrites by id and moves every other local item to the trash: as
   /// tombstones, the removals reach the other devices through cloud sync.
   static Future<void> replace({required SelectedData remoteData, required AppDatabase database}) =>
-      overwrite(remoteData: remoteData, database: database, trashRest: true);
+      _import(remoteData: remoteData, database: database, method: ImportMethod.replace);
 
-  static Future<void> overwrite({
+  static Future<void> overwrite({required SelectedData remoteData, required AppDatabase database}) =>
+      _import(remoteData: remoteData, database: database, method: ImportMethod.overwrite);
+
+  static Future<void> merge({required SelectedData remoteData, required AppDatabase database}) =>
+      _import(remoteData: remoteData, database: database, method: ImportMethod.merge);
+
+  static Future<void> _import({
     required SelectedData remoteData,
     required AppDatabase database,
-    bool trashRest = false,
+    required ImportMethod method,
   }) async {
-    // 1. Fetch current DB state into memory
-    final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
-    final localData = SelectedData.fromJson(localJson);
-
-    // 2. Perform merge in memory
-    _overwriteInternal(remoteData: remoteData, localData: localData, trashRest: trashRest);
-    final purgedAttachments = cleanupIsDeleted(data: localData);
-
-    // 3. Write merged state back to DB
+    final localData = await loadLocalData(database);
+    final purgedAttachments = _apply(remoteData: remoteData, localData: localData, method: method);
     await _importDataToDb(database, localData);
 
-    // 4. Delete attachments of purged setups, bikes, components and tasks (after the DB write succeeds).
+    // Delete attachments of purged setups, bikes, components and tasks (after the DB write succeeds).
     await AttachmentStorageService().deleteFiles(purgedAttachments);
   }
 
-  static Future<void> merge({required SelectedData remoteData, required AppDatabase database}) async {
-    // 1. Fetch current DB state into memory
-    final localJson = await DataExportService.backupDatabaseToJson(database, includeStrava: true);
-    final localData = SelectedData.fromJson(localJson);
-
-    // 2. Perform merge in memory
-    _mergeInternal(remoteData: remoteData, localData: localData);
-    final purgedAttachments = cleanupIsDeleted(data: localData);
-
-    // 3. Write merged state back to DB
-    await _importDataToDb(database, localData);
-
-    // 4. Delete attachments of purged setups, bikes, components and tasks (after the DB write succeeds).
-    await AttachmentStorageService().deleteFiles(purgedAttachments);
+  /// Applies the import to [localData] in memory, then purges its old trash.
+  /// Returns the attachment files of the purged items.
+  static List<String> _apply({
+    required SelectedData remoteData,
+    required SelectedData localData,
+    required ImportMethod method,
+  }) {
+    switch (method) {
+      case ImportMethod.merge:
+        _mergeInternal(remoteData: remoteData, localData: localData);
+      case ImportMethod.overwrite:
+        _overwriteInternal(remoteData: remoteData, localData: localData);
+      case ImportMethod.replace:
+        _overwriteInternal(remoteData: remoteData, localData: localData, trashRest: true);
+    }
+    return cleanupIsDeleted(data: localData);
   }
+
+  /// New maps, same items: [_apply] only replaces map entries, and the items are immutable.
+  static SelectedData _shallowCopy(SelectedData data) => SelectedData(
+        persons: {...data.persons},
+        bikes: {...data.bikes},
+        components: {...data.components},
+        setups: {...data.setups},
+        taskRules: {...data.taskRules},
+        taskEntries: {...data.taskEntries},
+        feedbacks: {...data.feedbacks},
+        testSessions: {...data.testSessions},
+      );
 
   static Future<void> _importDataToDb(AppDatabase database, SelectedData dataToImport) async {
     // Reject an unusable component hierarchy before touching the database.
@@ -314,13 +343,10 @@ class FileImport {
     }
     for (final record in imported.values) {
       final current = local[record.id];
-      if (current != null && _sameContent(current, record)) continue;
+      if (current != null && current.hasSameContent(record)) continue;
       local[record.id] = stamp(record, record.isDeleted);
     }
   }
-
-  static bool _sameContent(Syncable a, Syncable b) =>
-      jsonEncode(a.toJson()..remove('lastModified')) == jsonEncode(b.toJson()..remove('lastModified'));
 
   static List<String> cleanupIsDeleted({required SelectedData data}) {
     final deleteDateTime = DateTime.now().toUtc().subtract(TrashCleanupService.retention);

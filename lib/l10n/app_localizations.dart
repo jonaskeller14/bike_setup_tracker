@@ -12403,6 +12403,72 @@ abstract class AppLocalizations {
   /// **'Select at least one item'**
   String get dataSelectEmptyHint;
 
+  /// Warning above the item list: how many selected items reference an item that isn't selected (and, on import, isn't on this device).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 selected item needs items that aren\'t selected} other{{count} selected items need items that aren\'t selected}}'**
+  String dataSelectIssueBanner(int count);
+
+  /// Banner action that selects every referenced item that isn't selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select missing'**
+  String get dataSelectSelectMissing;
+
+  /// Banner action that expands the groups with the affected items.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get dataSelectShowIssues;
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Rider \'{name}\' not selected'**
+  String dataSelectMissingPerson(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Bike \'{name}\' not selected'**
+  String dataSelectMissingBike(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Component \'{name}\' not selected'**
+  String dataSelectMissingComponent(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Setup \'{name}\' not selected'**
+  String dataSelectMissingSetup(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Task \'{name}\' not selected'**
+  String dataSelectMissingTaskRule(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Task entry \'{name}\' not selected'**
+  String dataSelectMissingTaskEntry(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback \'{name}\' not selected'**
+  String dataSelectMissingFeedback(String name);
+
+  /// Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).
+  ///
+  /// In en, this message translates to:
+  /// **'Test session \'{name}\' not selected'**
+  String dataSelectMissingTestSession(String name);
+
   /// Note next to the Strava gear title with how many gear items are linked to a bike.
   ///
   /// In en, this message translates to:

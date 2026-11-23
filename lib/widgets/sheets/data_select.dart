@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 import "package:provider/provider.dart";
 
+import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 
 import '../../models/app_settings.dart';
@@ -17,6 +19,7 @@ import '../items/data_select_task_entry.dart';
 import '../items/data_select_task_rule.dart';
 import '../items/data_select_test_session.dart';
 import 'data_select_flash.dart';
+import 'data_select_warning_banner.dart';
 import 'sheet_header.dart';
 
 Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
@@ -157,16 +160,19 @@ class SelectDataItemsSheetContent extends StatefulWidget {
 class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetContent> {
   late final DataSelectionDependencies _dependencies = DataSelectionDependencies(widget.allData);
   final DataSelection _selection = DataSelection();
+  final Map<DataKind, ExpansibleController> _groups = {for (final kind in DataKind.values) kind: ExpansibleController()};
 
-  /// The items the last tick selected automatically. Each tick bumps [_tick],
-  /// so a row that is added again flashes again.
-  Set<DataRef> _autoSelected = const {};
+  /// The rows to flash: what the last tick selected automatically, or what
+  /// Show points at. Each change bumps [_tick], so a row flashes again.
+  Set<DataRef> _flashing = const {};
+  int _flashPulses = 1;
   int _tick = 0;
 
   void _select(Iterable<DataRef> refs) {
     final ticked = refs.toSet();
     setState(() {
-      _autoSelected = _selection.addAll(_dependencies.closureOf(ticked)).difference(ticked);
+      _flashing = _selection.addAll(_dependencies.closureOf(ticked)).difference(ticked);
+      _flashPulses = 1;
       _tick++;
     });
   }
@@ -179,24 +185,87 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
     });
   }
 
+  void _selectMissing(DataSelectionIssues issues) {
+    setState(() {
+      _flashing = _selection.addAll(_dependencies.closureOf(issues.missing));
+      _flashPulses = 1;
+      _tick++;
+    });
+  }
+
+  void _showIssues(DataSelectionIssues issues) {
+    for (final kind in {...issues.affectedKinds, ...issues.missingKinds}) {
+      _groups[kind]!.expand();
+    }
+    // A row doesn't flash on its first build, so flash once the expanded
+    // groups have built their rows.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _flashing = {for (final issue in issues.items) issue.item, ...issues.missing};
+        _flashPulses = 3;
+        _tick++;
+      });
+    });
+  }
+
+  String _nameOf(DataRef ref, AppSettings appSettings) {
+    final data = widget.allData;
+    final l10n = context.l10n;
+    return switch (ref.kind) {
+      DataKind.person => data.persons[ref.id]!.name,
+      DataKind.bike => data.bikes[ref.id]!.name,
+      DataKind.component => data.components[ref.id]!.name,
+      DataKind.setup => data.setups[ref.id]!.label(l10n),
+      DataKind.taskRule => data.taskRules[ref.id]!.name,
+      DataKind.taskEntry => data.taskEntries[ref.id]!.name,
+      DataKind.feedback => '${DateFormat(appSettings.dateFormat, l10n.localeName).format(data.feedbacks[ref.id]!.dateTimeLocal)} • '
+          '${DateFormat(appSettings.timeFormat, l10n.localeName).format(data.feedbacks[ref.id]!.dateTimeLocal)}',
+      DataKind.testSession => data.testSessions[ref.id]!.label(l10n),
+    };
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _groups.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
   Widget _group<T extends Syncable>(
     BuildContext context, {
     required DataKind kind,
     required Iterable<T> items,
     required String Function(int selected, int total) title,
-    required Widget Function(T item, bool isSelected, ValueChanged<bool?> onChanged) row,
+    required Map<DataRef, Map<DataRef, String>> missing,
+    required Widget Function(T item, bool isSelected, Map<DataRef, String> missing, ValueChanged<bool?> onChanged) row,
   }) {
     final entries = [for (final item in items) (DataRef(kind, item.id), item)];
     final refs = [for (final (ref, _) in entries) ref];
     final selected = _selection.count(kind);
     return ExpansionTile(
-      title: DataSelectFlash(
-        flash: _autoSelected.any((ref) => ref.kind == kind) ? _tick : null,
-        builder: (context, tint, child) => DecoratedBox(
-          decoration: BoxDecoration(color: tint, borderRadius: BorderRadius.circular(4)),
-          child: child,
-        ),
-        child: Text(title(selected, refs.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+      controller: _groups[kind],
+      title: Row(
+        spacing: 4,
+        children: [
+          Flexible(
+            child: DataSelectFlash(
+              pulses: _flashPulses,
+              flash: _flashing.any((ref) => ref.kind == kind) ? _tick : null,
+              builder: (context, tint, child) => DecoratedBox(
+                decoration: BoxDecoration(color: tint, borderRadius: BorderRadius.circular(4)),
+                child: child,
+              ),
+              child: Text(
+                title(selected, refs.length),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          if (entries.any((entry) => missing.containsKey(entry.$1)))
+            Icon(Icons.warning_amber_rounded, size: 18, color: Theme.of(context).colorScheme.error),
+        ],
       ),
       tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
       controlAffinity: ListTileControlAffinity.leading,
@@ -213,10 +282,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
       children: [
         for (final (ref, item) in entries)
           DataSelectFlash.card(
-            flash: _autoSelected.contains(ref) ? _tick : null,
+            pulses: _flashPulses,
+            flash: _flashing.contains(ref) ? _tick : null,
             child: row(
               item,
               _selection.contains(ref),
+              missing[ref] ?? const {},
               (checked) => checked == true ? _select([ref]) : _deselect([ref]),
             ),
           ),
@@ -237,6 +308,14 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         widget.allData.feedbacks.length +
         widget.allData.testSessions.length;
     final selectedCount = DataKind.values.fold(0, (sum, kind) => sum + _selection.count(kind));
+    final issues = _dependencies.issues(_selection);
+    final missing = {
+      for (final issue in issues.items)
+        issue.item: {
+          for (final ref in issue.missing.toList()..sort((a, b) => a.kind.index.compareTo(b.kind.index)))
+            ref: _nameOf(ref, appSettings),
+        },
+    };
 
     return SafeArea(
       child: Column(
@@ -248,6 +327,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             onBack: widget.onBack,
           ),
           const SizedBox(height: 16),
+          if (!issues.isEmpty)
+            DataSelectWarningBanner(
+              count: issues.items.length,
+              onSelectMissing: () => _selectMissing(issues),
+              onShow: () => _showIssues(issues),
+            ),
           Flexible(
             child: SingleChildScrollView(
               child: Column(
@@ -258,10 +343,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     kind: DataKind.bike,
                     items: widget.allData.bikes.values,
                     title: context.l10n.dataSelectBikes,
-                    row: (b, isSelected, onChanged) => DataSelectBike(
+                    missing: missing,
+                    row: (b, isSelected, missing, onChanged) => DataSelectBike(
                       bike: b,
                       persons: widget.allData.persons,
                       isSelected: isSelected,
+                      missing: missing,
                       onChanged: onChanged,
                     ),
                   ),
@@ -271,11 +358,13 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     kind: DataKind.component,
                     items: widget.allData.components.values,
                     title: context.l10n.dataSelectComponents,
-                    row: (c, isSelected, onChanged) => DataSelectComponent(
+                    missing: missing,
+                    row: (c, isSelected, missing, onChanged) => DataSelectComponent(
                       component: c,
                       bikes: widget.allData.bikes,
                       components: widget.allData.components,
                       isSelected: isSelected,
+                      missing: missing,
                       onChanged: onChanged,
                     ),
                   ),
@@ -285,10 +374,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                     kind: DataKind.setup,
                     items: widget.allData.setups.values.toList().reversed,
                     title: context.l10n.dataSelectSetups,
-                    row: (s, isSelected, onChanged) => DataSelectSetup(
+                    missing: missing,
+                    row: (s, isSelected, missing, onChanged) => DataSelectSetup(
                       setup: s,
                       bikes: widget.allData.bikes,
                       isSelected: isSelected,
+                      missing: missing,
                       onChanged: onChanged,
                     ),
                   ),
@@ -299,7 +390,8 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       kind: DataKind.person,
                       items: widget.allData.persons.values,
                       title: context.l10n.dataSelectRiders,
-                      row: (p, isSelected, onChanged) => DataSelectPerson(
+                      missing: missing,
+                      row: (p, isSelected, _, onChanged) => DataSelectPerson(
                         item: p,
                         isSelected: isSelected,
                         onChanged: onChanged,
@@ -313,11 +405,13 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       kind: DataKind.taskRule,
                       items: widget.allData.taskRules.values,
                       title: context.l10n.dataSelectTasks,
-                      row: (tr, isSelected, onChanged) => DataSelectTaskRule(
+                      missing: missing,
+                      row: (tr, isSelected, missing, onChanged) => DataSelectTaskRule(
                         item: tr,
                         bikes: widget.allData.bikes,
                         components: widget.allData.components,
                         isSelected: isSelected,
+                        missing: missing,
                         onChanged: onChanged,
                       ),
                     ),
@@ -329,10 +423,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       kind: DataKind.taskEntry,
                       items: widget.allData.taskEntries.values,
                       title: context.l10n.dataSelectTaskEntries,
-                      row: (te, isSelected, onChanged) => DataSelectTaskEntry(
+                      missing: missing,
+                      row: (te, isSelected, missing, onChanged) => DataSelectTaskEntry(
                         item: te,
                         taskRules: widget.allData.taskRules,
                         isSelected: isSelected,
+                        missing: missing,
                         onChanged: onChanged,
                       ),
                     ),
@@ -344,10 +440,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       kind: DataKind.feedback,
                       items: widget.allData.feedbacks.values,
                       title: context.l10n.dataSelectFeedback,
-                      row: (item, isSelected, onChanged) => DataSelectFeedback(
+                      missing: missing,
+                      row: (item, isSelected, missing, onChanged) => DataSelectFeedback(
                         item: item,
                         bikes: widget.allData.bikes,
                         isSelected: isSelected,
+                        missing: missing,
                         onChanged: onChanged,
                       ),
                     ),
@@ -359,10 +457,12 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
                       kind: DataKind.testSession,
                       items: widget.allData.testSessions.values,
                       title: context.l10n.dataSelectTestSessions,
-                      row: (item, isSelected, onChanged) => DataSelectTestSession(
+                      missing: missing,
+                      row: (item, isSelected, missing, onChanged) => DataSelectTestSession(
                         item: item,
                         bikes: widget.allData.bikes,
                         isSelected: isSelected,
+                        missing: missing,
                         onChanged: onChanged,
                       ),
                     ),

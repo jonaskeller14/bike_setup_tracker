@@ -15,6 +15,7 @@ import 'package:bike_setup_tracker/widgets/items/data_select_feedback.dart';
 import 'package:bike_setup_tracker/widgets/items/data_select_person.dart';
 import 'package:bike_setup_tracker/widgets/items/data_select_setup.dart';
 import 'package:bike_setup_tracker/widgets/sheets/data_select.dart';
+import 'package:bike_setup_tracker/widgets/sheets/data_select_warning_banner.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -270,6 +271,22 @@ void main() {
 
     FilledButton confirmButton(WidgetTester tester) => tester.widget<FilledButton>(find.byType(FilledButton));
 
+    final banner = find.byType(DataSelectWarningBanner);
+
+    Finder groupWarning(String group) => find.descendant(
+      of: find.ancestor(of: find.textContaining('$group ('), matching: find.byType(Row)).first,
+      matching: find.byIcon(Icons.warning_amber_rounded),
+    );
+
+    /// Ticks setup s1 (which ticks its bike b1), then unticks the Bikes group
+    /// without expanding it.
+    Future<void> tickSetupWithoutBike(WidgetTester tester) async {
+      await expand(tester, 'Setups');
+      await toggle(tester, setupRow('s1'));
+      await toggleGroup(tester, 'Bikes');
+      expect(find.text('Bikes (0 / 2)'), findsOneWidget);
+    }
+
     testWidgets('opens with nothing selected and Continue disabled', (tester) async {
       await pumpSheet(tester);
 
@@ -366,6 +383,80 @@ void main() {
       expect(confirmed!.persons.keys, ['p1']);
       expect(confirmed!.feedbacks, isEmpty);
       expect(confirmed!.components, isEmpty);
+    });
+
+    testWidgets('warns while a ticked setup\'s bike is unticked, until it is ticked again', (tester) async {
+      await pumpSheet(tester);
+      expect(banner, findsNothing);
+
+      await tickSetupWithoutBike(tester);
+
+      expect(banner, findsOneWidget);
+      expect(find.text('1 selected item needs items that aren\'t selected'), findsOneWidget);
+      expect(groupWarning('Setups'), findsOneWidget);
+      expect(groupWarning('Bikes'), findsNothing);
+      expect(find.descendant(of: setupRow('s1'), matching: find.text("Bike 'Enduro' not selected")), findsOneWidget);
+      expect(find.descendant(of: setupRow('s2'), matching: find.textContaining('not selected')), findsNothing);
+      expect(confirmButton(tester).onPressed, isNotNull);
+
+      await expand(tester, 'Bikes');
+      await toggle(tester, bikeRow('b1'));
+
+      expect(banner, findsNothing);
+      expect(groupWarning('Setups'), findsNothing);
+      expect(find.descendant(of: setupRow('s1'), matching: find.textContaining('not selected')), findsNothing);
+    });
+
+    testWidgets('Select missing ticks the missing items', (tester) async {
+      await pumpSheet(tester);
+      await tickSetupWithoutBike(tester);
+
+      await tapVisible(tester, find.text('Select missing'));
+
+      expect(banner, findsNothing);
+      expect(find.text('Bikes (1 / 2)'), findsOneWidget);
+    });
+
+    testWidgets('Show expands the groups with the affected and the missing items and flashes them', (tester) async {
+      await pumpSheet(tester);
+      await tickSetupWithoutBike(tester);
+      await expand(tester, 'Setups');
+      expect(setupRow('s1'), findsNothing);
+      expect(bikeRow('b1'), findsNothing);
+
+      await tester.tap(find.text('Show'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(setupRow('s1'), findsOneWidget);
+      expect(bikeRow('b1'), findsOneWidget);
+      expect(riderRow('p1'), findsNothing);
+      Color? cardColor(Finder row) =>
+          tester.widget<Material>(find.descendant(of: row, matching: find.byType(Material)).first).color;
+      final rest = cardColor(bikeRow('b2'));
+      expect(cardColor(setupRow('s1')), isNot(rest));
+      expect(cardColor(bikeRow('b1')), isNot(rest));
+      expect(cardColor(setupRow('s2')), rest);
+
+      // It pulses three times: tinted again at the start of the second pulse.
+      await tester.pump(const Duration(milliseconds: 700));
+      final fading = cardColor(setupRow('s1'));
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(cardColor(setupRow('s1')), isNot(fading));
+      expect(cardColor(setupRow('s1')), isNot(rest));
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(cardColor(setupRow('s1')), rest);
+    });
+
+    testWidgets('a reference to an item outside the dataset doesn\'t warn', (tester) async {
+      await pumpSheet(tester);
+      await expand(tester, 'Setups');
+      await toggle(tester, setupRow('s3'));
+
+      expect(banner, findsNothing);
+      expect(groupWarning('Setups'), findsNothing);
     });
 
     testWidgets('an automatically ticked row flashes, the ticked row does not', (tester) async {

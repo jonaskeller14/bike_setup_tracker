@@ -7536,6 +7536,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSelectEmptyHint => 'Select at least one item';
 
   @override
+  String dataSelectIssueBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected items need items that aren\'t selected',
+      one: '1 selected item needs items that aren\'t selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dataSelectSelectMissing => 'Select missing';
+
+  @override
+  String get dataSelectShowIssues => 'Show';
+
+  @override
+  String dataSelectMissingPerson(String name) {
+    return 'Rider \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingBike(String name) {
+    return 'Bike \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingComponent(String name) {
+    return 'Component \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingSetup(String name) {
+    return 'Setup \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingTaskRule(String name) {
+    return 'Task \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingTaskEntry(String name) {
+    return 'Task entry \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingFeedback(String name) {
+    return 'Feedback \'$name\' not selected';
+  }
+
+  @override
+  String dataSelectMissingTestSession(String name) {
+    return 'Test session \'$name\' not selected';
+  }
+
+  @override
   String stravaGearLinkedCount(int linked, int total) {
     return '$linked of $total linked';
   }

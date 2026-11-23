@@ -6,12 +6,18 @@ import '../../models/component/component.dart';
 import '../../models/task/task_association.dart';
 import '../../models/task/task_rule.dart';
 import '../../services/component_hierarchy_resolver.dart';
+import '../../services/data_selection_dependencies.dart';
+import 'data_select_missing_line.dart';
 
 class DataSelectTaskRule extends StatelessWidget {
   final TaskRule item;
   final Map<String, Bike> bikes;
   final Map<String, Component> components;
   final bool isSelected;
+
+  /// The referenced items that aren't selected, with their names.
+  final Map<DataRef, String> missing;
+
   final ValueChanged<bool?> onChanged;
 
   const DataSelectTaskRule({
@@ -20,6 +26,7 @@ class DataSelectTaskRule extends StatelessWidget {
     required this.bikes,
     required this.components,
     required this.isSelected,
+    this.missing = const {},
     required this.onChanged,
   });
 
@@ -43,76 +50,84 @@ class DataSelectTaskRule extends StatelessWidget {
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: Row(
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          spacing: 2,
           children: [
-            if (item.association is ComponentTaskAssociation) ...[
-              Icon(
-                component?.componentType.getIconData() ?? Icons.grid_view_sharp,
-                size: 13,
-                color: component != null
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  component?.name ?? context.l10n.componentNotFound,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                if (item.association is ComponentTaskAssociation) ...[
+                  Icon(
+                    component?.componentType.getIconData() ?? Icons.grid_view_sharp,
+                    size: 13,
                     color: component != null
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
                         : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
                   ),
-                ),
-              ),
-            ] else if (item.association is BikeTaskAssociation) ...[
-              Icon(
-                Bike.iconData,
-                size: 13,
-                color: bike != null
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.error,
-              ),
-              Flexible(
-                child: Text(
-                  bike?.name ?? context.l10n.bikeNotFound,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  Flexible(
+                    child: Text(
+                      component?.name ?? context.l10n.componentNotFound,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: component != null
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                            : Theme.of(context).colorScheme.error,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ] else if (item.association is BikeTaskAssociation) ...[
+                  Icon(
+                    Bike.iconData,
+                    size: 13,
                     color: bike != null
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
                         : Theme.of(context).colorScheme.error,
-                    fontSize: 13,
                   ),
-                ),
-              ),
-            ] else ...[
-              Icon(
-                Icons.circle_outlined,
-                size: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              Flexible(
-                child: Text(
-                  context.l10n.taskGeneral,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    fontSize: 13,
+                  Flexible(
+                    child: Text(
+                      bike?.name ?? context.l10n.bikeNotFound,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: bike != null
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8)
+                            : Theme.of(context).colorScheme.error,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ],
+                ] else ...[
+                  Icon(
+                    Icons.circle_outlined,
+                    size: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  Flexible(
+                    child: Text(
+                      context.l10n.taskGeneral,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            for (final MapEntry(key: ref, value: name) in missing.entries)
+              DataSelectMissingLine(kind: ref.kind, name: name),
           ],
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

@@ -80,8 +80,7 @@ class DataSelection {
   }
 }
 
-/// A selected item whose [missing] references are neither selected nor
-/// covered by the device's data.
+/// A selected item whose [missing] references aren't selected.
 @immutable
 class DataSelectionIssue {
   final DataRef item;
@@ -207,15 +206,9 @@ class DataSelectionDependencies {
     return visited;
   }
 
-  /// The selected items with a reference that is neither selected nor, when
-  /// [local] is given (import), live on the device. In [allData]'s order.
-  DataSelectionIssues issues(DataSelection selection, {SelectedData? local}) {
-    bool isLiveLocally(DataRef ref) {
-      if (local == null) return false;
-      final item = _itemsOf(local, ref.kind)[ref.id];
-      return item != null && !item.isDeleted;
-    }
-
+  /// The selected items with a reference that isn't selected, in [allData]'s
+  /// order. Every missing target is in [allData], so ticking it fixes the issue.
+  DataSelectionIssues issues(DataSelection selection) {
     final issues = <DataSelectionIssue>[];
     for (final kind in DataKind.values) {
       for (final id in _itemsOf(allData, kind).keys) {
@@ -223,7 +216,7 @@ class DataSelectionDependencies {
         if (!selection.contains(item)) continue;
         final missing = {
           for (final target in referencesOf(item))
-            if (!selection.contains(target) && !isLiveLocally(target)) target,
+            if (!selection.contains(target)) target,
         };
         if (missing.isNotEmpty) issues.add(DataSelectionIssue(item, missing));
       }

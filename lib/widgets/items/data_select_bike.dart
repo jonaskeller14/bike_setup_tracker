@@ -5,11 +5,17 @@ import '../../l10n/l10n.dart';
 import '../../models/app_settings.dart';
 import '../../models/bike.dart';
 import '../../models/person.dart';
+import '../../services/data_selection_dependencies.dart';
+import 'data_select_missing_line.dart';
 
 class DataSelectBike extends StatelessWidget {
   final Bike bike;
   final Map<String, Person> persons;
   final bool isSelected;
+
+  /// The referenced items that aren't selected, with their names.
+  final Map<DataRef, String> missing;
+
   final ValueChanged<bool?> onChanged;
 
   const DataSelectBike({
@@ -17,6 +23,7 @@ class DataSelectBike extends StatelessWidget {
     required this.bike,
     required this.persons,
     required this.isSelected,
+    this.missing = const {},
     required this.onChanged,
   });
 
@@ -33,36 +40,45 @@ class DataSelectBike extends StatelessWidget {
             decoration: bike.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: appSettings.enablePerson
-            ? Row(
+        subtitle: appSettings.enablePerson || missing.isNotEmpty
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
-                spacing: 2,
                 children: [
-                  Icon(
-                    bike.person != null ? Person.iconData : Icons.person_off,
-                    size: 13,
-                    color:
-                        bike.person == null || persons.containsKey(bike.person)
-                        ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context).colorScheme.error,
-                  ),
-                  if (bike.person != null)
-                    Flexible(
-                      child: Text(
-                        persons[bike.person]?.name ?? context.l10n.riderNotFound,
-                        style: TextStyle(
+                  if (appSettings.enablePerson)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 2,
+                      children: [
+                        Icon(
+                          bike.person != null ? Person.iconData : Icons.person_off,
+                          size: 13,
                           color:
-                              bike.person == null ||
-                                  persons.containsKey(bike.person)
+                              bike.person == null || persons.containsKey(bike.person)
                               ? Theme.of(context).colorScheme.onSurfaceVariant
-                                    .withValues(alpha: 0.8)
                               : Theme.of(context).colorScheme.error,
-                          fontSize: 13,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
+                        if (bike.person != null)
+                          Flexible(
+                            child: Text(
+                              persons[bike.person]?.name ?? context.l10n.riderNotFound,
+                              style: TextStyle(
+                                color:
+                                    bike.person == null ||
+                                        persons.containsKey(bike.person)
+                                    ? Theme.of(context).colorScheme.onSurfaceVariant
+                                          .withValues(alpha: 0.8)
+                                    : Theme.of(context).colorScheme.error,
+                                fontSize: 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                      ],
                     ),
+                  for (final MapEntry(key: ref, value: name) in missing.entries)
+                    DataSelectMissingLine(kind: ref.kind, name: name),
                 ],
               )
             : null,

@@ -4,12 +4,18 @@ import '../../l10n/entity_names.dart';
 import '../../l10n/l10n.dart';
 import '../../models/bike.dart';
 import '../../models/feedback/test_session.dart';
+import '../../services/data_selection_dependencies.dart';
+import 'data_select_missing_line.dart';
 import 'tile_meta_row.dart';
 
 class DataSelectTestSession extends StatelessWidget {
   final TestSession item;
   final Map<String, Bike> bikes;
   final bool isSelected;
+
+  /// The referenced items that aren't selected, with their names.
+  final Map<DataRef, String> missing;
+
   final ValueChanged<bool?> onChanged;
 
   const DataSelectTestSession({
@@ -17,6 +23,7 @@ class DataSelectTestSession extends StatelessWidget {
     required this.item,
     required this.bikes,
     required this.isSelected,
+    this.missing = const {},
     required this.onChanged,
   });
 
@@ -34,7 +41,15 @@ class DataSelectTestSession extends StatelessWidget {
             decoration: item.isDeleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TileMetaRow(icon: Bike.iconData, text: bike?.name ?? context.l10n.bikeNotFound, isError: bike == null),
+            for (final MapEntry(key: ref, value: name) in missing.entries)
+              DataSelectMissingLine(kind: ref.kind, name: name),
+          ],
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         dense: true,
         value: isSelected,

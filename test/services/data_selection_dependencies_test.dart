@@ -495,7 +495,7 @@ void main() {
       expect(deps.issues(DataSelection()).isEmpty, isTrue);
     });
 
-    test('without local data only the selection counts', () {
+    test('reports each selected item with its unselected references', () {
       final issues = deps.issues(selectionOf([setup('s2'), setup('s1'), taskEntry('e1')]));
 
       expect(issues.items.map((issue) => issue.item), [setup('s1'), setup('s2'), taskEntry('e1')]);
@@ -504,30 +504,6 @@ void main() {
       expect(issues.affectedKinds, {DataKind.setup, DataKind.taskEntry});
       expect(issues.missing, {bike('b1'), taskRule('r1')});
       expect(issues.missingKinds, {DataKind.bike, DataKind.taskRule});
-    });
-
-    test('a target that is live on the device is covered', () {
-      final local = data(bikes: [makeBike('b1')]);
-
-      final issues = deps.issues(selectionOf([setup('s1')]), local: local);
-
-      expect(issues.isEmpty, isTrue);
-    });
-
-    test('a target in the device trash is not covered', () {
-      final local = data(bikes: [makeBike('b1', isDeleted: true)]);
-
-      final issues = deps.issues(selectionOf([setup('s1')]), local: local);
-
-      expect(issues.missing, {bike('b1')});
-    });
-
-    test('local coverage is checked per reference', () {
-      final local = data(persons: [makePerson('p1')]);
-
-      final issues = deps.issues(selectionOf([bike('b1'), setup('s1'), taskEntry('e1')]), local: local);
-
-      expect(issues.items.map((issue) => issue.item), [taskEntry('e1')]);
     });
 
     test('an unticked item does not report its own references', () {

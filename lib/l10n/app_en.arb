@@ -10050,6 +10050,95 @@
   "@dataSelectEmptyHint": {
     "description": "Hint above the disabled confirm button while no item is selected."
   },
+  "dataSelectIssueBanner": "{count, plural, =1{1 selected item needs items that aren't selected} other{{count} selected items need items that aren't selected}}",
+  "@dataSelectIssueBanner": {
+    "description": "Warning above the item list: how many selected items reference an item that isn't selected (and, on import, isn't on this device).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dataSelectSelectMissing": "Select missing",
+  "@dataSelectSelectMissing": {
+    "description": "Banner action that selects every referenced item that isn't selected."
+  },
+  "dataSelectShowIssues": "Show",
+  "@dataSelectShowIssues": {
+    "description": "Banner action that expands the groups with the affected items."
+  },
+  "dataSelectMissingPerson": "Rider '{name}' not selected",
+  "@dataSelectMissingPerson": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingBike": "Bike '{name}' not selected",
+  "@dataSelectMissingBike": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingComponent": "Component '{name}' not selected",
+  "@dataSelectMissingComponent": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingSetup": "Setup '{name}' not selected",
+  "@dataSelectMissingSetup": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingTaskRule": "Task '{name}' not selected",
+  "@dataSelectMissingTaskRule": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingTaskEntry": "Task entry '{name}' not selected",
+  "@dataSelectMissingTaskEntry": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingFeedback": "Feedback '{name}' not selected",
+  "@dataSelectMissingFeedback": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "dataSelectMissingTestSession": "Test session '{name}' not selected",
+  "@dataSelectMissingTestSession": {
+    "description": "Error line on an item row: a referenced item that isn't selected, with its name (a feedback's name is its date and time).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "stravaGearLinkedCount": "{linked} of {total} linked",
   "@stravaGearLinkedCount": {
     "description": "Note next to the Strava gear title with how many gear items are linked to a bike.",

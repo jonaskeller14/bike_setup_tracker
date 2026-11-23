@@ -4,16 +4,10 @@ import "package:provider/provider.dart";
 import '../../l10n/l10n.dart';
 
 import '../../models/app_settings.dart';
-import '../../models/bike.dart';
-import '../../models/component/component.dart';
-import '../../models/feedback/ride_feedback.dart';
-import '../../models/feedback/test_session.dart';
-import '../../models/person.dart';
 import '../../models/selected_data.dart';
-import '../../models/setup.dart';
-import '../../models/task/task_entry.dart';
-import '../../models/task/task_rule.dart';
+import '../../models/syncable.dart';
 import '../../repositories/app_repository.dart';
+import '../../services/data_selection_dependencies.dart';
 import '../items/data_select_bike.dart';
 import '../items/data_select_component.dart';
 import '../items/data_select_feedback.dart';
@@ -22,6 +16,7 @@ import '../items/data_select_setup.dart';
 import '../items/data_select_task_entry.dart';
 import '../items/data_select_task_rule.dart';
 import '../items/data_select_test_session.dart';
+import 'data_select_flash.dart';
 import 'sheet_header.dart';
 
 Future<SelectedData?> showDataSelectSheet({required BuildContext context, required AppRepository data}) async {
@@ -160,34 +155,79 @@ class SelectDataItemsSheetContent extends StatefulWidget {
 }
 
 class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetContent> {
-  late final List<Bike> selectedBikes;
-  late final List<Component> selectedComponents;
-  late final List<Setup> selectedSetups;
-  late final List<Person> selectedPersons;
-  late final List<TaskRule> selectedTaskRules;
-  late final List<TaskEntry> selectedTaskEntries;
-  late final List<RideFeedback> selectedFeedbacks;
-  late final List<TestSession> selectedTestSessions;
+  late final DataSelectionDependencies _dependencies = DataSelectionDependencies(widget.allData);
+  final DataSelection _selection = DataSelection();
 
-  @override
-  void initState() {
-    super.initState();
+  /// The items the last tick selected automatically. Each tick bumps [_tick],
+  /// so a row that is added again flashes again.
+  Set<DataRef> _autoSelected = const {};
+  int _tick = 0;
 
-    selectedBikes = widget.allData.bikes.values.toList();
-    selectedComponents = widget.allData.components.values.toList();
-    selectedSetups = widget.allData.setups.values.toList();
-    selectedPersons = widget.allData.persons.values.toList();
-    selectedTaskRules = widget.allData.taskRules.values.toList();
-    selectedTaskEntries = widget.allData.taskEntries.values.toList();
-    selectedFeedbacks = widget.allData.feedbacks.values.toList();
-    selectedTestSessions = widget.allData.testSessions.values.toList();
+  void _select(Iterable<DataRef> refs) {
+    final ticked = refs.toSet();
+    setState(() {
+      _autoSelected = _selection.addAll(_dependencies.closureOf(ticked)).difference(ticked);
+      _tick++;
+    });
   }
 
+  void _deselect(Iterable<DataRef> refs) {
+    setState(() {
+      for (final ref in refs) {
+        _selection.remove(ref);
+      }
+    });
+  }
+
+  Widget _group<T extends Syncable>(
+    BuildContext context, {
+    required DataKind kind,
+    required Iterable<T> items,
+    required String Function(int selected, int total) title,
+    required Widget Function(T item, bool isSelected, ValueChanged<bool?> onChanged) row,
+  }) {
+    final entries = [for (final item in items) (DataRef(kind, item.id), item)];
+    final refs = [for (final (ref, _) in entries) ref];
+    final selected = _selection.count(kind);
+    return ExpansionTile(
+      title: DataSelectFlash(
+        flash: _autoSelected.any((ref) => ref.kind == kind) ? _tick : null,
+        builder: (context, tint, child) => DecoratedBox(
+          decoration: BoxDecoration(color: tint, borderRadius: BorderRadius.circular(4)),
+          child: child,
+        ),
+        child: Text(title(selected, refs.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+      ),
+      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
+      controlAffinity: ListTileControlAffinity.leading,
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
+      shape: const Border(),
+      collapsedShape: const Border(),
+      trailing: Checkbox(
+        tristate: true,
+        value: selected == 0 && refs.isNotEmpty
+            ? false
+            : (selected == refs.length ? true : null),
+        onChanged: (bool? newValue) => newValue == true ? _select(refs) : _deselect(refs),
+      ),
+      children: [
+        for (final (ref, item) in entries)
+          DataSelectFlash.card(
+            flash: _autoSelected.contains(ref) ? _tick : null,
+            child: row(
+              item,
+              _selection.contains(ref),
+              (checked) => checked == true ? _select([ref]) : _deselect([ref]),
+            ),
+          ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final appSettings = context.watch<AppSettings>();
-    
+
     final allCount = widget.allData.bikes.length +
         widget.allData.components.length +
         widget.allData.setups.length +
@@ -196,14 +236,7 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
         widget.allData.taskEntries.length +
         widget.allData.feedbacks.length +
         widget.allData.testSessions.length;
-    final selectedCount = selectedBikes.length +
-        selectedComponents.length +
-        selectedSetups.length +
-        selectedPersons.length +
-        selectedTaskRules.length +
-        selectedTaskEntries.length +
-        selectedFeedbacks.length +
-        selectedTestSessions.length;
+    final selectedCount = DataKind.values.fold(0, (sum, kind) => sum + _selection.count(kind));
 
     return SafeArea(
       child: Column(
@@ -220,302 +253,118 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ExpansionTile(
-                    title: Text(context.l10n.dataSelectBikes(selectedBikes.length, widget.allData.bikes.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedBikes.isEmpty && widget.allData.bikes.isNotEmpty
-                          ? false
-                          : (selectedBikes.length == widget.allData.bikes.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setState(() => selectedBikes.clear());
-                          case true: setState(() {selectedBikes.clear(); selectedBikes.addAll(widget.allData.bikes.values);});
-                          case null: setState(() => selectedBikes.clear());
-                        }
-                      },
-                    ),
-                    children: widget.allData.bikes.values.map((b) => DataSelectBike(
+                  _group(
+                    context,
+                    kind: DataKind.bike,
+                    items: widget.allData.bikes.values,
+                    title: context.l10n.dataSelectBikes,
+                    row: (b, isSelected, onChanged) => DataSelectBike(
                       bike: b,
                       persons: widget.allData.persons,
-                      isSelected: selectedBikes.contains(b),
-                      onChanged: (checked) {
-                        setState(() { 
-                          if (checked == true) {
-                            selectedBikes.add(b);
-                          } else {
-                            selectedBikes.remove(b);
-                          } 
-                        });
-                      },
-                    )).toList(),
+                      isSelected: isSelected,
+                      onChanged: onChanged,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: Text(context.l10n.dataSelectComponents(selectedComponents.length, widget.allData.components.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedComponents.isEmpty && widget.allData.components.isNotEmpty
-                          ? false
-                          : (selectedComponents.length == widget.allData.components.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setState(() => selectedComponents.clear());
-                          case true: setState(() {selectedComponents.clear(); selectedComponents.addAll(widget.allData.components.values);});
-                          case null: setState(() => selectedComponents.clear());
-                        }
-                      },
-                    ),
-                    children: widget.allData.components.values.map((c) => DataSelectComponent(
+                  _group(
+                    context,
+                    kind: DataKind.component,
+                    items: widget.allData.components.values,
+                    title: context.l10n.dataSelectComponents,
+                    row: (c, isSelected, onChanged) => DataSelectComponent(
                       component: c,
                       bikes: widget.allData.bikes,
                       components: widget.allData.components,
-                      isSelected: selectedComponents.contains(c),
-                      onChanged: (checked) {
-                        setState(() {
-                          if (checked == true) {
-                            selectedComponents.add(c);
-                          } else {
-                            selectedComponents.remove(c);
-                          }
-                        });
-                      },
-                    )).toList(),
+                      isSelected: isSelected,
+                      onChanged: onChanged,
+                    ),
                   ),
                   const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: Text(context.l10n.dataSelectSetups(selectedSetups.length, widget.allData.setups.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    trailing: Checkbox(
-                      tristate: true,
-                      value: selectedSetups.isEmpty && widget.allData.setups.isNotEmpty
-                          ? false
-                          : (selectedSetups.length == widget.allData.setups.length ? true : null),
-                      onChanged: (bool? newValue) {
-                        switch (newValue) {
-                          case false: setState(() => selectedSetups.clear());
-                          case true: setState(() {selectedSetups.clear(); selectedSetups.addAll(widget.allData.setups.values);});
-                          case null: setState(() => selectedSetups.clear());
-                        }
-                      },
-                    ),
-                    children: widget.allData.setups.values.toList().reversed.map((s) => DataSelectSetup(
+                  _group(
+                    context,
+                    kind: DataKind.setup,
+                    items: widget.allData.setups.values.toList().reversed,
+                    title: context.l10n.dataSelectSetups,
+                    row: (s, isSelected, onChanged) => DataSelectSetup(
                       setup: s,
                       bikes: widget.allData.bikes,
-                      isSelected: selectedSetups.contains(s),
-                      onChanged: (checked) {
-                        setState(() {
-                          if (checked == true) {
-                            selectedSetups.add(s);
-                          } else {
-                            selectedSetups.remove(s);
-                          }
-                        });
-                      },
-                    )).toList(),
+                      isSelected: isSelected,
+                      onChanged: onChanged,
+                    ),
                   ),
                   if (appSettings.enablePerson || widget.allData.persons.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(context.l10n.dataSelectRiders(selectedPersons.length, widget.allData.persons.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedPersons.isEmpty && widget.allData.persons.isNotEmpty
-                            ? false
-                            : (selectedPersons.length == widget.allData.persons.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setState(() => selectedPersons.clear());
-                            case true: setState(() {selectedPersons.clear(); selectedPersons.addAll(widget.allData.persons.values);});
-                            case null: setState(() => selectedPersons.clear());
-                          }
-                        },
-                      ),
-                      children: widget.allData.persons.values.map((p) => DataSelectPerson(
+                    _group(
+                      context,
+                      kind: DataKind.person,
+                      items: widget.allData.persons.values,
+                      title: context.l10n.dataSelectRiders,
+                      row: (p, isSelected, onChanged) => DataSelectPerson(
                         item: p,
-                        isSelected: selectedPersons.contains(p),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              selectedPersons.add(p);
-                            } else {
-                              selectedPersons.remove(p);
-                            }
-                          });
-                        },
-                      )).toList(),
+                        isSelected: isSelected,
+                        onChanged: onChanged,
+                      ),
                     ),
                   ],
                   if (appSettings.enableTask || widget.allData.taskRules.isNotEmpty) ... [
                     const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(context.l10n.dataSelectTasks(selectedTaskRules.length, widget.allData.taskRules.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedTaskRules.isEmpty && widget.allData.taskRules.isNotEmpty
-                            ? false
-                            : (selectedTaskRules.length == widget.allData.taskRules.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setState(() => selectedTaskRules.clear());
-                            case true: setState(() {selectedTaskRules.clear(); selectedTaskRules.addAll(widget.allData.taskRules.values);});
-                            case null: setState(() => selectedTaskRules.clear());
-                          }
-                        },
-                      ),
-                      children: widget.allData.taskRules.values.map((tr) => DataSelectTaskRule(
+                    _group(
+                      context,
+                      kind: DataKind.taskRule,
+                      items: widget.allData.taskRules.values,
+                      title: context.l10n.dataSelectTasks,
+                      row: (tr, isSelected, onChanged) => DataSelectTaskRule(
                         item: tr,
                         bikes: widget.allData.bikes,
                         components: widget.allData.components,
-                        isSelected: selectedTaskRules.contains(tr),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              selectedTaskRules.add(tr);
-                            } else {
-                              selectedTaskRules.remove(tr);
-                            }
-                          });
-                        },
-                      )).toList(),
+                        isSelected: isSelected,
+                        onChanged: onChanged,
+                      ),
                     ),
                   ],
                   if (appSettings.enableTask || widget.allData.taskEntries.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(context.l10n.dataSelectTaskEntries(selectedTaskEntries.length, widget.allData.taskEntries.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedTaskEntries.isEmpty && widget.allData.taskEntries.isNotEmpty
-                            ? false
-                            : (selectedTaskEntries.length == widget.allData.taskEntries.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setState(() => selectedTaskEntries.clear());
-                            case true: setState(() {selectedTaskEntries.clear(); selectedTaskEntries.addAll(widget.allData.taskEntries.values);});
-                            case null: setState(() => selectedTaskEntries.clear());
-                          }
-                        },
-                      ),
-                      children: widget.allData.taskEntries.values.map((te) => DataSelectTaskEntry(
+                    _group(
+                      context,
+                      kind: DataKind.taskEntry,
+                      items: widget.allData.taskEntries.values,
+                      title: context.l10n.dataSelectTaskEntries,
+                      row: (te, isSelected, onChanged) => DataSelectTaskEntry(
                         item: te,
                         taskRules: widget.allData.taskRules,
-                        isSelected: selectedTaskEntries.contains(te),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              selectedTaskEntries.add(te);
-                            } else {
-                              selectedTaskEntries.remove(te);
-                            }
-                          });
-                        },
-                      )).toList(),
+                        isSelected: isSelected,
+                        onChanged: onChanged,
+                      ),
                     ),
                   ],
                   if (appSettings.enableRating || widget.allData.feedbacks.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(context.l10n.dataSelectFeedback(selectedFeedbacks.length, widget.allData.feedbacks.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedFeedbacks.isEmpty && widget.allData.feedbacks.isNotEmpty
-                            ? false
-                            : (selectedFeedbacks.length == widget.allData.feedbacks.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setState(() => selectedFeedbacks.clear());
-                            case true: setState(() {selectedFeedbacks.clear(); selectedFeedbacks.addAll(widget.allData.feedbacks.values);});
-                            case null: setState(() => selectedFeedbacks.clear());
-                          }
-                        },
-                      ),
-                      children: widget.allData.feedbacks.values.map((item) => DataSelectFeedback(
+                    _group(
+                      context,
+                      kind: DataKind.feedback,
+                      items: widget.allData.feedbacks.values,
+                      title: context.l10n.dataSelectFeedback,
+                      row: (item, isSelected, onChanged) => DataSelectFeedback(
                         item: item,
                         bikes: widget.allData.bikes,
-                        isSelected: selectedFeedbacks.contains(item),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              selectedFeedbacks.add(item);
-                            } else {
-                              selectedFeedbacks.remove(item);
-                            }
-                          });
-                        },
-                      )).toList(),
+                        isSelected: isSelected,
+                        onChanged: onChanged,
+                      ),
                     ),
                   ],
                   if (appSettings.enableRating || widget.allData.testSessions.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    ExpansionTile(
-                      title: Text(context.l10n.dataSelectTestSessions(selectedTestSessions.length, widget.allData.testSessions.length), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                      tilePadding: const EdgeInsets.only(left: 16, right: 16+12),
-                      controlAffinity: ListTileControlAffinity.leading,
-                      childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: const Border(),
-                      collapsedShape: const Border(),
-                      trailing: Checkbox(
-                        tristate: true,
-                        value: selectedTestSessions.isEmpty && widget.allData.testSessions.isNotEmpty
-                            ? false
-                            : (selectedTestSessions.length == widget.allData.testSessions.length ? true : null),
-                        onChanged: (bool? newValue) {
-                          switch (newValue) {
-                            case false: setState(() => selectedTestSessions.clear());
-                            case true: setState(() {selectedTestSessions.clear(); selectedTestSessions.addAll(widget.allData.testSessions.values);});
-                            case null: setState(() => selectedTestSessions.clear());
-                          }
-                        },
-                      ),
-                      children: widget.allData.testSessions.values.map((item) => DataSelectTestSession(
+                    _group(
+                      context,
+                      kind: DataKind.testSession,
+                      items: widget.allData.testSessions.values,
+                      title: context.l10n.dataSelectTestSessions,
+                      row: (item, isSelected, onChanged) => DataSelectTestSession(
                         item: item,
                         bikes: widget.allData.bikes,
-                        isSelected: selectedTestSessions.contains(item),
-                        onChanged: (checked) {
-                          setState(() {
-                            if (checked == true) {
-                              selectedTestSessions.add(item);
-                            } else {
-                              selectedTestSessions.remove(item);
-                            }
-                          });
-                        },
-                      )).toList(),
+                        isSelected: isSelected,
+                        onChanged: onChanged,
+                      ),
                     ),
                   ],
                 ],
@@ -523,23 +372,23 @@ class _SelectDataItemsSheetContentState extends State<SelectDataItemsSheetConten
             ),
           ),
           const SizedBox(height: 16),
+          if (selectedCount == 0)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  context.l10n.dataSelectEmptyHint,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ),
+            ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {
-                final selectedData = SelectedData(
-                  persons: Map.fromEntries(selectedPersons.map((p) => MapEntry(p.id, p))),
-                  bikes: Map.fromEntries(selectedBikes.map((b) => MapEntry(b.id, b))),
-                  components: Map.fromEntries(selectedComponents.map((c) => MapEntry(c.id, c))),
-                  setups: Map.fromEntries(selectedSetups.map((s) => MapEntry(s.id, s))),
-                  taskRules: Map.fromEntries(selectedTaskRules.map((tr) => MapEntry(tr.id, tr))),
-                  taskEntries: Map.fromEntries(selectedTaskEntries.map((te) => MapEntry(te.id, te))),
-                  feedbacks: Map.fromEntries(selectedFeedbacks.map((f) => MapEntry(f.id, f))),
-                  testSessions: Map.fromEntries(selectedTestSessions.map((ts) => MapEntry(ts.id, ts))),
-                );
-                widget.onConfirm(selectedData);
-              },
+              onPressed: selectedCount == 0 ? null : () => widget.onConfirm(_selection.toSelectedData(widget.allData)),
               child: Text(context.l10n.dataSelectConfirm(selectedCount, allCount)),
             ),
           ),

@@ -10046,6 +10046,10 @@
       }
     }
   },
+  "dataSelectEmptyHint": "Select at least one item",
+  "@dataSelectEmptyHint": {
+    "description": "Hint above the disabled confirm button while no item is selected."
+  },
   "stravaGearLinkedCount": "{linked} of {total} linked",
   "@stravaGearLinkedCount": {
     "description": "Note next to the Strava gear title with how many gear items are linked to a bike.",

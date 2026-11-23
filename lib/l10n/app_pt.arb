@@ -2049,6 +2049,7 @@
   "dataSelectFeedback": "Feedback ({selected} / {total})",
   "dataSelectTestSessions": "Sessões de teste ({selected} / {total})",
   "dataSelectConfirm": "Confirmar seleção ({selected} / {total})",
+  "dataSelectEmptyHint": "Selecione pelo menos um item",
   "stravaGearLinkedCount": "{linked} de {total} vinculados",
   "exportNoDataSheet": "Sem dados",
   "exportNoBikes": "Nenhuma bike encontrada ou dados vazios.",

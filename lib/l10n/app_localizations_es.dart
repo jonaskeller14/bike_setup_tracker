@@ -7563,6 +7563,9 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get dataSelectEmptyHint => 'Selecciona al menos un elemento';
+
+  @override
   String stravaGearLinkedCount(int linked, int total) {
     return '$linked de $total vinculados';
   }

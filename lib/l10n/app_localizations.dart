@@ -12397,6 +12397,12 @@ abstract class AppLocalizations {
   /// **'Confirm Selection ({selected} / {total})'**
   String dataSelectConfirm(int selected, int total);
 
+  /// Hint above the disabled confirm button while no item is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one item'**
+  String get dataSelectEmptyHint;
+
   /// Note next to the Strava gear title with how many gear items are linked to a bike.
   ///
   /// In en, this message translates to:

@@ -61,32 +61,29 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
               GoogleDriveBackup() || CloudBackup() => context.l10n.backupDownloading,
             }
           : context.l10n.backupCreatedAt(timeFormat.format(backup.createdAt.toLocal()))),
-      trailing: isRestoring ? const Padding(
-        padding: EdgeInsets.all(12),
-        child: SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-      ) : IconButton(
-        onPressed: _restoringBackup != null ? null : () async {
-          setState(() => _restoringBackup = backup);
-          final appDatabase = context.read<AppDatabase>();
-          final googleDriveService = context.read<GoogleDriveService>();
-          final cloudSyncService = context.read<CloudSyncService>();
-          final result = switch (backup) {
-            LocalBackup() => await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase),
-            GoogleDriveBackup() => await googleDriveService.readBackup(fileId: backup.fileId, appDatabase: appDatabase),
-            CloudBackup() => await cloudSyncService.readBackup(backup),
-          };
-          if (!mounted) return;
-          setState(() => _restoringBackup = null);
-          switch (result) {
-            case DataSuccess(:final value):
-              widget.onRestore(value);
-            case DataFailure(:final error):
-              setState(() => _readBackupError = error);
-          }
-        },
-        icon: const Icon(Icons.upload),
-        tooltip: context.l10n.backupRestoreTooltip,
-      ),
+      trailing: isRestoring
+          ? const SizedBox.square(dimension: 24, child: CircularProgressIndicator(strokeWidth: 2))
+          : Icon(Icons.arrow_forward_ios, size: 16.0, semanticLabel: context.l10n.backupRestoreTooltip),
+      enabled: _restoringBackup == null,
+      onTap: () async {
+        setState(() => _restoringBackup = backup);
+        final appDatabase = context.read<AppDatabase>();
+        final googleDriveService = context.read<GoogleDriveService>();
+        final cloudSyncService = context.read<CloudSyncService>();
+        final result = switch (backup) {
+          LocalBackup() => await FileImport.readBackup(path: backup.filepath, appDatabase: appDatabase),
+          GoogleDriveBackup() => await googleDriveService.readBackup(fileId: backup.fileId, appDatabase: appDatabase),
+          CloudBackup() => await cloudSyncService.readBackup(backup),
+        };
+        if (!mounted) return;
+        setState(() => _restoringBackup = null);
+        switch (result) {
+          case DataSuccess(:final value):
+            widget.onRestore(value);
+          case DataFailure(:final error):
+            setState(() => _readBackupError = error);
+        }
+      },
     );
   }
 
@@ -113,7 +110,7 @@ class _BackupSheetContentState extends State<BackupSheetContent> {
     );
   }
 
-  @override @override
+  @override
   void initState() {
     super.initState();
     _backups = _fetchBackups();
